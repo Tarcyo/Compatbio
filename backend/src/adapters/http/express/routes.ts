@@ -7,8 +7,13 @@ export function buildRoutes(deps: { auth: AuthController; me: MeController }) {
 
   r.get("/", (req, res) => res.send("Backend CompatBio rodando 🚀"));
 
+  // NOVO (hexagonal)
+  r.get("/auth/google/login", deps.auth.login);
+  r.get("/auth/google/callback", deps.auth.callback);
+
+  // ALIASES (mantém compatível com o que você tinha antes)
   r.get("/login", deps.auth.login);
-r.get("/oauth", deps.auth.callback);
+  r.get("/oauth", deps.auth.callback);
 
   r.get("/me", deps.me.handle);
   r.post("/logout", deps.auth.logout);
