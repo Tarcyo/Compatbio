@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  ID                         Int                          @id @default(autoincrement()) @db.UnsignedInt
+  EMAIL                      String                       @unique(map: "UK_ADMIN_EMAIL") @db.VarChar(255)
+  SENHA                      String                       @db.VarChar(255)
+  solicitacao_adicao_produto solicitacao_adicao_produto[]
+  solicitacao_analise        solicitacao_analise[]
+}
+
+model assinatura {
+  ID                                                         Int       @id @default(autoincrement()) @db.UnsignedInt
+  ID_PLANO                                                   Int       @db.UnsignedInt
+  NOME                                                       String    @db.VarChar(255)
+  DATA_ASSINATURA                                            DateTime  @default(now()) @db.DateTime(0)
+  STATUS                                                     String    @db.VarChar(50)
+  ID_CLIENTE_ADMIN_DA_ASSINATURA                             Int       @db.UnsignedInt
+  ID_VINCULO_STRIPE                                          String?   @unique(map: "UK_ASSINATURA_VINCULO_STRIPE") @db.VarChar(255)
+  cliente_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente cliente   @relation("assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente", fields: [ID_CLIENTE_ADMIN_DA_ASSINATURA], references: [ID], map: "FK_ASSINATURA_CLIENTE_ADMIN")
+  plano                                                      plano     @relation(fields: [ID_PLANO], references: [ID], map: "FK_ASSINATURA_PLANO")
+  cliente_cliente_ID_ASSINATURAToassinatura                  cliente[] @relation("cliente_ID_ASSINATURAToassinatura")
+
+  @@index([ID_CLIENTE_ADMIN_DA_ASSINATURA], map: "IX_ASSINATURA_ID_CLIENTE_ADMIN")
+  @@index([ID_PLANO], map: "IX_ASSINATURA_ID_PLANO")
+}
+
+model cliente {
+  ID                                                            Int                          @id @default(autoincrement()) @db.UnsignedInt
+  EMAIL                                                         String                       @unique(map: "UK_CLIENTE_EMAIL") @db.VarChar(255)
+  NOME                                                          String                       @db.VarChar(255)
+  SALDO                                                         Decimal                      @default(0.00) @db.Decimal(12, 2)
+  ID_ASSINATURA                                                 Int?                         @db.UnsignedInt
+  ID_EMPRESA                                                    Int?                         @db.UnsignedInt
+  COMPRA_NO_SISTEMA                                             Boolean                      @default(false)
+  assinatura_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente assinatura[]                 @relation("assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente")
+  assinatura_cliente_ID_ASSINATURAToassinatura                  assinatura?                  @relation("cliente_ID_ASSINATURAToassinatura", fields: [ID_ASSINATURA], references: [ID], map: "FK_CLIENTE_ASSINATURA")
+  empresa                                                       empresa?                     @relation(fields: [ID_EMPRESA], references: [ID], map: "FK_CLIENTE_EMPRESA")
+  log_transacao                                                 log_transacao[]
+  solicitacao_adicao_produto                                    solicitacao_adicao_produto[]
+  solicitacao_analise                                           solicitacao_analise[]
+
+  @@index([ID_ASSINATURA], map: "IX_CLIENTE_ID_ASSINATURA")
+  @@index([ID_EMPRESA], map: "IX_CLIENTE_ID_EMPRESA")
+}
+
+model empresa {
+  ID             Int       @id @default(autoincrement()) @db.UnsignedInt
+  CNPJ           String    @unique(map: "UK_EMPRESA_CNPJ") @db.VarChar(18)
+  NOME           String    @db.VarChar(255)
+  IMAGEM_DA_LOGO String?   @db.VarChar(500)
+  cliente        cliente[]
+}
+
+model log_transacao {
+  ID         Int                @id @default(autoincrement()) @db.UnsignedInt
+  TIPO       log_transacao_TIPO
+  ID_CLIENTE Int                @db.UnsignedInt
+  STATUS     String             @db.VarChar(50)
+  cliente    cliente            @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_LOG_CLIENTE")
+
+  @@index([ID_CLIENTE], map: "IX_LOG_ID_CLIENTE")
+}
+
+model plano {
+  ID                   Int          @id @default(autoincrement()) @db.UnsignedInt
+  NOME                 String       @db.VarChar(255)
+  QUANT_CREDITO_MENSAL Int          @db.UnsignedInt
+  ID_STRIPE            String       @unique(map: "UK_PLANO_ID_STRIPE") @db.VarChar(255)
+  assinatura           assinatura[]
+}
+
+model preco_credito {
+  ID    Int     @id @default(autoincrement()) @db.UnsignedInt
+  VALOR Decimal @db.Decimal(10, 2)
+}
+
+model produto {
+  ID                                                                      Int                    @id @default(autoincrement()) @db.UnsignedInt
+  NOME                                                                    String                 @db.VarChar(255)
+  TIPO                                                                    produto_TIPO
+  E_PARA_DEMO                                                             Boolean                @default(false)
+  resultado_catalogado_resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto resultado_catalogado[] @relation("resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto")
+  resultado_catalogado_resultado_catalogado_ID_PRODUTO_QUIMICOToproduto   resultado_catalogado[] @relation("resultado_catalogado_ID_PRODUTO_QUIMICOToproduto")
+  solicitacao_analise_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto   solicitacao_analise[]  @relation("solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto")
+  solicitacao_analise_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto     solicitacao_analise[]  @relation("solicitacao_analise_ID_PRODUTO_QUIMICOToproduto")
+
+  @@index([TIPO], map: "IX_PRODUTO_TIPO")
+}
+
+model resultado_catalogado {
+  ID                                                         Int      @id @default(autoincrement()) @db.UnsignedInt
+  ID_PRODUTO_QUIMICO                                         Int?     @db.UnsignedInt
+  ID_PRODUTO_BIOLOGICO                                       Int?     @db.UnsignedInt
+  STATUS                                                     String   @db.VarChar(50)
+  DESCRICAO                                                  String?  @db.Text
+  produto_resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto produto? @relation("resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto", fields: [ID_PRODUTO_BIOLOGICO], references: [ID], map: "FK_RC_PROD_BIOLOGICO")
+  produto_resultado_catalogado_ID_PRODUTO_QUIMICOToproduto   produto? @relation("resultado_catalogado_ID_PRODUTO_QUIMICOToproduto", fields: [ID_PRODUTO_QUIMICO], references: [ID], map: "FK_RC_PROD_QUIMICO")
+
+  @@index([ID_PRODUTO_BIOLOGICO], map: "IX_RC_ID_PROD_BIOLOGICO")
+  @@index([ID_PRODUTO_QUIMICO], map: "IX_RC_ID_PROD_QUIMICO")
+}
+
+model solicitacao_adicao_produto {
+  ID                                   Int                             @id @default(autoincrement()) @db.UnsignedInt
+  TIPO                                 solicitacao_adicao_produto_TIPO
+  NOME                                 String                          @db.VarChar(255)
+  ID_CLIENTE                           Int                             @db.UnsignedInt
+  ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO Int?                            @db.UnsignedInt
+  admin                                admin?                          @relation(fields: [ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], references: [ID], map: "FK_SAP_ADMIN")
+  cliente                              cliente                         @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_SAP_CLIENTE")
+
+  @@index([ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], map: "IX_SAP_ID_ADMIN")
+  @@index([ID_CLIENTE], map: "IX_SAP_ID_CLIENTE")
+}
+
+model solicitacao_analise {
+  ID                                                        Int       @id @default(autoincrement()) @db.UnsignedInt
+  ID_PRODUTO_QUIMICO                                        Int?      @db.UnsignedInt
+  ID_PRODUTO_BIOLOGICO                                      Int?      @db.UnsignedInt
+  ID_CLIENTE                                                Int       @db.UnsignedInt
+  ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO                      Int?      @db.UnsignedInt
+  DATA_RESPOSTA                                             DateTime? @db.DateTime(0)
+  STATUS                                                    String    @db.VarChar(50)
+  DESCRICAO                                                 String?   @db.Text
+  admin                                                     admin?    @relation(fields: [ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], references: [ID], map: "FK_SA_ADMIN")
+  cliente                                                   cliente   @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_SA_CLIENTE")
+  produto_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto produto?  @relation("solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto", fields: [ID_PRODUTO_BIOLOGICO], references: [ID], map: "FK_SA_PROD_BIOLOGICO")
+  produto_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto   produto?  @relation("solicitacao_analise_ID_PRODUTO_QUIMICOToproduto", fields: [ID_PRODUTO_QUIMICO], references: [ID], map: "FK_SA_PROD_QUIMICO")
+
+  @@index([ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], map: "IX_SA_ID_ADMIN")
+  @@index([ID_CLIENTE], map: "IX_SA_ID_CLIENTE")
+  @@index([ID_PRODUTO_BIOLOGICO], map: "IX_SA_ID_PROD_BIOLOGICO")
+  @@index([ID_PRODUTO_QUIMICO], map: "IX_SA_ID_PROD_QUIMICO")
+}
+
+enum solicitacao_adicao_produto_TIPO {
+  BIOL_GICO @map("BIOLÓGICO")
+  QU_MICO   @map("QUÍMICO")
+}
+
+enum log_transacao_TIPO {
+  ASSINATURA
+  COMPRA_AVULSA
+}
+
+enum produto_TIPO {
+  BIOL_GICO @map("BIOLÓGICO")
+  QU_MICO   @map("QUÍMICO")
+}
