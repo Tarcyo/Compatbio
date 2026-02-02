@@ -1,10 +1,13 @@
 import type { Request, Response } from "express";
-import { buildGoogleAuthUrl, exchangeCodeForAccessToken, fetchGoogleUserInfo } from "../services/googleOAuth.service";
-import { signAuthToken, verifyAuthToken } from "../services/token.service";
+import {
+  buildGoogleAuthUrl,
+  exchangeCodeForAccessToken,
+  fetchGoogleUserInfo,
+} from "../services/googleOAuth.service";
+import { signAuthToken } from "../services/token.service";
 import { prisma } from "../lib/prisma";
 
 function frontendOrigin() {
-  // use FRONTEND_ORIGIN (o nome que você já tem no .env)
   const raw = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
   return raw.replace(/\/+$/, "");
 }
@@ -36,11 +39,9 @@ export async function oauthCallback(req: Request, res: Response) {
     const accessToken = await exchangeCodeForAccessToken(code);
     const user = await fetchGoogleUserInfo(accessToken);
 
-    // ✅ UPSERT NO BANCO: se não existir, cria; se existir, só retorna
     const cliente = await prisma.cliente.upsert({
       where: { EMAIL: user.email },
       update: {
-        // opcional: manter nome atualizado se mudar no Google
         NOME: user.name || "Sem nome",
       },
       create: {
@@ -58,33 +59,35 @@ export async function oauthCallback(req: Request, res: Response) {
 
     return res.redirect(`${frontendOrigin()}/app`);
   } catch (err: any) {
-    // axios pode ter err.response?.data
     console.error(err?.response?.data || err);
     return res.status(500).send("Erro no OAuth");
   }
 }
 
+/**
+ * ✅ Agora /me é protegido por middleware (authRequired).
+ * Então aqui o token já foi validado e req.auth existe.
+ */
 export async function me(req: Request, res: Response) {
-  const cookieToken = (req as any).cookies?.cb_token as string | undefined;
+  const decoded = req.auth!;
 
-  const auth = req.headers.authorization || "";
-  const bearerToken = auth.startsWith("Bearer ") ? auth.slice(7) : undefined;
+  const cliente = await prisma.cliente.findUnique({
+    where: { EMAIL: decoded.email },
+    include: { empresa: true },
+  });
 
-  const token = cookieToken || bearerToken;
-  if (!token) return res.status(401).json({ error: "Token ausente" });
-
-  try {
-    const decoded = verifyAuthToken(token);
-
-    // pega dados do cliente no banco
-    const cliente = await prisma.cliente.findUnique({
-      where: { EMAIL: decoded.email },
-    });
-
-    return res.json({ user: decoded, cliente });
-  } catch {
-    return res.status(401).json({ error: "Token inválido" });
+  if (!cliente) {
+    return res.status(404).json({ error: "Cliente não encontrado" });
   }
+
+  // Decimal -> número (ou string). Aqui eu mando como number, mas preservo segurança:
+  const saldoNumber = Number(cliente.SALDO);
+
+  return res.json({
+    user: decoded,
+    cliente,
+    saldo: Number.isFinite(saldoNumber) ? saldoNumber : String(cliente.SALDO),
+  });
 }
 
 export async function logout(_req: Request, res: Response) {
