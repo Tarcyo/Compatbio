@@ -122,7 +122,7 @@
 }
 
 /* =========================
-   BOTÃO "DETALHAR ANÁLISE" (MAIOR)
+   BOTÃO (Header)
 ========================= */
 .detailsMiniBtn {
   height: 46px;
@@ -163,7 +163,7 @@
 }
 
 /* =========================
-   FAIXA SUPERIOR (MAIOR / MAIS LEGÍVEL)
+   FAIXA SUPERIOR (Produtos + Status)
 ========================= */
 .detailsTop {
   width: 100%;
@@ -221,7 +221,9 @@
   place-items: center;
 }
 
-/* badge maior */
+/* =========================
+   BADGE (com cores por status) ✅
+========================= */
 .detailsBadge {
   height: 36px;
   padding: 0 16px;
@@ -236,14 +238,40 @@
   letter-spacing: 0.2px;
 
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 14px 28px rgba(0, 0, 0, 0.18);
+
+  text-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+  user-select: none;
 }
 
+/* ✅ verde: compatível */
 .detailsBadgeOk {
   background: linear-gradient(
     180deg,
     rgba(150, 232, 78, 0.98) 0%,
     rgba(78, 150, 18, 0.96) 100%
+  );
+  color: rgba(255, 255, 255, 0.98);
+}
+
+/* ✅ vermelho: incompatível */
+.detailsBadgeBad {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 118, 104, 0.96) 0%,
+    rgba(198, 44, 34, 0.94) 100%
+  );
+  color: rgba(255, 255, 255, 0.98);
+}
+
+/* ✅ amarelo: em análise/pendente/parcial */
+.detailsBadgeWarn {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 214, 84, 0.96) 0%,
+    rgba(206, 162, 18, 0.94) 100%
   );
   color: rgba(255, 255, 255, 0.98);
 }
@@ -262,14 +290,27 @@
   margin-top: 10px;
 }
 
+/* ✅ ÍCONE acompanha o status */
 .detailsStatusIcon {
   width: 30px;
   height: 30px;
   display: grid;
   place-items: center;
 
+  /* default: verde */
   color: rgba(170, 255, 120, 0.95);
   filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.28));
+}
+
+/* Se quiser mudar a cor do ícone via classe no JSX, use essas: */
+.detailsStatusIcon.is-ok {
+  color: rgba(170, 255, 120, 0.95);
+}
+.detailsStatusIcon.is-bad {
+  color: rgba(255, 140, 140, 0.95);
+}
+.detailsStatusIcon.is-warn {
+  color: rgba(255, 220, 100, 0.95);
 }
 
 .detailsStatusIcon svg {

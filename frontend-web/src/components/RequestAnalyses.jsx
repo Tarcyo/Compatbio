@@ -1,5 +1,5 @@
 // RequestAnalysisPage.jsx
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./Pages.css";
 import "./RequestAnalysis.css";
 
@@ -36,10 +36,252 @@ function IconCredits(props) {
   );
 }
 
+function IconCheck(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M9.0 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"
+      />
+    </svg>
+  );
+}
+
+function IconAlert(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M12 2 1 21h22L12 2Zm1 15h-2v2h2v-2Zm0-8h-2v6h2V9Z"
+      />
+    </svg>
+  );
+}
+
+function Modal({ open, title, children, footer, onClose }) {
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    document.addEventListener("keydown", onKey);
+
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const onOverlay = (e) => {
+    if (panelRef.current && !panelRef.current.contains(e.target)) {
+      onClose?.();
+    }
+  };
+
+  return (
+    <div className="cbModalOverlay" onMouseDown={onOverlay} role="dialog" aria-modal="true">
+      <div className="cbModalPanel" ref={panelRef}>
+        <div className="cbModalHeader">
+          <h3 className="cbModalTitle">{title}</h3>
+          <button className="cbModalClose" type="button" onClick={onClose} aria-label="Fechar">
+            ×
+          </button>
+        </div>
+
+        <div className="cbModalBody">{children}</div>
+
+        {footer ? <div className="cbModalFooter">{footer}</div> : null}
+      </div>
+    </div>
+  );
+}
+
+function SearchableDropdown({
+  label,
+  placeholder,
+  fetchUrl,
+  value,
+  onChange,
+  getLabel = (p) => p?.NOME ?? "",
+  getKey = (p) => p?.ID,
+}) {
+  const [query, setQuery] = useState(value ? getLabel(value) : "");
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+
+  const rootRef = useRef(null);
+  const abortRef = useRef(null);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    setQuery(value ? getLabel(value) : "");
+  }, [value, getLabel]);
+
+  useEffect(() => {
+    function onDocClick(e) {
+      if (!rootRef.current) return;
+      if (!rootRef.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const doFetch = async (q) => {
+    setLoading(true);
+    setErrMsg("");
+
+    if (abortRef.current) abortRef.current.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    try {
+      const url = new URL(fetchUrl);
+      if (q && q.trim()) url.searchParams.set("q", q.trim());
+
+      const res = await fetch(url.toString(), {
+        credentials: "include",
+        signal: ctrl.signal,
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) throw new Error("Não autenticado");
+        throw new Error(`Erro HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.produtos)
+        ? data.produtos
+        : [];
+
+      setItems(list);
+    } catch (e) {
+      if (e?.name === "AbortError") return;
+      setItems([]);
+      setErrMsg(e?.message || "Erro ao buscar");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onFocus = () => {
+    setOpen(true);
+    if (items.length === 0 && !loading) doFetch("");
+  };
+
+  const onInput = (e) => {
+    const next = e.target.value;
+    setQuery(next);
+    setOpen(true);
+    if (value) onChange(null);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => doFetch(next), 250);
+  };
+
+  const selectItem = (item) => {
+    onChange(item);
+    setQuery(getLabel(item));
+    setOpen(false);
+  };
+
+  const clearSelection = () => {
+    onChange(null);
+    setQuery("");
+    setOpen(true);
+    doFetch("");
+  };
+
+  return (
+    <div className="requestGroup" ref={rootRef}>
+      <h2 className="requestTitle">{label}</h2>
+
+      <div className={`requestSearch requestDropdown ${open ? "is-open" : ""}`}>
+        <span className="requestSearchIco" aria-hidden="true">
+          <IconSearch />
+        </span>
+
+        <input
+          className="requestInput"
+          value={query}
+          onChange={onInput}
+          onFocus={onFocus}
+          placeholder={placeholder}
+          autoComplete="off"
+        />
+
+        {value ? (
+          <button
+            type="button"
+            className="requestDropdownClear"
+            onClick={clearSelection}
+            title="Limpar seleção"
+            aria-label="Limpar seleção"
+          >
+            ×
+          </button>
+        ) : null}
+      </div>
+
+      {open ? (
+        <div className="requestDropdownPanel" role="listbox" aria-label={`${label} opções`}>
+          {loading ? (
+            <div className="requestDropdownState">Carregando...</div>
+          ) : errMsg ? (
+            <div className="requestDropdownState is-error">{errMsg}</div>
+          ) : items.length === 0 ? (
+            <div className="requestDropdownState">Nenhum produto encontrado.</div>
+          ) : (
+            <ul className="requestDropdownList">
+              {items.map((p) => (
+                <li key={getKey(p)} className="requestDropdownItem">
+                  <button
+                    type="button"
+                    className="requestDropdownBtn"
+                    onClick={() => selectItem(p)}
+                  >
+                    <span className="requestDropdownName">{getLabel(p)}</span>
+                    {p?.E_PARA_DEMO ? <span className="requestDropdownTag">demo</span> : null}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function RequestAnalysisPage() {
-  const [chemical, setChemical] = useState("");
-  const [biological, setBiological] = useState("");
-  const creditsAvailable = 12;
+  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
+    .toString()
+    .replace(/\/+$/, "");
+
+  const [chemicalProduct, setChemicalProduct] = useState(null);
+  const [biologicalProduct, setBiologicalProduct] = useState(null);
+
+  const [cliente, setCliente] = useState(null);
+  const [loadingCredits, setLoadingCredits] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [modal, setModal] = useState({
+    open: false,
+    mode: "confirm", // confirm | success | no_credits | error
+    title: "",
+    message: "",
+  });
 
   const formatCredits = useMemo(() => new Intl.NumberFormat("pt-BR"), []);
   const cardRef = useRef(null);
@@ -52,14 +294,188 @@ export default function RequestAnalysisPage() {
     el.classList.add("pg-enter");
   }, []);
 
-  const submit = (e) => {
-    e.preventDefault();
-    console.log({ chemical, biological });
+  useEffect(() => {
+    let alive = true;
+
+    async function loadMe() {
+      setLoadingCredits(true);
+      try {
+        const res = await fetch(`${API_BASE}/me`, { credentials: "include" });
+        if (!res.ok) throw new Error("401");
+        const data = await res.json();
+        if (!alive) return;
+        setCliente(data?.cliente || null);
+      } catch {
+        if (!alive) return;
+        setCliente(null);
+      } finally {
+        if (!alive) return;
+        setLoadingCredits(false);
+      }
+    }
+
+    loadMe();
+    return () => {
+      alive = false;
+    };
+  }, [API_BASE]);
+
+  const creditsAvailable = useMemo(() => {
+    const raw = cliente?.SALDO;
+    if (raw == null) return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  }, [cliente]);
+
+  const quimicosUrl = `${API_BASE}/api/produtos/quimicos`;
+  const biologicosUrl = `${API_BASE}/api/produtos/biologicos`;
+
+  const closeModal = () => setModal((m) => ({ ...m, open: false }));
+
+  const openConfirm = () => {
+    if (!chemicalProduct || !biologicalProduct) {
+      setModal({
+        open: true,
+        mode: "error",
+        title: "Seleção incompleta",
+        message: "Selecione um produto químico e um produto biológico para continuar.",
+      });
+      return;
+    }
+
+    // Checagem local (UX). O backend é o guardião final.
+    if (typeof creditsAvailable === "number" && creditsAvailable < 1) {
+      setModal({
+        open: true,
+        mode: "no_credits",
+        title: "Créditos insuficientes",
+        message: `Você não possui créditos suficientes para solicitar uma análise.`,
+      });
+      return;
+    }
+
+    setModal({
+      open: true,
+      mode: "confirm",
+      title: "Confirmar solicitação",
+      message: `Deseja solicitar a análise com:\n\n• Químico: ${chemicalProduct.NOME}\n• Biológico: ${biologicalProduct.NOME}\n\nCusto: 1 crédito.`,
+    });
+  };
+
+  const createSolicitacao = async () => {
+    if (!chemicalProduct || !biologicalProduct) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/solicitacoes/analise`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idProdutoQuimico: chemicalProduct.ID,
+          idProdutoBiologico: biologicalProduct.ID,
+          descricao: null,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.status === 403) {
+        const msg =
+          data?.error ||
+          "Você não tem permissão/créditos suficientes para essa solicitação.";
+
+        // Diferencia se for crédito insuficiente (backend manda esse texto)
+        const isNoCredits =
+          typeof msg === "string" &&
+          msg.toLowerCase().includes("créditos insuficientes");
+
+        setModal({
+          open: true,
+          mode: isNoCredits ? "no_credits" : "error",
+          title: isNoCredits ? "Créditos insuficientes" : "Não permitido",
+          message: msg,
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || `Erro HTTP ${res.status}`);
+      }
+
+      // ✅ sucesso: usa saldoAtual vindo do backend
+      if (data?.saldoAtual != null) {
+        setCliente((prev) => (prev ? { ...prev, SALDO: data.saldoAtual } : prev));
+      }
+
+      setModal({
+        open: true,
+        mode: "success",
+        title: "Solicitação enviada!",
+        message:
+          "Sua solicitação foi criada com sucesso. Em breve você poderá acompanhar o status.",
+      });
+
+      setChemicalProduct(null);
+      setBiologicalProduct(null);
+    } catch (e) {
+      setModal({
+        open: true,
+        mode: "error",
+        title: "Erro ao solicitar",
+        message: "Não foi possível criar a solicitação agora. Tente novamente.",
+      });
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const requestMissingProduct = () => {
-    console.log("Enviar solicitação (produto não encontrado)");
+    setModal({
+      open: true,
+      mode: "error",
+      title: "Solicitação de produto",
+      message:
+        "Em breve: aqui você poderá solicitar a inclusão de um produto que não encontrou.",
+    });
   };
+
+  const submit = (e) => {
+    e.preventDefault();
+    openConfirm();
+  };
+
+  const modalFooter = (() => {
+    if (!modal.open) return null;
+
+    if (modal.mode === "confirm") {
+      return (
+        <>
+          <button className="cbBtnGhost" type="button" onClick={closeModal} disabled={isSubmitting}>
+            Cancelar
+          </button>
+          <button className="cbBtnPrimary" type="button" onClick={createSolicitacao} disabled={isSubmitting}>
+            {isSubmitting ? "Enviando..." : "Confirmar"}
+          </button>
+        </>
+      );
+    }
+
+    return (
+      <button className="cbBtnPrimary" type="button" onClick={closeModal}>
+        Ok
+      </button>
+    );
+  })();
+
+  const modalIcon = (() => {
+    if (modal.mode === "success") return <IconCheck className="cbModalIcon is-success" />;
+    if (modal.mode === "no_credits") return <IconAlert className="cbModalIcon is-warn" />;
+    if (modal.mode === "error") return <IconAlert className="cbModalIcon is-error" />;
+    return null;
+  })();
 
   return (
     <div className="pg-wrap">
@@ -68,7 +484,6 @@ export default function RequestAnalysisPage() {
           <header className="requestCardHeader">
             <h1 className="requestCardTitle">Solicitar Análise</h1>
 
-            {/* ✅ créditos no mesmo estilo premium do Perfil */}
             <div
               className="requestCreditsCard"
               role="status"
@@ -76,14 +491,16 @@ export default function RequestAnalysisPage() {
               title="Créditos disponíveis na sua conta"
             >
               <div className="requestCreditsRow">
-                <span className="requestCreditsLabelInline">
-                  Créditos disponíveis
-                </span>
+                <span className="requestCreditsLabelInline">Créditos disponíveis</span>
 
                 <span className="requestCreditsStat">
                   <IconCredits className="requestCreditsIcon" />
                   <strong className="requestCreditsValue">
-                    {formatCredits.format(creditsAvailable)}
+                    {loadingCredits
+                      ? "..."
+                      : creditsAvailable == null
+                      ? "—"
+                      : formatCredits.format(creditsAvailable)}
                   </strong>
                 </span>
               </div>
@@ -91,41 +508,21 @@ export default function RequestAnalysisPage() {
           </header>
 
           <div className="requestCardBody">
-            <div className="requestGroup">
-              <h2 className="requestTitle">Produto Químico</h2>
+            <SearchableDropdown
+              label="Produto Químico"
+              placeholder="Buscar produto químico..."
+              fetchUrl={quimicosUrl}
+              value={chemicalProduct}
+              onChange={setChemicalProduct}
+            />
 
-              <div className="requestSearch">
-                <span className="requestSearchIco" aria-hidden="true">
-                  <IconSearch />
-                </span>
-
-                <input
-                  className="requestInput"
-                  value={chemical}
-                  onChange={(e) => setChemical(e.target.value)}
-                  placeholder="Buscar produto químico..."
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-
-            <div className="requestGroup">
-              <h2 className="requestTitle">Produto Biológico</h2>
-
-              <div className="requestSearch">
-                <span className="requestSearchIco" aria-hidden="true">
-                  <IconSearch />
-                </span>
-
-                <input
-                  className="requestInput"
-                  value={biological}
-                  onChange={(e) => setBiological(e.target.value)}
-                  placeholder="Buscar produto biológico..."
-                  autoComplete="off"
-                />
-              </div>
-            </div>
+            <SearchableDropdown
+              label="Produto Biológico"
+              placeholder="Buscar produto biológico..."
+              fetchUrl={biologicosUrl}
+              value={biologicalProduct}
+              onChange={setBiologicalProduct}
+            />
 
             <div className="requestHelpRow">
               <button
@@ -144,13 +541,25 @@ export default function RequestAnalysisPage() {
             </div>
 
             <div className="requestActions">
-              <button type="submit" className="requestMainBtn">
-                Solicitar Análise
+              <button type="submit" className="requestMainBtn" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando..." : "Solicitar Análise"}
               </button>
             </div>
           </div>
         </form>
       </div>
+
+      <Modal
+        open={modal.open}
+        title={modal.title}
+        onClose={isSubmitting ? undefined : closeModal}
+        footer={modalFooter}
+      >
+        <div className="cbModalContent">
+          {modalIcon}
+          <p className="cbModalText">{modal.message}</p>
+        </div>
+      </Modal>
     </div>
   );
 }

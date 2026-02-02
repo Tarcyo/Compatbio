@@ -517,3 +517,313 @@
     transition: none !important;
   }
 }
+
+/* =========================
+   DROPDOWN PESQUISÁVEL (Autocomplete) ✅
+   (para os selects com busca no RequestAnalysisPage.jsx)
+========================= */
+
+.requestDropdown {
+  position: relative;
+}
+
+/* Para caber o botão "x" sem quebrar o grid */
+.requestSearch.requestDropdown {
+  grid-template-columns: 54px 1fr auto;
+}
+
+.requestDropdownClear {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.requestDropdownClear:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.requestDropdownPanel {
+  margin-top: 10px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.requestDropdownState {
+  padding: 14px 14px;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 700;
+}
+
+.requestDropdownState.is-error {
+  color: rgba(255, 120, 120, 0.95);
+}
+
+.requestDropdownList {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.requestDropdownItem {
+  margin: 0;
+  padding: 0;
+}
+
+.requestDropdownBtn {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  cursor: pointer;
+
+  padding: 12px 12px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.92);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.requestDropdownBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.requestDropdownName {
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.requestDropdownTag {
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  color: rgba(190, 255, 140, 0.98);
+  border: 1px solid rgba(160, 234, 82, 0.28);
+  background: rgba(160, 234, 82, 0.10);
+}
+
+/* visual quando dropdown aberto */
+.requestSearch.is-open {
+  border-color: rgba(180, 255, 120, 0.28);
+}
+/* =========================
+   MODAL (Popup elegante)
+========================= */
+
+.cbModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  padding: 18px;
+}
+
+.cbModalPanel {
+  width: min(560px, 100%);
+  border-radius: 18px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(22, 30, 40, 0.88) 0%,
+    rgba(18, 24, 34, 0.86) 100%
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  overflow: hidden;
+  position: relative;
+}
+
+.cbModalPanel::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  background: radial-gradient(
+    520px 220px at 18% 18%,
+    rgba(160, 234, 82, 0.12) 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(255, 255, 255, 0) 62%
+  );
+  opacity: 0.9;
+}
+
+.cbModalHeader {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.cbModalTitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: 0.2px;
+}
+
+.cbModalClose {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+
+  color: rgba(255, 255, 255, 0.90);
+  font-size: 22px;
+  font-weight: 900;
+
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.cbModalClose:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.cbModalBody {
+  position: relative;
+  z-index: 1;
+  padding: 18px 18px 6px;
+}
+
+.cbModalFooter {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 14px 18px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.cbModalContent {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.cbModalIcon {
+  width: 22px;
+  height: 22px;
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+
+.cbModalIcon.is-success {
+  color: rgba(160, 234, 82, 0.98);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+}
+.cbModalIcon.is-warn {
+  color: rgba(255, 210, 90, 0.95);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+}
+.cbModalIcon.is-error {
+  color: rgba(255, 120, 120, 0.95);
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+}
+
+.cbModalText {
+  margin: 0;
+  white-space: pre-line;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+/* Botões do modal */
+.cbBtnPrimary,
+.cbBtnGhost {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-weight: 950;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cbBtnPrimary {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: linear-gradient(
+    180deg,
+    rgba(160, 234, 82, 0.98) 0%,
+    rgba(76, 148, 18, 0.96) 100%
+  );
+  color: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.cbBtnPrimary:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.cbBtnGhost {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.cbBtnGhost:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.cbBtnPrimary:disabled,
+.cbBtnGhost:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}

@@ -1,5 +1,5 @@
 // Result.jsx
-import React, { useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Pages.css";
 import "./Results.css";
@@ -26,128 +26,194 @@ function IconChevronRight(props) {
   );
 }
 
-const STATUS_META = {
-  compatible: { label: "Compatível", cls: "is-ok" },
-  incompatible: { label: "Incompatível", cls: "is-bad" },
-  analyzing: { label: "Em Análise", cls: "is-warn" },
-};
+function normalizeStatus(s) {
+  const raw = String(s || "").trim().toLowerCase();
+  return raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function statusMeta(status) {
+  const s = normalizeStatus(status);
+
+  // verde
+  if (s.includes("compat") && !s.includes("incompat")) {
+    return { label: "Compatível", cls: "is-ok" };
+  }
+
+  // vermelho
+  if (s.includes("incompat")) {
+    return { label: "Incompatível", cls: "is-bad" };
+  }
+
+  // amarelo: em análise / pendente / parcial
+  if (s.includes("anal") || s.includes("pend") || s.includes("parc")) {
+    if (s.includes("pend")) return { label: "Pendente", cls: "is-warn" };
+    if (s.includes("parc")) return { label: "Parcial", cls: "is-warn" };
+    return { label: "Em Análise", cls: "is-warn" };
+  }
+
+  return { label: status ? String(status) : "Em Análise", cls: "is-warn" };
+}
+
+function formatDateBR(dateLike) {
+  if (!dateLike) return "—";
+  const d = new Date(dateLike);
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-BR").format(d);
+}
 
 export default function Result() {
   const navigate = useNavigate();
 
-  const rows = useMemo(
-    () => [
-      {
-        date: "18/04/2024",
-        chemical: "Glifosato",
-        biological: "Bacillus cereus Sp.",
-        status: "compatible",
-      },
-      {
-        date: "16/04/2024",
-        chemical: "Metomil",
-        biological: "Trichoderma harz.",
-        status: "incompatible",
-      },
-      {
-        date: "12/04/2024",
-        chemical: "Acefato",
-        biological: "Bacillus cereus Sp.",
-        status: "compatible",
-      },
-      {
-        date: "07/04/2024",
-        chemical: "Glifosato",
-        biological: "Trichoderma spp.",
-        status: "analyzing",
-      },
-      {
-        date: "02/04/2024",
-        chemical: "Glifosato",
-        biological: "Trichoderma spp.",
-        status: "analyzing",
-      },
-      {
-        date: "22/03/2024",
-        chemical: "Clorpirifós",
-        biological: "Paecilomyces lilacinus",
-        status: "incompatible",
-      },
-      {
-        date: "22/03/2024",
-        chemical: "Clorpirifós",
-        biological: "Paecilomyces lilacinus",
-        status: "incompatible",
-      },
-    ],
-    []
-  );
+  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
+    .toString()
+    .replace(/\/+$/, "");
 
-  const onDetail = (item) => {
-    console.log("Detalhar:", item);
-    navigate("/app/detalhes-analise");
+  const cardRef = useRef(null);
+
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.classList.remove("pg-enter");
+    void el.offsetHeight;
+    el.classList.add("pg-enter");
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      setLoading(true);
+      setErr("");
+
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/solicitacoes/analise/minhas?page=1&pageSize=100`,
+          { credentials: "include" }
+        );
+
+        if (!res.ok) {
+          if (res.status === 401) throw new Error("Não autenticado");
+          const t = await res.text().catch(() => "");
+          throw new Error(t || `Erro HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (!alive) return;
+
+        const list = Array.isArray(data?.solicitacoes) ? data.solicitacoes : [];
+
+        const mapped = list.map((s) => {
+          const quimico =
+            s?.produto_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto?.NOME || "—";
+          const biologico =
+            s?.produto_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto?.NOME || "—";
+
+          return {
+            id: s.ID,
+            statusRaw: s.STATUS,
+            status: statusMeta(s.STATUS),
+            date: formatDateBR(s.DATA_RESPOSTA),
+            chemical: quimico,
+            biological: biologico,
+            raw: s, // ✅ AQUI está a solicitação completa (inclui DESCRICAO)
+          };
+        });
+
+        setRows(mapped);
+      } catch (e) {
+        if (!alive) return;
+        setRows([]);
+        setErr(e?.message || "Erro ao carregar resultados");
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [API_BASE]);
+
+  const onDetail = (row) => {
+    // ✅ manda o objeto completo para a tela de detalhes
+    navigate("/app/detalhes-analise", {
+      state: { solicitacao: row.raw },
+    });
   };
+
+  const hasRows = rows.length > 0;
 
   return (
     <div className="pg-wrap">
       <div className="resultsPage">
-        <section className="pg-card resultsCard">
-          {/* ✅ TÍTULO DENTRO DO CARD */}
+        <section ref={cardRef} className="pg-card resultsCard">
           <header className="resultsCardHeader">
             <h1 className="resultsCardTitle">Resultados das Análises</h1>
           </header>
 
           <div className="resultsCardBody">
-            <ul className="resultsList">
-              {rows.map((r, idx) => {
-                const meta = STATUS_META[r.status] ?? STATUS_META.analyzing;
+            {loading ? (
+              <p style={{ color: "rgba(255,255,255,0.82)", fontWeight: 800 }}>
+                Carregando...
+              </p>
+            ) : err ? (
+              <p style={{ color: "rgba(255,140,140,0.92)", fontWeight: 900 }}>
+                {err}
+              </p>
+            ) : !hasRows ? (
+              <p style={{ color: "rgba(255,255,255,0.78)", fontWeight: 800 }}>
+                Nenhuma solicitação encontrada.
+              </p>
+            ) : (
+              <>
+                <ul className="resultsList">
+                  {rows.map((r, idx) => (
+                    <li key={`${r.id}-${idx}`} className="resultsRow">
+                      <span className="resultsDate">{r.date}</span>
 
-                return (
-                  <li key={`${r.date}-${r.chemical}-${idx}`} className="resultsRow">
-                    <span className="resultsDate">{r.date}</span>
+                      <span className="resultsName resultsName--left" title={r.chemical}>
+                        {r.chemical}
+                      </span>
 
-                    <span
-                      className="resultsName resultsName--left"
-                      title={r.chemical}
-                    >
-                      {r.chemical}
-                    </span>
+                      <span className="resultsArrow" aria-hidden="true">
+                        <IconArrow />
+                      </span>
 
-                    <span className="resultsArrow" aria-hidden="true">
-                      <IconArrow />
-                    </span>
+                      <span className="resultsName resultsName--right" title={r.biological}>
+                        {r.biological}
+                      </span>
 
-                    <span
-                      className="resultsName resultsName--right"
-                      title={r.biological}
-                    >
-                      {r.biological}
-                    </span>
+                      {/* ✅ amarelo/verde/vermelho via cls */}
+                      <span className={`resultsStatus ${r.status.cls}`}>
+                        {r.status.label}
+                      </span>
 
-                    <span className={`resultsStatus ${meta.cls}`}>
-                      {meta.label}
-                    </span>
+                      <button
+                        type="button"
+                        className="resultsDetailBtn"
+                        onClick={() => onDetail(r)}
+                      >
+                        Detalhar Análise
+                      </button>
+                    </li>
+                  ))}
+                </ul>
 
-                    <button
-                      type="button"
-                      className="resultsDetailBtn"
-                      onClick={() => onDetail(r)}
-                    >
-                      Detalhar Análise
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-
-            {/* “scroll hint” (opcional) */}
-            <button
-              type="button"
-              className="resultsScrollHint"
-              aria-label="Mais resultados"
-            >
-              <IconChevronRight />
-            </button>
+                <button
+                  type="button"
+                  className="resultsScrollHint"
+                  aria-label="Mais resultados"
+                >
+                  <IconChevronRight />
+                </button>
+              </>
+            )}
           </div>
         </section>
       </div>
