@@ -6,6 +6,7 @@ import { solicitacaoAnaliseRoutes } from "./requireRputes";
 import { assinaturaRoutes } from "./assinaturaRoutes";
 import { planoRoutes } from "./planoRoutes";
 import { empresaRoutes } from "./empresaRoutes";
+import { solicitacaoAdicaoProdutoClienteRoutes } from "./SolicitaçãoProdutoCliente";
 
 // ...
 
@@ -18,6 +19,7 @@ privateRoutes.use(solicitacaoAnaliseRoutes);
 privateRoutes.use(assinaturaRoutes);
 privateRoutes.use(planoRoutes); // ✅ ADD
 privateRoutes.use(empresaRoutes);
+privateRoutes.use(solicitacaoAdicaoProdutoClienteRoutes);
 
 /**
  * Exemplo: rota interna que retorna o cliente logado (com empresa).

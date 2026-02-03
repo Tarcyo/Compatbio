@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listBiologicos, listQuimicos } from "../controllers/produtoController";
+import { atualizarProdutoAdmin, listBiologicos, listQuimicos } from "../controllers/produtoController";
 
 export const produtoRoutes = Router();
 
@@ -8,3 +8,4 @@ produtoRoutes.get("/produtos/quimicos", listQuimicos);
 
 // GET /api/produtos/biologicos?q=...
 produtoRoutes.get("/produtos/biologicos", listBiologicos);
+produtoRoutes.put("/produtos/:id", atualizarProdutoAdmin);

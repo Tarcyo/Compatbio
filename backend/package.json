@@ -12,7 +12,7 @@
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "postinstall": "prisma generate",
     "test": "cross-env NODE_ENV=test jest --runInBand",
-"test:int": "cross-env NODE_ENV=test jest --runInBand --config ./jest.integration.config.cjs"
+    "test:int": "cross-env NODE_ENV=test jest --runInBand --config ./jest.integration.config.cjs"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "@prisma/adapter-mariadb": "^7.3.0",
     "@prisma/client": "^6.19.2",
     "axios": "^1.13.4",
+    "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
