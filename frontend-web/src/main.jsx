@@ -1,15 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { AuthProvider } from "./auth/AuthContext";
 
-/* ✅ IMPORTA O CSS GLOBAL DA FONTE AQUI (antes de todo o resto) */
-import "./index.css";
+import { AuthProvider } from "./auth/AuthContext";
+import { AdminAuthProvider } from "./auth/AdminAuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
-      <App />
+      <AdminAuthProvider>
+        <App />
+      </AdminAuthProvider>
     </AuthProvider>
   </React.StrictMode>
 );

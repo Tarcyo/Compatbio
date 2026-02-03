@@ -1,0 +1,268 @@
+/* Reaproveita o visual da tela original */
+.cb-page {
+  min-height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  padding: 48px 20px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.cb-card {
+  width: min(980px, 92vw);
+  min-height: 640px;
+  border-radius: 22px;
+  transform: scale(0.7);
+  transform-origin: center;
+
+  background: linear-gradient(
+    180deg,
+    rgba(60, 72, 88, 1) 0%,
+    rgba(28, 38, 48, 1) 55%,
+    rgba(22, 32, 40, 1) 100%
+  );
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.35);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  padding: 56px 70px 54px;
+  text-align: center;
+}
+
+.cb-logo {
+  width: min(520px, 78%);
+  height: auto;
+  display: block;
+}
+
+.cb-divider {
+  width: 100%;
+  height: 1px;
+  margin: 32px 0 28px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.cb-title {
+  margin: 0 0 12px;
+  font-size: 46px;
+  line-height: 1.12;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.cb-subtitle {
+  margin: 0 0 34px;
+  font-size: 18px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* Form */
+.cb-form {
+  width: min(720px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 6px;
+}
+
+.cb-field {
+  text-align: left;
+}
+
+.cb-label {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.cb-input {
+  width: 100%;
+  height: 62px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+
+  padding: 0 16px;
+  font-size: 18px;
+  outline: none;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.cb-input::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.cb-input:focus {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+/* Password com “olhinho” */
+.cb-input-wrap {
+  position: relative;
+}
+
+.cb-input--password {
+  padding-right: 54px;
+}
+
+.cb-eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.78);
+
+  display: grid;
+  place-items: center;
+
+  cursor: pointer;
+  user-select: none;
+  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+}
+
+.cb-eye-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.cb-eye-btn:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* Botão principal */
+.cb-primary-btn {
+  width: min(720px, 100%);
+  height: 78px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  background: linear-gradient(
+    180deg,
+    rgba(46, 56, 69, 0.92) 0%,
+    rgba(34, 44, 56, 0.92) 100%
+  );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 26px rgba(0, 0, 0, 0.28);
+
+  cursor: pointer;
+  padding: 0 28px;
+  user-select: none;
+  margin-top: 6px;
+}
+
+.cb-primary-btn:active {
+  transform: translateY(1px);
+}
+
+.cb-primary-btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+.cb-primary-text {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.cb-error {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: rgba(255, 170, 170, 0.92);
+  text-align: left;
+}
+
+.cb-help {
+  margin: 26px 0 0;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.cb-link {
+  color: rgba(255, 255, 255, 0.70);
+  text-decoration: none;
+}
+
+.cb-link:hover {
+  text-decoration: underline;
+}
+
+.cb-link-strong {
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* Responsivo */
+@media (max-width: 720px) {
+  .cb-card {
+    padding: 44px 22px 40px;
+    min-height: unset;
+  }
+
+  .cb-title {
+    font-size: 34px;
+    margin-bottom: 10px;
+  }
+
+  .cb-subtitle {
+    font-size: 15px;
+    margin-bottom: 28px;
+  }
+
+  .cb-primary-btn {
+    height: 70px;
+  }
+
+  .cb-primary-text {
+    font-size: 22px;
+  }
+
+  .cb-input {
+    height: 58px;
+    font-size: 16px;
+  }
+
+  .cb-help {
+    font-size: 16px;
+  }
+}
