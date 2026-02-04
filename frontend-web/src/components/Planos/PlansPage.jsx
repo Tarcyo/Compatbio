@@ -15,13 +15,18 @@ function IconCheckCircle(props) {
   );
 }
 
+function moneyBR(v) {
+  const n = Number(v ?? 0);
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 function PlanCard({
   title,
   price,
   interval = "/mês",
   badge,
   features,
-  variant = "blue", // "blue" | "green"
+  variant = "blue",
   ctaLabel,
   onCta,
 }) {
@@ -47,7 +52,6 @@ function PlanCard({
         <span className="planPriceInterval">{interval}</span>
       </div>
 
-      {/* ✅ Scroll interno quando features forem muitas */}
       <ul className="planFeatures" aria-label="Recursos do plano">
         {features.map((t) => (
           <li key={t} className="planFeature">
@@ -71,7 +75,6 @@ function PlanCard({
 function TabBar({ value, onChange, items }) {
   return (
     <div className="plansTabsWrap">
-      {/* ✅ Scroll horizontal automático quando não couber */}
       <div className="plansTabs" role="tablist" aria-label="Tipos de planos">
         {items.map((it) => {
           const active = value === it.value;
@@ -102,8 +105,6 @@ export default function PlansCreditsPage() {
     .toString()
     .replace(/\/+$/, "");
 
-  const PRICE_PER_CREDIT = 2.0;
-
   // plano atual do usuário
   const [assinaturaData, setAssinaturaData] = useState(null);
   const [loadingPlano, setLoadingPlano] = useState(true);
@@ -114,11 +115,53 @@ export default function PlansCreditsPage() {
   const [loadingPlanos, setLoadingPlanos] = useState(true);
   const [errPlanos, setErrPlanos] = useState("");
 
+  // preço do crédito (via rota)
+  const [pricePerCredit, setPricePerCredit] = useState(null);
+  const [loadingPrice, setLoadingPrice] = useState(true);
+  const [errPrice, setErrPrice] = useState("");
+
   // tab PF/PJ
-  const [tab, setTab] = useState("pf"); // "pf" | "pj"
+  const [tab, setTab] = useState("pf");
 
   // compra avulsa
   const [credits, setCredits] = useState(10);
+
+  // ✅ busca preço do crédito (rota nova)
+  useEffect(() => {
+    let alive = true;
+
+    async function loadPrecoCredito() {
+      setLoadingPrice(true);
+      setErrPrice("");
+      try {
+        const res = await fetch(`${API_BASE}/api/preco-credito`, {
+          credentials: "include",
+        });
+        const json = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(json?.error || `Erro ao buscar preço do crédito (${res.status})`);
+        }
+        const valor = Number(json?.valor ?? 0);
+        if (!Number.isFinite(valor) || valor <= 0) throw new Error("Preço do crédito inválido.");
+
+        if (!alive) return;
+        setPricePerCredit(valor);
+      } catch (e) {
+        if (!alive) return;
+        setPricePerCredit(null);
+        setErrPrice(e?.message || "Erro ao carregar preço do crédito");
+      } finally {
+        if (!alive) return;
+        setLoadingPrice(false);
+      }
+    }
+
+    loadPrecoCredito();
+    return () => {
+      alive = false;
+    };
+  }, [API_BASE]);
 
   // ✅ busca plano atual
   useEffect(() => {
@@ -171,14 +214,14 @@ export default function PlansCreditsPage() {
           credentials: "include",
         });
 
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
           if (res.status === 401) throw new Error("Não autenticado");
-          throw new Error(`Erro ao buscar planos (${res.status})`);
+          throw new Error(data?.error || `Erro ao buscar planos (${res.status})`);
         }
 
-        const data = await res.json();
         if (!alive) return;
-
         setPlanos(Array.isArray(data?.planos) ? data.planos : []);
       } catch (e) {
         if (!alive) return;
@@ -209,7 +252,9 @@ export default function PlansCreditsPage() {
 
     const planoNome = assinaturaData.plano?.NOME || "—";
     const quantMensal = assinaturaData.plano?.QUANT_CREDITO_MENSAL;
+    const valorMensal = assinaturaData.plano?.VALOR_MENSAL;
     const status = assinaturaData.assinatura?.STATUS || "—";
+
     const totalUsuarios = Array.isArray(assinaturaData?.clientesVinculados)
       ? assinaturaData.clientesVinculados.length
       : 0;
@@ -217,6 +262,7 @@ export default function PlansCreditsPage() {
     const features = [
       `Status: ${status}`,
       `Créditos/mês: ${quantMensal ?? "—"}`,
+      `Valor/mês: ${valorMensal == null ? "—" : moneyBR(valorMensal)}`,
       `Usuários na assinatura: ${totalUsuarios}`,
     ];
 
@@ -224,28 +270,27 @@ export default function PlansCreditsPage() {
       name: planoNome,
       subtitle: "Plano vinculado à sua assinatura",
       features,
-      badge:
-        status?.toUpperCase() === "ATIVA"
-          ? "Seu Plano Ativo"
-          : `Status: ${status}`,
+      badge: status?.toUpperCase() === "ATIVA" ? "Seu Plano Ativo" : `Status: ${status}`,
     };
   }, [assinaturaData]);
 
-  // ✅ PF/PJ por enterprise
+  // ✅ PF/PJ por "enterprise" no nome
   const { pfPlans, pjPlans } = useMemo(() => {
     const isEnterprise = (name) =>
       typeof name === "string" && name.toLowerCase().includes("enterprise");
 
     const pj = planos.filter((p) => isEnterprise(p?.NOME));
     const pf = planos.filter((p) => !isEnterprise(p?.NOME));
-
     return { pfPlans: pf, pjPlans: pj };
   }, [planos]);
 
+  // ✅ mapeia plano -> card
   const mapPlanoToCard = useCallback((p) => {
     const nome = p?.NOME || "Plano";
     const credito = p?.QUANT_CREDITO_MENSAL ?? "—";
-    const price = "—";
+    const valor = p?.VALOR_MENSAL;
+
+    const price = valor == null ? "—" : moneyBR(valor);
 
     const features = [
       `Créditos/mês: ${credito}`,
@@ -273,17 +318,27 @@ export default function PlansCreditsPage() {
 
   const handleChoose = (planoId) => {
     console.log("Escolher plano:", planoId);
-    // futuro: iniciar checkout stripe / trocar plano etc.
   };
 
+  // ✅ envia a quantidade e o preço para o checkout
   const handleBuyCredits = () => {
+    if (!Number.isFinite(Number(credits)) || Number(credits) < 1) return;
+
     navigate("/app/confirmar-compra", {
       state: {
-        credits,
-        pricePerCredit: PRICE_PER_CREDIT,
+        credits: Number(credits),
+        pricePerCredit: Number(pricePerCredit ?? 0),
+        planName: "Compra de Créditos Avulsos",
       },
     });
   };
+
+  const creditPriceText = useMemo(() => {
+    if (loadingPrice) return "Carregando preço do crédito...";
+    if (errPrice) return errPrice;
+    if (pricePerCredit == null) return "Preço do crédito indisponível.";
+    return `${moneyBR(pricePerCredit)} por crédito`;
+  }, [loadingPrice, errPrice, pricePerCredit]);
 
   return (
     <div className="pg-wrap">
@@ -292,7 +347,6 @@ export default function PlansCreditsPage() {
           <h1 className="plansCardTitle">Planos e Créditos</h1>
         </header>
 
-        {/* ✅ Scroll vertical do conteúdo do card principal quando não couber */}
         <div className="plansCardBody">
           <h3 className="plansSectionTitle">Seu Plano Atual</h3>
 
@@ -301,10 +355,7 @@ export default function PlansCreditsPage() {
               Carregando plano atual...
             </p>
           ) : errPlano ? (
-            <p
-              className="creditsHint"
-              style={{ marginTop: 6, color: "rgba(255,140,140,0.92)" }}
-            >
+            <p className="creditsHint" style={{ marginTop: 6, color: "rgba(255,140,140,0.92)" }}>
               {errPlano}
             </p>
           ) : (
@@ -318,7 +369,6 @@ export default function PlansCreditsPage() {
                   </p>
                 ) : null}
 
-                {/* ✅ Scroll interno se tiver muitos itens */}
                 <ul className="currentPlanList" aria-label="Detalhes do plano">
                   {currentPlan.features.map((t) => (
                     <li key={t} className="currentPlanItem">
@@ -359,10 +409,7 @@ export default function PlansCreditsPage() {
               Carregando planos...
             </p>
           ) : errPlanos ? (
-            <p
-              className="creditsHint"
-              style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}
-            >
+            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
               {errPlanos}
             </p>
           ) : shownPlans.length === 0 ? (
@@ -370,7 +417,6 @@ export default function PlansCreditsPage() {
               Nenhum plano encontrado para esta categoria.
             </p>
           ) : (
-            /* ✅ Scroll vertical da lista de planos quando não couber */
             <div
               id={`plans-panel-${tab}`}
               role="tabpanel"
@@ -406,9 +452,7 @@ export default function PlansCreditsPage() {
               type="number"
               min={1}
               value={credits}
-              onChange={(e) =>
-                setCredits(Math.max(1, Number(e.target.value || 1)))
-              }
+              onChange={(e) => setCredits(Math.max(1, Number(e.target.value || 1)))}
               aria-label="Quantidade de créditos"
             />
 
@@ -416,13 +460,15 @@ export default function PlansCreditsPage() {
               type="button"
               className="buyBtn is-green"
               onClick={handleBuyCredits}
+              disabled={loadingPrice || !!errPrice || !pricePerCredit}
+              title={loadingPrice ? "Carregando preço..." : errPrice ? errPrice : ""}
             >
               <IconCheckCircle className="buyBtnIco" />
               Comprar Créditos
             </button>
           </div>
 
-          <small className="creditsHint">R$2,00 por crédito</small>
+          <small className="creditsHint">{creditPriceText}</small>
         </div>
       </section>
     </div>

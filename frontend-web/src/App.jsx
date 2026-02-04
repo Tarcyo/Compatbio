@@ -16,7 +16,7 @@ import RequireAuth from "./auth/RequireAuth";
 import RequireAdminAuth from "./auth/RequireAdminAuth";
 
 import AdminDashboardLayout from "./components/layout/AdminDashboardLayout";
-import AdminDashboardPage from "./components/AdminPages/AdminPage";
+import AdminDashboardPage from "./components/AdminPages/AdminDashboardPage";
 import AdminSolicitacoesPage from "./components/AdminPages/AdminSolicitacaoPage";
 import AdminEmpresasPage from "./components/AdminPages/AdminEmpresaPage";
 import AdminPlanosPage from "./components/AdminPages/AdminPlanosPage";

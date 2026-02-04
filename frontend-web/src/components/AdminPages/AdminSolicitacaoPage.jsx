@@ -161,12 +161,38 @@ export default function AdminSolicitacoesPage() {
   const [replyDesc, setReplyDesc] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const closeModal = () => setModal((m) => ({ ...m, open: false }));
+  // ✅ Estado da verificação no catálogo
+  const [catalog, setCatalog] = useState({
+    loading: false,
+    found: false,
+    resultado: null,
+    error: "",
+    bioNome: "",
+    quimNome: "",
+  });
+
+  // evita "race" de setState quando abre/fecha rápido
+  const catalogReqIdRef = useRef(0);
+
+  const closeModal = () => {
+    // invalida requisições em andamento
+    catalogReqIdRef.current += 1;
+    setCatalog({
+      loading: false,
+      found: false,
+      resultado: null,
+      error: "",
+      bioNome: "",
+      quimNome: "",
+    });
+    setModal((m) => ({ ...m, open: false }));
+  };
 
   const endpoints = useMemo(() => {
     return {
       pendentes: `${API_BASE}/admin/api/solicitacoes/analise/pendentes`,
       concluidas: `${API_BASE}/admin/api/solicitacoes/analise/concluidas`,
+      catalogo: `${API_BASE}/admin/api/resultado-catalogado`, // ✅ NOVO
     };
   }, [API_BASE]);
 
@@ -284,15 +310,91 @@ export default function AdminSolicitacoesPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [items]);
 
+  async function checkCatalogForCurrent(it) {
+    const quimico = getProdutoQuimicoNome(it);
+    const biologico = getProdutoBiologicoNome(it);
+
+    // se não tiver nomes válidos, não consulta
+    if (!quimico || !biologico || quimico === "—" || biologico === "—") {
+      setCatalog({
+        loading: false,
+        found: false,
+        resultado: null,
+        error: "",
+        bioNome: biologico || "",
+        quimNome: quimico || "",
+      });
+      return;
+    }
+
+    const reqId = (catalogReqIdRef.current += 1);
+
+    setCatalog({
+      loading: true,
+      found: false,
+      resultado: null,
+      error: "",
+      bioNome: biologico,
+      quimNome: quimico,
+    });
+
+    try {
+      const url = new URL(endpoints.catalogo);
+      // backend espera biologico + quimico
+      url.searchParams.set("biologico", biologico);
+      url.searchParams.set("quimico", quimico);
+
+      const res = await fetch(url.toString(), { credentials: "include" });
+
+      // se já houve outro open/close, ignora
+      if (reqId !== catalogReqIdRef.current) return;
+
+      if (res.status === 404) {
+        setCatalog((c) => ({ ...c, loading: false, found: false, resultado: null, error: "" }));
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setCatalog((c) => ({
+          ...c,
+          loading: false,
+          found: false,
+          resultado: null,
+          error: data?.error || `Erro HTTP ${res.status}`,
+        }));
+        return;
+      }
+
+      const resultado = data?.resultado || null;
+
+      setCatalog((c) => ({
+        ...c,
+        loading: false,
+        found: Boolean(resultado),
+        resultado,
+        error: "",
+      }));
+    } catch (e) {
+      if (reqId !== catalogReqIdRef.current) return;
+      setCatalog((c) => ({
+        ...c,
+        loading: false,
+        found: false,
+        resultado: null,
+        error: e?.message || "Erro ao verificar catálogo.",
+      }));
+    }
+  }
+
   const openReply = (it) => {
     const currentStatus = upper(it?.STATUS);
-    const defaultStatus =
-      currentStatus && currentStatus !== "PENDENTE" ? currentStatus : "COMPATIVEL";
+    const defaultStatus = currentStatus && currentStatus !== "PENDENTE" ? currentStatus : "COMPATIVEL";
 
     setReplyStatus(defaultStatus);
     setReplyDesc(String(it?.DESCRICAO || ""));
 
-    // ✅ mantém ID só no modal (ajuda a identificar), mas sem "#"
     setModal({
       open: true,
       mode: "form",
@@ -300,6 +402,17 @@ export default function AdminSolicitacoesPage() {
       message: "",
       current: it,
     });
+
+    // ✅ checa catálogo ao abrir o modal
+    checkCatalogForCurrent(it);
+  };
+
+  const loadCatalogResult = () => {
+    if (!catalog?.resultado) return;
+
+    // Preenche o formulário com o que veio do catálogo
+    setReplyStatus(upper(catalog.resultado?.STATUS) || "COMPATIVEL");
+    setReplyDesc(String(catalog.resultado?.DESCRICAO || ""));
   };
 
   const saveReply = async () => {
@@ -414,10 +527,7 @@ export default function AdminSolicitacoesPage() {
                 <option value="PARCIAL">PARCIAL</option>
 
                 {uniqueStatuses
-                  .filter(
-                    (s) =>
-                      !["PENDENTE", "COMPATIVEL", "INCOMPATIVEL", "PARCIAL"].includes(upper(s))
-                  )
+                  .filter((s) => !["PENDENTE", "COMPATIVEL", "INCOMPATIVEL", "PARCIAL"].includes(upper(s)))
                   .map((s) => (
                     <option key={s} value={s}>
                       {s}
@@ -446,12 +556,10 @@ export default function AdminSolicitacoesPage() {
                     <li key={String(id)} className="admCardItem">
                       <div className="admCardTop">
                         <div className="admCardLeft">
-                          {/* ✅ Sem numeração (#) e sem prioridade */}
                           <div className="admCardTitleRow">
                             <StatusPill status={it?.STATUS} />
                           </div>
 
-                          {/* Produtos em destaque */}
                           <div className="admProductLine" title={`${quimico} → ${biologico}`}>
                             <span className="admProductName">{quimico}</span>
                             <span className="admProductArrow" aria-hidden="true">
@@ -485,14 +593,45 @@ export default function AdminSolicitacoesPage() {
         </div>
       </div>
 
-      <Modal
-        open={modal.open}
-        title={modal.title}
-        onClose={isSaving ? undefined : closeModal}
-        footer={modalFooter}
-      >
+      <Modal open={modal.open} title={modal.title} onClose={isSaving ? undefined : closeModal} footer={modalFooter}>
         {modal.mode === "form" ? (
           <div className="admModalForm">
+            {/* ✅ Área de verificação de catálogo */}
+            {catalog.loading ? (
+              <div className="admCatalogHint">Verificando catálogo de resultados...</div>
+            ) : catalog.error ? (
+              <div className="admCatalogHint is-error">{catalog.error}</div>
+            ) : catalog.found && catalog.resultado ? (
+              <div className="admCatalogBanner">
+                <div className="admCatalogBannerTop">
+                  <div>
+                    <p className="admCatalogBannerTitle">Já existe um resultado catalogado para esta combinação.</p>
+                    <div className="admCatalogBannerMeta">
+                      <div>
+                        <span style={{ opacity: 0.85 }}>Status catalogado:</span>{" "}
+                        <StatusPill status={catalog.resultado?.STATUS} />
+                      </div>
+                      <div className="admCatalogSmall" style={{ marginTop: 6 }}>
+                        {catalog.quimNome} → {catalog.bioNome} (ID: {catalog.resultado?.ID ?? "—"})
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="admCatalogActions">
+                    <button
+                      type="button"
+                      className="admCatalogLoadBtn"
+                      onClick={loadCatalogResult}
+                      disabled={isSaving}
+                      title="Preenche o formulário com o resultado do catálogo"
+                    >
+                      Carregar resultado
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="admModalRow">
               <label className="admModalLabel">Resultado</label>
 

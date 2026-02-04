@@ -1,0 +1,356 @@
+/* AdminDashboardPage.css */
+
+/* =========================
+   Tema escuro sólido (sem glass)
+========================= */
+
+:root{
+  --bg-0: #14171c;
+  --bg-1: #1b2027;
+  --bg-2: #222a33;
+  --panel: #1f252d;
+  --panel-2: #1a1f26;
+  --border: rgba(255,255,255,0.10);
+  --border-2: rgba(255,255,255,0.08);
+  --text: rgba(241,245,249,0.92);
+  --muted: rgba(241,245,249,0.68);
+  --muted2: rgba(241,245,249,0.58);
+  --shadow: 0 16px 34px rgba(0,0,0,0.38);
+  --shadow-soft: 0 10px 22px rgba(0,0,0,0.26);
+}
+
+/* Card principal: cinza escuro sólido */
+.adWrap {
+  padding: 16px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* Scroll da tela (ver todos os gráficos) */
+.adScrollPage {
+  max-height: calc(100vh - 140px);
+  overflow: auto;
+  padding-right: 6px;
+}
+
+/* Scrollbar do container principal */
+.adScrollPage::-webkit-scrollbar { width: 12px; }
+.adScrollPage::-webkit-scrollbar-track {
+  background: #0f1216;
+  border-radius: 999px;
+}
+.adScrollPage::-webkit-scrollbar-thumb {
+  background: #3a4350;
+  border-radius: 999px;
+  border: 3px solid #0f1216;
+}
+.adScrollPage::-webkit-scrollbar-thumb:hover { background: #4c5766; }
+
+/* =========================
+   Header
+========================= */
+.adHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.adHeaderLeft { min-width: 0; }
+
+.adTitleRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.adTitle {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.adBadge{
+  display:inline-flex;
+  align-items:center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #0f1216;
+  border: 1px solid var(--border-2);
+  color: rgba(241,245,249,0.82);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.adSubtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.35;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.adRange { font-weight: 850; color: rgba(241,245,249,0.86); }
+.adDot { opacity: 0.55; }
+
+/* =========================
+   KPIs
+========================= */
+.adKpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.adKpi {
+  background: linear-gradient(180deg, #222a33 0%, #1b2027 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 12px 12px;
+  min-width: 0;
+  box-shadow: var(--shadow-soft);
+}
+
+.adKpiTop{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.adKpiIcon{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: #0f1216;
+  border: 1px solid var(--border-2);
+}
+
+.adKpiLabel {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.adKpiValue {
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: 950;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.adKpi--blue { border-color: rgba(0, 120, 255, 0.35); }
+.adKpi--green { border-color: rgba(0, 170, 90, 0.35); }
+
+@media (max-width: 1100px) {
+  .adHeader { flex-direction: column; }
+  .adKpis { grid-template-columns: 1fr; width: 100%; }
+}
+
+/* =========================
+   Estados
+========================= */
+.adState {
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  box-shadow: var(--shadow-soft);
+}
+
+.adState--error {
+  border-color: rgba(255, 0, 0, 0.35);
+  color: rgba(255, 200, 200, 0.95);
+}
+
+/* =========================
+   Panels
+========================= */
+.adPanel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+.adPanelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid var(--border-2);
+}
+
+.adPanelTitle {
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.adPanelSub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.35;
+}
+
+.adTag {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-2);
+  background: var(--panel-2);
+  color: rgba(241,245,249,0.82);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.adPanelBody { padding: 12px; }
+
+/* =========================
+   Chart boxes (sem branco)
+========================= */
+.adChartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.adChartBox {
+  background: linear-gradient(180deg, #1a1f26 0%, #161a20 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 12px 12px 14px;
+  min-width: 0;
+}
+
+.adChartHead {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.adChartTitle {
+  font-weight: 950;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: rgba(241,245,249,0.92);
+}
+
+.adChartHint {
+  font-size: 12px;
+  color: rgba(241,245,249,0.60);
+  line-height: 1.35;
+}
+
+.adChartCanvas { width: 100%; }
+
+/* =========================
+   Rankings grid
+========================= */
+.adRankGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 980px) {
+  .adRankGrid { grid-template-columns: 1fr; }
+}
+
+/* =========================
+   Scrollbars (X e Y)
+========================= */
+.adScrollX {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.adScrollY {
+  overflow-y: auto;
+}
+
+/* Scrollbar horizontal */
+.adScrollX::-webkit-scrollbar { height: 12px; }
+.adScrollX::-webkit-scrollbar-track {
+  background: #0f1216;
+  border-radius: 999px;
+}
+.adScrollX::-webkit-scrollbar-thumb {
+  background: #3a4350;
+  border-radius: 999px;
+  border: 3px solid #0f1216;
+}
+.adScrollX::-webkit-scrollbar-thumb:hover { background: #4c5766; }
+
+/* Scrollbar vertical */
+.adScrollY::-webkit-scrollbar { width: 12px; }
+.adScrollY::-webkit-scrollbar-track {
+  background: #0f1216;
+  border-radius: 999px;
+}
+.adScrollY::-webkit-scrollbar-thumb {
+  background: #3a4350;
+  border-radius: 999px;
+  border: 3px solid #0f1216;
+}
+.adScrollY::-webkit-scrollbar-thumb:hover { background: #4c5766; }
+
+/* =========================
+   Tooltip escuro
+========================= */
+.adTooltip {
+  background: #0f1216;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 10px;
+  color: rgba(241,245,249,0.92);
+  box-shadow: 0 18px 30px rgba(0,0,0,0.40);
+  min-width: 180px;
+}
+
+.adTooltipTitle {
+  font-weight: 950;
+  margin-bottom: 8px;
+  color: rgba(241,245,249,0.95);
+}
+
+.adTooltipList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adTooltipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.adTooltipName { opacity: 0.75; }
+.adTooltipValue { font-weight: 900; }
+
+/* Mobile */
+@media (max-width: 520px) {
+  .adPanelHeader { flex-direction: column; align-items: flex-start; }
+}
