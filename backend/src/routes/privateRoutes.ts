@@ -7,6 +7,8 @@ import { assinaturaRoutes } from "./assinaturaRoutes";
 import { planoRoutes } from "./planoRoutes";
 import { empresaRoutes } from "./empresaRoutes";
 import { solicitacaoAdicaoProdutoClienteRoutes } from "./SolicitaçãoProdutoCliente";
+import  getPrecoCreditoAtualRoute   from "./precoCreditosRoutes";
+import { creditosRoutes } from "./compraCreditosRoutes";
 
 // ...
 
@@ -20,6 +22,8 @@ privateRoutes.use(assinaturaRoutes);
 privateRoutes.use(planoRoutes); // ✅ ADD
 privateRoutes.use(empresaRoutes);
 privateRoutes.use(solicitacaoAdicaoProdutoClienteRoutes);
+privateRoutes.use(getPrecoCreditoAtualRoute)
+privateRoutes.use(creditosRoutes);
 
 /**
  * Exemplo: rota interna que retorna o cliente logado (com empresa).

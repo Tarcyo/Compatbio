@@ -5,6 +5,8 @@ import { adminSolicitacaoAdicaoProdutoRoutes } from "./adicaoProdutosRoutes";
 import { adminProdutosRoutes } from "./AdminProdutosRoutes";
 import { adminEmpresasRoutes } from "./adminEmpresaRoutes";
 import { adminPlanosRoutes } from "./adminPlanosRoutes";
+import { adminDashboardRoutes } from "./AdminDashboardRoutes";
+import adminResultadoCatalogadoRoutes from "./resultadoCatalogoAdminRoutes";
 
 export const adminPrivateRoutes = Router();
 
@@ -22,3 +24,5 @@ adminPrivateRoutes.use(adminProdutosRoutes);
 adminPrivateRoutes.use(adminSolicitacaoAdicaoProdutoRoutes);
 adminPrivateRoutes.use(adminEmpresasRoutes); // ✅ ADD
 adminPrivateRoutes.use(adminPlanosRoutes); // ✅ ADD
+adminPrivateRoutes.use(adminDashboardRoutes);
+adminPrivateRoutes.use(adminResultadoCatalogadoRoutes);
