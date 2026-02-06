@@ -10,7 +10,7 @@ import RequestAnalysisPage from "./components/RequestAnalisis/RequestAnalyses";
 import ResultsPage from "./components/Result/ResultPage";
 import PlansCreditsPage from "./components/Planos/PlansPage";
 import AnalysisDetailsPage from "./components/AnalysisDetail/AnalysesDetails";
-import CheckoutConfirmPage from "./components/Checkout/Checkout";
+import CheckoutConfirmPage from "./components/histoyScreen/history";
 
 import RequireAuth from "./auth/RequireAuth";
 import RequireAdminAuth from "./auth/RequireAdminAuth";
@@ -24,6 +24,7 @@ import AdminProdutosPage from "./components/AdminPages/AdminProdutosPage";
 
 import { useAuth } from "./auth/AuthContext";
 import { useAdminAuth } from "./auth/AdminAuthContext";
+import AdminRefundRequestsPage from "./components/AdminPages/adminReembolso";
 
 function LoginRoute() {
   const { isAuthenticated, authReady } = useAuth();
@@ -64,6 +65,7 @@ export default function App() {
             <Route path="empresas" element={<AdminEmpresasPage />} />
             <Route path="planos" element={<AdminPlanosPage />} />
             <Route path="produtos" element={<AdminProdutosPage />} />
+            <Route path="reembolso" element={<AdminRefundRequestsPage />} />
 
           </Route>
 
@@ -83,6 +85,7 @@ export default function App() {
             <Route path="detalhes-analise" element={<AnalysisDetailsPage />} />
             <Route path="planos" element={<PlansCreditsPage />} />
             <Route path="confirmar-compra" element={<CheckoutConfirmPage />} />
+
           </Route>
         </Route>
 

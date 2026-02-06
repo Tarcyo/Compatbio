@@ -80,6 +80,10 @@ export default function Sidebar() {
       { to: "/app/solicitar-analise", label: "Solicitar análise", icon: IconDoc },
       { to: "/app/resultados", label: "Resultados das análises", icon: IconChart },
       { to: "/app/planos", label: "Planos e créditos", icon: IconCard },
+            { to: "/app/confirmar-compra", label: "Planos e créditos", icon: IconCard },
+
+
+      
     ],
     []
   );

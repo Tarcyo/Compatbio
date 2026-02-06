@@ -78,6 +78,9 @@ export default function AdminSidebar() {
       { to: "/admin/produtos", label: "Produtos", icon: IconBox }, // ✅ ADICIONADO
       { to: "/admin/empresas", label: "Empresas", icon: IconBuilding },
       { to: "/admin/planos", label: "Planos", icon: IconCard },
+      { to: "/admin/reembolso", label: "Reembolso", icon: IconCard },
+
+
     ],
     []
   );
