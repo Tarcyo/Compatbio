@@ -11,11 +11,15 @@ const AuthContext = createContext(null);
 
 const API_URL = (import.meta?.env?.VITE_API_URL ?? "http://localhost:3000")
   .toString()
-  .trim();
+  .trim()
+  .replace(/\/+$/, "");
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authReady, setAuthReady] = useState(false);
+
+  // ✅ aqui guardamos o retorno do /me
+  const [meData, setMeData] = useState(null);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -24,11 +28,22 @@ export function AuthProvider({ children }) {
         credentials: "include", // ✅ cookie httpOnly
       });
 
-      setIsAuthenticated(res.ok);
+      if (!res.ok) {
+        setIsAuthenticated(false);
+        setMeData(null);
+        setAuthReady(true);
+        return false;
+      }
+
+      const json = await res.json().catch(() => null);
+
+      setIsAuthenticated(true);
+      setMeData(json);
       setAuthReady(true);
-      return res.ok;
+      return true;
     } catch {
       setIsAuthenticated(false);
+      setMeData(null);
       setAuthReady(true);
       return false;
     }
@@ -50,7 +65,6 @@ export function AuthProvider({ children }) {
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
 
-    // ajuste o intervalo como quiser (ex.: 30s / 60s)
     const intervalId = window.setInterval(() => {
       checkAuth();
     }, 60_000);
@@ -66,10 +80,17 @@ export function AuthProvider({ children }) {
     () => ({
       isAuthenticated,
       authReady,
+      meData, // ✅ expose
+
+      // atalhos úteis:
+      cliente: meData?.cliente ?? null,
+      empresa: meData?.cliente?.empresa ?? null,
+
       setIsAuthenticated,
-      checkAuth, // ✅ expõe a função
+      setMeData,
+      checkAuth,
     }),
-    [isAuthenticated, authReady, checkAuth]
+    [isAuthenticated, authReady, meData, checkAuth]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

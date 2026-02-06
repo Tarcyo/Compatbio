@@ -1,8 +1,8 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
-import logo from "../../assets/Logo.png";
-import { useAuth } from "../../auth/AuthContext"; // ✅ ajuste o caminho se necessário
+import defaultLogo from "../../assets/Logo.png";
+import { useAuth } from "../../auth/AuthContext";
 
 /* Ícones */
 function IconUser(props) {
@@ -68,11 +68,30 @@ function IconWarning(props) {
   );
 }
 
+// ✅ helper: se IMAGEM_DA_LOGO vier como URL relativa, prefixa com API
+function resolveLogoUrl(raw) {
+  if (!raw) return null;
+  const v = String(raw).trim();
+  if (!v) return null;
+
+  // aceita data URL/base64 ou URL completa
+  if (v.startsWith("data:")) return v;
+  if (/^https?:\/\//i.test(v)) return v;
+
+  // caminho relativo -> prefixa backend
+  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
+    .toString()
+    .replace(/\/+$/, "");
+
+  if (v.startsWith("/")) return `${API_BASE}${v}`;
+  return `${API_BASE}/${v}`;
+}
+
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { isAuthenticated, authReady, checkAuth } = useAuth(); // ✅
+  const { isAuthenticated, authReady, checkAuth, empresa } = useAuth();
 
   const NAV_ITEMS = useMemo(
     () => [
@@ -80,10 +99,7 @@ export default function Sidebar() {
       { to: "/app/solicitar-analise", label: "Solicitar análise", icon: IconDoc },
       { to: "/app/resultados", label: "Resultados das análises", icon: IconChart },
       { to: "/app/planos", label: "Planos e créditos", icon: IconCard },
-            { to: "/app/confirmar-compra", label: "Planos e créditos", icon: IconCard },
-
-
-      
+      { to: "/app/confirmar-compra", label: "Planos e créditos", icon: IconCard },
     ],
     []
   );
@@ -93,6 +109,16 @@ export default function Sidebar() {
 
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // ✅ Logo dinâmica (empresa > default)
+  const companyLogoUrl = useMemo(() => resolveLogoUrl(empresa?.IMAGEM_DA_LOGO), [empresa]);
+  const brandName = empresa?.NOME ? String(empresa.NOME) : "CompatBio";
+
+  // fallback em caso de imagem quebrada
+  const [logoSrc, setLogoSrc] = useState(defaultLogo);
+  useEffect(() => {
+    setLogoSrc(companyLogoUrl || defaultLogo);
+  }, [companyLogoUrl]);
 
   // ✅ Se perder autenticação enquanto está no app/Sidebar -> manda pro login
   useEffect(() => {
@@ -155,10 +181,8 @@ export default function Sidebar() {
   const handleProtectedNav = async (e, to) => {
     e.preventDefault();
 
-    // enquanto ainda não validou auth, não navega
     if (!authReady) return;
 
-    // revalida na hora (pega expiração do token)
     const ok = await checkAuth();
     if (!ok) {
       navigate("/login", { replace: true, state: { from: location } });
@@ -175,7 +199,8 @@ export default function Sidebar() {
     try {
       const API_URL = (import.meta?.env?.VITE_API_URL ?? "http://localhost:3000")
         .toString()
-        .trim();
+        .trim()
+        .replace(/\/+$/, "");
 
       await fetch(`${API_URL}/logout`, {
         method: "POST",
@@ -183,24 +208,27 @@ export default function Sidebar() {
       });
     } catch {
       // mesmo se falhar, seguimos com logout no front
- } finally {
-  sessionStorage.removeItem("auth_token");
-  setIsLoggingOut(false);
-  setIsLogoutOpen(false);
+    } finally {
+      sessionStorage.removeItem("auth_token");
+      setIsLoggingOut(false);
+      setIsLogoutOpen(false);
 
-  // ✅ Vai para /login e dá reload (garante reset total do estado)
-  navigate("/login", { replace: true });
-  window.location.reload();
-}
-
+      navigate("/login", { replace: true });
+      window.location.reload();
+    }
   };
 
   return (
     <>
       <aside className="sb" aria-label="Menu lateral">
         <div className="sb-top">
-          <div className="sb-brand" aria-label="CompatBio">
-            <img className="sb-logo" src={logo} alt="CompatBio" />
+          <div className="sb-brand" aria-label={brandName}>
+            <img
+              className="sb-logo"
+              src={logoSrc}
+              alt={brandName}
+              onError={() => setLogoSrc(defaultLogo)}
+            />
           </div>
 
           <nav ref={navRef} className="sb-nav" aria-label="Navegação">
@@ -219,10 +247,8 @@ export default function Sidebar() {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  onClick={(e) => handleProtectedNav(e, item.to)} // ✅
-                  className={({ isActive }) =>
-                    `sb-item ${isActive ? "is-active" : ""}`
-                  }
+                  onClick={(e) => handleProtectedNav(e, item.to)}
+                  className={({ isActive }) => `sb-item ${isActive ? "is-active" : ""}`}
                 >
                   <span className="sb-itemIcon" aria-hidden="true">
                     <Icon className="sb-icon" />

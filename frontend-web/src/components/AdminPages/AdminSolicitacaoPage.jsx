@@ -105,6 +105,8 @@ function StatusPill({ status }) {
   const klass =
     s === "PENDENTE"
       ? "is-pending"
+      : s === "EM_ANALISE"
+      ? "is-progress"
       : s === "COMPATIVEL"
       ? "is-ok"
       : s === "INCOMPATIVEL"
@@ -160,6 +162,9 @@ export default function AdminSolicitacoesPage() {
   const [replyStatus, setReplyStatus] = useState("COMPATIVEL");
   const [replyDesc, setReplyDesc] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isMarking, setIsMarking] = useState(false);
+
+  const isBusy = isSaving || isMarking;
 
   // ✅ Estado da verificação no catálogo
   const [catalog, setCatalog] = useState({
@@ -192,7 +197,8 @@ export default function AdminSolicitacoesPage() {
     return {
       pendentes: `${API_BASE}/admin/api/solicitacoes/analise/pendentes`,
       concluidas: `${API_BASE}/admin/api/solicitacoes/analise/concluidas`,
-      catalogo: `${API_BASE}/admin/api/resultado-catalogado`, // ✅ NOVO
+      catalogo: `${API_BASE}/admin/api/resultado-catalogado`,
+      marcarEmAnalise: `${API_BASE}/admin/api/solicitacoes/analise/marcar-em-analise`, // ✅ NOVO
     };
   }, [API_BASE]);
 
@@ -254,6 +260,7 @@ export default function AdminSolicitacoesPage() {
           ]);
           list = [...p, ...c];
         } else {
+          // concluidas traz tudo que NÃO é pendente (inclui EM_ANALISE)
           list = await fetchAllPages(endpoints.concluidas, { signal: ctrl.signal });
         }
 
@@ -340,7 +347,6 @@ export default function AdminSolicitacoesPage() {
 
     try {
       const url = new URL(endpoints.catalogo);
-      // backend espera biologico + quimico
       url.searchParams.set("biologico", biologico);
       url.searchParams.set("quimico", quimico);
 
@@ -390,7 +396,10 @@ export default function AdminSolicitacoesPage() {
 
   const openReply = (it) => {
     const currentStatus = upper(it?.STATUS);
-    const defaultStatus = currentStatus && currentStatus !== "PENDENTE" ? currentStatus : "COMPATIVEL";
+
+    // replyStatus é só para o "resultado final", então não usa EM_ANALISE/PENDENTE
+    const allowedReply = new Set(["COMPATIVEL", "INCOMPATIVEL", "PARCIAL"]);
+    const defaultStatus = allowedReply.has(currentStatus) ? currentStatus : "COMPATIVEL";
 
     setReplyStatus(defaultStatus);
     setReplyDesc(String(it?.DESCRICAO || ""));
@@ -409,10 +418,58 @@ export default function AdminSolicitacoesPage() {
 
   const loadCatalogResult = () => {
     if (!catalog?.resultado) return;
-
-    // Preenche o formulário com o que veio do catálogo
     setReplyStatus(upper(catalog.resultado?.STATUS) || "COMPATIVEL");
     setReplyDesc(String(catalog.resultado?.DESCRICAO || ""));
+  };
+
+  const markAsInAnalysis = async () => {
+    const current = modal.current;
+    if (!current?.ID) return;
+
+    setIsMarking(true);
+    try {
+      const payload = { id: current.ID };
+
+      const res = await fetch(endpoints.marcarEmAnalise, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || `Erro HTTP ${res.status}`);
+
+      // Atualiza lista local
+      setItems((prev) =>
+        prev.map((it) =>
+          it.ID === current.ID
+            ? {
+                ...it,
+                STATUS: "EM_ANALISE",
+              }
+            : it
+        )
+      );
+
+      setModal({
+        open: true,
+        mode: "success",
+        title: "Marcado como em análise",
+        message: "A solicitação foi marcada como EM_ANALISE.",
+        current: null,
+      });
+    } catch (e) {
+      setModal({
+        open: true,
+        mode: "error",
+        title: "Erro ao marcar como em análise",
+        message: e?.message || "Não foi possível marcar agora. Tente novamente.",
+        current: modal.current,
+      });
+    } finally {
+      setIsMarking(false);
+    }
   };
 
   const saveReply = async () => {
@@ -469,16 +526,40 @@ export default function AdminSolicitacoesPage() {
     }
   };
 
+  const canShowMarkAsAnalysis = (() => {
+    if (!modal.open || modal.mode !== "form") return false;
+
+    const current = modal.current;
+    const st = upper(current?.STATUS);
+
+    // só faz sentido para pendente
+    if (st !== "PENDENTE") return false;
+
+    // só aparece quando NÃO existe combinação catalogada
+    if (catalog.loading) return false;
+    if (catalog.error) return false;
+    if (catalog.found && catalog.resultado) return false;
+
+    return true;
+  })();
+
   const modalFooter = (() => {
     if (!modal.open) return null;
 
     if (modal.mode === "form") {
       return (
         <>
-          <button className="cbBtnGhost" type="button" onClick={closeModal} disabled={isSaving}>
+          <button className="cbBtnGhost" type="button" onClick={closeModal} disabled={isBusy}>
             Cancelar
           </button>
-          <button className="cbBtnPrimary" type="button" onClick={saveReply} disabled={isSaving}>
+
+          {canShowMarkAsAnalysis ? (
+            <button className="cbBtnGhost cbBtnGhost--info" type="button" onClick={markAsInAnalysis} disabled={isBusy}>
+              {isMarking ? "Marcando..." : "Marcar como em análise"}
+            </button>
+          ) : null}
+
+          <button className="cbBtnPrimary" type="button" onClick={saveReply} disabled={isBusy}>
             {isSaving ? "Salvando..." : "Salvar"}
           </button>
         </>
@@ -521,13 +602,14 @@ export default function AdminSolicitacoesPage() {
               <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter}>
                 <option value="ALL">Todos</option>
                 <option value="PENDENTE">PENDENTE</option>
+                <option value="EM_ANALISE">EM ANÁLISE</option>
 
                 <option value="COMPATIVEL">COMPATÍVEL</option>
                 <option value="INCOMPATIVEL">INCOMPATÍVEL</option>
                 <option value="PARCIAL">PARCIAL</option>
 
                 {uniqueStatuses
-                  .filter((s) => !["PENDENTE", "COMPATIVEL", "INCOMPATIVEL", "PARCIAL"].includes(upper(s)))
+                  .filter((s) => !["PENDENTE", "EM_ANALISE", "COMPATIVEL", "INCOMPATIVEL", "PARCIAL"].includes(upper(s)))
                   .map((s) => (
                     <option key={s} value={s}>
                       {s}
@@ -593,7 +675,7 @@ export default function AdminSolicitacoesPage() {
         </div>
       </div>
 
-      <Modal open={modal.open} title={modal.title} onClose={isSaving ? undefined : closeModal} footer={modalFooter}>
+      <Modal open={modal.open} title={modal.title} onClose={isBusy ? undefined : closeModal} footer={modalFooter}>
         {modal.mode === "form" ? (
           <div className="admModalForm">
             {/* ✅ Área de verificação de catálogo */}
@@ -622,7 +704,7 @@ export default function AdminSolicitacoesPage() {
                       type="button"
                       className="admCatalogLoadBtn"
                       onClick={loadCatalogResult}
-                      disabled={isSaving}
+                      disabled={isBusy}
                       title="Preenche o formulário com o resultado do catálogo"
                     >
                       Carregar resultado
@@ -630,7 +712,16 @@ export default function AdminSolicitacoesPage() {
                   </div>
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div className="admCatalogHint admCatalogHint--missing">
+                Nenhum resultado catalogado encontrado para esta combinação.
+                {upper(modal.current?.STATUS) === "PENDENTE" ? (
+                  <span className="admCatalogHintSub">
+                    Você pode marcar a solicitação como <b>EM ANÁLISE</b>.
+                  </span>
+                ) : null}
+              </div>
+            )}
 
             <div className="admModalRow">
               <label className="admModalLabel">Resultado</label>
@@ -644,7 +735,7 @@ export default function AdminSolicitacoesPage() {
                   className="admSelect"
                   value={replyStatus}
                   onChange={(e) => setReplyStatus(e.target.value)}
-                  disabled={isSaving}
+                  disabled={isBusy}
                 >
                   <option value="COMPATIVEL">COMPATÍVEL</option>
                   <option value="INCOMPATIVEL">INCOMPATÍVEL</option>
@@ -663,7 +754,7 @@ export default function AdminSolicitacoesPage() {
                 onChange={(e) => setReplyDesc(e.target.value)}
                 placeholder="Escreva a descrição da resposta..."
                 rows={5}
-                disabled={isSaving}
+                disabled={isBusy}
               />
             </div>
           </div>

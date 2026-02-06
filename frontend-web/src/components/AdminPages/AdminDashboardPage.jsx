@@ -25,10 +25,12 @@ function monthLabel(ym) {
   const d = new Date(Number(y), Number(m) - 1, 1);
   return d.toLocaleDateString("pt-BR", { month: "short" });
 }
+
 function moneyBR(v) {
   const n = Number(v || 0);
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
+
 function formatRangeLabel(range) {
   try {
     const from = new Date(range.from);
@@ -217,15 +219,13 @@ export default function AdminDashboardPage() {
   const kpiNovos = Number(kpiNovosRow?.novos ?? 0);
   const kpiReceita = Number(kpiReceitaRow?.receita ?? 0);
 
-  // séries p/ gráficos
+  // ✅ séries p/ gráficos
+  // ALTERAÇÃO AQUI: agora a série de análises tem só o TOTAL
   const solicitacoesSeries = useMemo(() => {
     const list = data?.solicitacoesPorMes || [];
     return list.map((x) => ({
       month: monthLabel(x.month),
-      total: x.total,
-      biologico: x.biologico,
-      quimico: x.quimico,
-      combo: x.combo,
+      total: Number(x.total ?? 0),
     }));
   }, [data]);
 
@@ -315,7 +315,8 @@ export default function AdminDashboardPage() {
               >
                 <div className="adChartsGrid">
                   <div className="adChartBox">
-                    <ChartTitle title="Solicitações" hint="Total • Biológico • Químico • Combo" />
+                    {/* ALTERAÇÃO AQUI: título/hint e gráfico com 1 linha */}
+                    <ChartTitle title="Análises (total)" hint="Total de análises realizadas por mês" />
                     <div className="adScrollX">
                       <div className="adChartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
                         <ResponsiveContainer width="100%" height="100%">
@@ -326,9 +327,6 @@ export default function AdminDashboardPage() {
                             <Tooltip content={<DarkTooltip />} />
                             <Legend />
                             <Line type="monotone" dataKey="total" name="Total" strokeWidth={3} dot={false} />
-                            <Line type="monotone" dataKey="biologico" name="Biológico" strokeWidth={2} dot={false} />
-                            <Line type="monotone" dataKey="quimico" name="Químico" strokeWidth={2} dot={false} />
-                            <Line type="monotone" dataKey="combo" name="Combo" strokeWidth={2} dot={false} />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -394,12 +392,7 @@ export default function AdminDashboardPage() {
                               <XAxis type="number" allowDecimals={false} />
                               <YAxis type="category" dataKey="nome" width={240} tick={{ fontSize: 12 }} />
                               <Tooltip content={<DarkTooltip />} />
-                              <Bar
-                                dataKey="clientes"
-                                name="Clientes"
-                                radius={[10, 10, 10, 10]}
-                                fill={BAR_BLUE}
-                              />
+                              <Bar dataKey="clientes" name="Clientes" radius={[10, 10, 10, 10]} fill={BAR_BLUE} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -422,12 +415,7 @@ export default function AdminDashboardPage() {
                               <XAxis type="number" allowDecimals={false} />
                               <YAxis type="category" dataKey="label" width={380} tick={{ fontSize: 12 }} />
                               <Tooltip content={<DarkTooltip />} />
-                              <Bar
-                                dataKey="count"
-                                name="Solicitações"
-                                radius={[10, 10, 10, 10]}
-                                fill={BAR_BLUE}
-                              />
+                              <Bar dataKey="count" name="Solicitações" radius={[10, 10, 10, 10]} fill={BAR_BLUE} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
