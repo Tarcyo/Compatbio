@@ -16,6 +16,10 @@ app.use(
   })
 );
 
+// ✅ RAW body só nos endpoints de webhook
+app.use("/stripe/webhook", express.raw({ type: "application/json" }));
+app.use("/stripe/webhook-assinatura", express.raw({ type: "application/json" })); // ✅ NOVO
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

@@ -22,25 +22,47 @@ model assinatura {
   DATA_ASSINATURA                DateTime @default(now()) @db.DateTime(0)
   STATUS                         String   @db.VarChar(50)
   ID_CLIENTE_ADMIN_DA_ASSINATURA Int      @db.UnsignedInt
-  ID_VINCULO_STRIPE              String?  @unique(map: "UK_ASSINATURA_VINCULO_STRIPE") @db.VarChar(255)
+
+  // ⚠️ existente no seu schema (pode estar sendo usado):
+  ID_VINCULO_STRIPE String? @unique(map: "UK_ASSINATURA_VINCULO_STRIPE") @db.VarChar(255)
+
+  // ✅ Stripe Subscriptions
+  STRIPE_CUSTOMER_ID         String?   @db.VarChar(255)
+  STRIPE_CHECKOUT_SESSION_ID String?   @unique(map: "UK_ASSINATURA_STRIPE_CHECKOUT_SESSION") @db.VarChar(255)
+  STRIPE_SUBSCRIPTION_ID     String?   @unique(map: "UK_ASSINATURA_STRIPE_SUBSCRIPTION") @db.VarChar(255)
+  PERIODO_ATUAL_INICIO       DateTime? @db.DateTime(0)
+  PERIODO_ATUAL_FIM          DateTime? @db.DateTime(0)
+  CANCEL_AT_PERIOD_END       Boolean   @default(false)
+  DATA_CANCELAMENTO          DateTime? @db.DateTime(0)
 
   cliente_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente cliente   @relation("assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente", fields: [ID_CLIENTE_ADMIN_DA_ASSINATURA], references: [ID], map: "FK_ASSINATURA_CLIENTE_ADMIN")
   plano                                                      plano     @relation(fields: [ID_PLANO], references: [ID], map: "FK_ASSINATURA_PLANO")
   cliente_cliente_ID_ASSINATURAToassinatura                  cliente[] @relation("cliente_ID_ASSINATURAToassinatura")
 
+  // faturas / invoices de assinatura (idempotência e crédito mensal)
+  faturas assinatura_fatura[] @relation("assinatura_faturas")
+
+  // (opcional, mas útil) reembolsos de assinatura vinculados a esta assinatura
+  solicitacoes_reembolso_assinatura solicitacao_reembolso_assinatura[]
+
   @@index([ID_CLIENTE_ADMIN_DA_ASSINATURA], map: "IX_ASSINATURA_ID_CLIENTE_ADMIN")
   @@index([ID_PLANO], map: "IX_ASSINATURA_ID_PLANO")
+  @@index([STRIPE_SUBSCRIPTION_ID], map: "IX_ASSINATURA_STRIPE_SUBSCRIPTION")
+  @@index([STRIPE_CHECKOUT_SESSION_ID], map: "IX_ASSINATURA_STRIPE_CHECKOUT_SESSION")
 }
 
 model cliente {
-  ID               Int     @id @default(autoincrement()) @db.UnsignedInt
-  EMAIL            String  @unique(map: "UK_CLIENTE_EMAIL") @db.VarChar(255)
-  NOME             String  @db.VarChar(255)
-  SALDO            Decimal @default(0.00) @db.Decimal(12, 2)
-  ID_ASSINATURA    Int?    @db.UnsignedInt
-  ID_EMPRESA       Int?    @db.UnsignedInt
-  COMPRA_NO_SISTEMA Boolean @default(false)
-  DATA_CRIACAO     DateTime @default(now()) @db.DateTime(0)
+  ID                Int      @id @default(autoincrement()) @db.UnsignedInt
+  EMAIL             String   @unique(map: "UK_CLIENTE_EMAIL") @db.VarChar(255)
+  NOME              String   @db.VarChar(255)
+  SALDO             Decimal  @default(0.00) @db.Decimal(12, 2)
+  ID_ASSINATURA     Int?     @db.UnsignedInt
+  ID_EMPRESA        Int?     @db.UnsignedInt
+  COMPRA_NO_SISTEMA Boolean  @default(false)
+  DATA_CRIACAO      DateTime @default(now()) @db.DateTime(0)
+
+  // ✅ Stripe Customer
+  STRIPE_CUSTOMER_ID String? @unique(map: "UK_CLIENTE_STRIPE_CUSTOMER") @db.VarChar(255)
 
   assinatura_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente assinatura[] @relation("assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente")
   assinatura_cliente_ID_ASSINATURAToassinatura                  assinatura?  @relation("cliente_ID_ASSINATURAToassinatura", fields: [ID_ASSINATURA], references: [ID], map: "FK_CLIENTE_ASSINATURA")
@@ -49,14 +71,17 @@ model cliente {
   solicitacao_adicao_produto                                    solicitacao_adicao_produto[]
   solicitacao_analise                                           solicitacao_analise[]
 
-  // ✅ este é o inverso correto
-  compra_credito                                                compra_credito[]
+  compra_credito         compra_credito[]
+  solicitacoes_reembolso solicitacao_reembolso_credito[] @relation("sol_reemb_cliente")
+
+  // (opcional, mas útil) reembolsos de assinatura do cliente
+  solicitacoes_reembolso_assinatura solicitacao_reembolso_assinatura[]
 
   @@index([ID_ASSINATURA], map: "IX_CLIENTE_ID_ASSINATURA")
   @@index([ID_EMPRESA], map: "IX_CLIENTE_ID_EMPRESA")
   @@index([DATA_CRIACAO], map: "IX_CLIENTE_DATA_CRIACAO")
+  @@index([STRIPE_CUSTOMER_ID], map: "IX_CLIENTE_STRIPE_CUSTOMER")
 }
-
 
 model empresa {
   ID             Int       @id @default(autoincrement()) @db.UnsignedInt
@@ -72,11 +97,11 @@ model log_transacao {
   ID_CLIENTE Int                @db.UnsignedInt
   STATUS     String             @db.VarChar(50)
 
-  // ✅ NOVOS CAMPOS (para dashboard/receita)
-  VALOR          Decimal   @default(0.00) @db.Decimal(12, 2)
-  DATA_TRANSACAO  DateTime  @default(now()) @db.DateTime(0)
+  // dashboard/receita
+  VALOR          Decimal  @default(0.00) @db.Decimal(12, 2)
+  DATA_TRANSACAO DateTime @default(now()) @db.DateTime(0)
 
-  cliente    cliente            @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_LOG_CLIENTE")
+  cliente cliente @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_LOG_CLIENTE")
 
   @@index([ID_CLIENTE], map: "IX_LOG_ID_CLIENTE")
   @@index([STATUS], map: "IX_LOG_STATUS")
@@ -85,17 +110,17 @@ model log_transacao {
 }
 
 model plano {
-  ID                   Int     @id @default(autoincrement()) @db.UnsignedInt
-  NOME                 String  @db.VarChar(255)
-  QUANT_CREDITO_MENSAL  Int     @db.UnsignedInt
-  ID_STRIPE            String  @unique(map: "UK_PLANO_ID_STRIPE") @db.VarChar(255)
+  ID                   Int    @id @default(autoincrement()) @db.UnsignedInt
+  NOME                 String @db.VarChar(255)
+  QUANT_CREDITO_MENSAL Int    @db.UnsignedInt
+  ID_STRIPE            String @unique(map: "UK_PLANO_ID_STRIPE") @db.VarChar(255)
 
-  PRIORIDADE           Int     @default(3) @db.UnsignedInt
+  PRIORIDADE Int @default(3) @db.UnsignedInt
 
-  // ✅ (Dashboard anterior) valor mensal do plano
-  VALOR_MENSAL         Decimal @default(0.00) @db.Decimal(10, 2)
+  // valor mensal do plano
+  VALOR_MENSAL Decimal @default(0.00) @db.Decimal(10, 2)
 
-  assinatura           assinatura[]
+  assinatura assinatura[]
 
   @@index([PRIORIDADE], map: "IX_PLANO_PRIORIDADE")
 }
@@ -106,10 +131,10 @@ model preco_credito {
 }
 
 model produto {
-  ID        Int         @id @default(autoincrement()) @db.UnsignedInt
-  NOME      String      @db.VarChar(255)
-  TIPO      produto_TIPO
-  E_PARA_DEMO Boolean   @default(false)
+  ID          Int          @id @default(autoincrement()) @db.UnsignedInt
+  NOME        String       @db.VarChar(255)
+  TIPO        produto_TIPO
+  E_PARA_DEMO Boolean      @default(false)
 
   resultado_catalogado_resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto resultado_catalogado[] @relation("resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto")
   resultado_catalogado_resultado_catalogado_ID_PRODUTO_QUIMICOToproduto   resultado_catalogado[] @relation("resultado_catalogado_ID_PRODUTO_QUIMICOToproduto")
@@ -129,9 +154,9 @@ model resultado_catalogado {
   produto_resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto produto? @relation("resultado_catalogado_ID_PRODUTO_BIOLOGICOToproduto", fields: [ID_PRODUTO_BIOLOGICO], references: [ID], map: "FK_RC_PROD_BIOLOGICO")
   produto_resultado_catalogado_ID_PRODUTO_QUIMICOToproduto   produto? @relation("resultado_catalogado_ID_PRODUTO_QUIMICOToproduto", fields: [ID_PRODUTO_QUIMICO], references: [ID], map: "FK_RC_PROD_QUIMICO")
 
+  @@unique([ID_PRODUTO_QUIMICO, ID_PRODUTO_BIOLOGICO], map: "UK_RC_PROD_Q_B")
   @@index([ID_PRODUTO_BIOLOGICO], map: "IX_RC_ID_PROD_BIOLOGICO")
   @@index([ID_PRODUTO_QUIMICO], map: "IX_RC_ID_PROD_QUIMICO")
-  @@unique([ID_PRODUTO_QUIMICO, ID_PRODUTO_BIOLOGICO], map: "UK_RC_PROD_Q_B")
 }
 
 model solicitacao_adicao_produto {
@@ -144,8 +169,8 @@ model solicitacao_adicao_produto {
   DATA_RESPOSTA      DateTime? @db.DateTime(0)
   DESCRICAO_RESPOSTA String?   @db.Text
 
-  ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO Int?   @db.UnsignedInt
-  admin                                admin? @relation(fields: [ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], references: [ID], map: "FK_SAP_ADMIN")
+  ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO Int?    @db.UnsignedInt
+  admin                                admin?  @relation(fields: [ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], references: [ID], map: "FK_SAP_ADMIN")
   cliente                              cliente @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_SAP_CLIENTE")
 
   @@index([ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], map: "IX_SAP_ID_ADMIN")
@@ -166,8 +191,8 @@ model solicitacao_analise {
   DATA_SOLICITACAO DateTime @default(now()) @db.DateTime(0)
   PRIORIDADE       Int      @default(3) @db.UnsignedInt
 
-  admin   admin?   @relation(fields: [ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], references: [ID], map: "FK_SA_ADMIN")
-  cliente cliente  @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_SA_CLIENTE")
+  admin   admin?  @relation(fields: [ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO], references: [ID], map: "FK_SA_ADMIN")
+  cliente cliente @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_SA_CLIENTE")
 
   produto_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto produto? @relation("solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto", fields: [ID_PRODUTO_BIOLOGICO], references: [ID], map: "FK_SA_PROD_BIOLOGICO")
   produto_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto   produto? @relation("solicitacao_analise_ID_PRODUTO_QUIMICOToproduto", fields: [ID_PRODUTO_QUIMICO], references: [ID], map: "FK_SA_PROD_QUIMICO")
@@ -194,19 +219,130 @@ enum produto_TIPO {
   BIOL_GICO @map("BIOLÓGICO")
   QU_MICO   @map("QUÍMICO")
 }
+
 model compra_credito {
   ID                Int      @id @default(autoincrement()) @db.UnsignedInt
   ID_CLIENTE        Int      @db.UnsignedInt
   QUANTIDADE        Int      @db.UnsignedInt
   VALOR_UNITARIO    Decimal  @db.Decimal(10, 2)
   VALOR_TOTAL       Decimal  @db.Decimal(12, 2)
-  STATUS            String   @db.VarChar(50) // PENDENTE | PAGO | CANCELADO
+  STATUS            String   @db.VarChar(50)
   STRIPE_SESSION_ID String   @unique(map: "UK_COMPRA_CRED_STRIPE_SESSION") @db.VarChar(255)
   DATA_CRIACAO      DateTime @default(now()) @db.DateTime(0)
   DATA_PAGAMENTO    DateTime? @db.DateTime(0)
 
   cliente cliente @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_COMPRA_CRED_CLIENTE")
 
+  reembolsos            reembolso_credito[]            @relation("reembolso_compra")
+  solicitacao_reembolso solicitacao_reembolso_credito? @relation("sol_reemb_compra")
+
   @@index([ID_CLIENTE], map: "IX_COMPRA_CRED_CLIENTE")
   @@index([STATUS], map: "IX_COMPRA_CRED_STATUS")
+}
+
+model reembolso_credito {
+  ID               Int    @id @default(autoincrement()) @db.UnsignedInt
+  ID_COMPRA        Int    @db.UnsignedInt
+  STRIPE_REFUND_ID String @unique @db.VarChar(255)
+
+  QUANTIDADE Int     @db.UnsignedInt
+  VALOR      Decimal @db.Decimal(12, 2)
+
+  STATUS           String   @db.VarChar(50) // PENDENTE | SUCESSO | FALHOU
+  DATA_CRIACAO     DateTime @default(now()) @db.DateTime(0)
+  DATA_ATUALIZACAO DateTime @default(now()) @updatedAt @db.DateTime(0)
+
+  compra compra_credito @relation("reembolso_compra", fields: [ID_COMPRA], references: [ID])
+
+  @@index([ID_COMPRA])
+}
+
+model solicitacao_reembolso_credito {
+  ID         Int @id @default(autoincrement()) @db.UnsignedInt
+  ID_COMPRA  Int @db.UnsignedInt
+  ID_CLIENTE Int @db.UnsignedInt
+
+  STATUS String  @default("PENDENTE") @db.VarChar(50) // PENDENTE | APROVADA | NEGADA | CANCELADA
+  MOTIVO String? @db.Text
+
+  QUANTIDADE Int     @db.UnsignedInt
+  VALOR      Decimal @db.Decimal(12, 2)
+
+  DATA_CRIACAO     DateTime @default(now()) @db.DateTime(0)
+  DATA_ATUALIZACAO DateTime @default(now()) @updatedAt @db.DateTime(0)
+
+  compra  compra_credito @relation("sol_reemb_compra", fields: [ID_COMPRA], references: [ID], map: "FK_SOL_REEMB_COMPRA")
+  cliente cliente        @relation("sol_reemb_cliente", fields: [ID_CLIENTE], references: [ID], map: "FK_SOL_REEMB_CLIENTE")
+
+  @@unique([ID_COMPRA], map: "UK_SOL_REEMB_COMPRA")
+  @@index([ID_CLIENTE], map: "IX_SOL_REEMB_CLIENTE")
+  @@index([STATUS], map: "IX_SOL_REEMB_STATUS")
+}
+
+model assinatura_fatura {
+  ID                  Int     @id @default(autoincrement()) @db.UnsignedInt
+  ID_ASSINATURA       Int     @db.UnsignedInt
+  STRIPE_INVOICE_ID   String  @unique(map: "UK_ASSIN_FATURA_STRIPE_INVOICE") @db.VarChar(255)
+
+  STATUS              String  @db.VarChar(50) // PAGO | FALHOU
+  VALOR               Decimal @default(0.00) @db.Decimal(12, 2)
+  CREDITOS_CONCEDIDOS Int     @default(0) @db.UnsignedInt
+
+  PERIODO_INICIO      DateTime? @db.DateTime(0)
+  PERIODO_FIM         DateTime? @db.DateTime(0)
+
+  DATA_CRIACAO        DateTime @default(now()) @db.DateTime(0)
+
+  assinatura assinatura @relation("assinatura_faturas", fields: [ID_ASSINATURA], references: [ID], map: "FK_ASSIN_FATURA_ASSIN")
+
+  @@index([ID_ASSINATURA], map: "IX_ASSIN_FATURA_ID_ASSIN")
+}
+
+//
+// ✅ REEMBOLSO DE ASSINATURA (NOVO)
+//
+
+model solicitacao_reembolso_assinatura {
+  ID             Int      @id @default(autoincrement()) @db.UnsignedInt
+  ID_ASSINATURA  Int      @db.UnsignedInt
+  ID_CLIENTE     Int      @db.UnsignedInt
+
+  // qual invoice da assinatura será reembolsada
+  STRIPE_INVOICE_ID String  @unique(map: "UK_SOL_REEMB_ASSIN_INVOICE") @db.VarChar(255)
+
+  STATUS           String   @default("PENDENTE") @db.VarChar(50) // PENDENTE | APROVADA | NEGADA
+  MOTIVO           String?  @db.Text
+
+  // snapshot
+  VALOR            Decimal  @db.Decimal(12, 2)
+  CREDITOS         Int      @default(0) @db.UnsignedInt
+
+  DATA_CRIACAO     DateTime @default(now()) @db.DateTime(0)
+  DATA_ATUALIZACAO DateTime @default(now()) @updatedAt @db.DateTime(0)
+
+  assinatura assinatura @relation(fields: [ID_ASSINATURA], references: [ID], map: "FK_SOL_REEMB_ASSIN_ASSIN")
+  cliente   cliente    @relation(fields: [ID_CLIENTE], references: [ID], map: "FK_SOL_REEMB_ASSIN_CLIENTE")
+
+  // 1:1 opcional com reembolso_assinatura
+  reembolso reembolso_assinatura?
+
+  @@index([ID_CLIENTE], map: "IX_SOL_REEMB_ASSIN_CLIENTE")
+  @@index([STATUS], map: "IX_SOL_REEMB_ASSIN_STATUS")
+  @@index([ID_ASSINATURA], map: "IX_SOL_REEMB_ASSIN_ASSIN")
+}
+
+model reembolso_assinatura {
+  ID               Int      @id @default(autoincrement()) @db.UnsignedInt
+  ID_SOLICITACAO   Int      @unique(map: "UK_REEMB_ASSIN_SOL") @db.UnsignedInt
+  STRIPE_REFUND_ID String   @unique(map: "UK_REEMB_ASSIN_STRIPE_REFUND") @db.VarChar(255)
+
+  STATUS           String   @db.VarChar(50) // PENDENTE | SUCESSO | FALHOU
+  VALOR            Decimal  @db.Decimal(12, 2)
+
+  DATA_CRIACAO     DateTime @default(now()) @db.DateTime(0)
+  DATA_ATUALIZACAO DateTime @default(now()) @updatedAt @db.DateTime(0)
+
+  solicitacao solicitacao_reembolso_assinatura @relation(fields: [ID_SOLICITACAO], references: [ID], map: "FK_REEMB_ASSIN_SOL")
+
+  @@index([ID_SOLICITACAO], map: "IX_REEMB_ASSIN_SOL")
 }

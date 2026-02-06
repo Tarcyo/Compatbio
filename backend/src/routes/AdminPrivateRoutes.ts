@@ -7,6 +7,7 @@ import { adminEmpresasRoutes } from "./adminEmpresaRoutes";
 import { adminPlanosRoutes } from "./adminPlanosRoutes";
 import { adminDashboardRoutes } from "./AdminDashboardRoutes";
 import adminResultadoCatalogadoRoutes from "./resultadoCatalogoAdminRoutes";
+import { adminRefundRequestsRoutes } from "./AdminReembolso";
 
 export const adminPrivateRoutes = Router();
 
@@ -26,3 +27,4 @@ adminPrivateRoutes.use(adminEmpresasRoutes); // ✅ ADD
 adminPrivateRoutes.use(adminPlanosRoutes); // ✅ ADD
 adminPrivateRoutes.use(adminDashboardRoutes);
 adminPrivateRoutes.use(adminResultadoCatalogadoRoutes);
+adminPrivateRoutes.use(adminRefundRequestsRoutes);
