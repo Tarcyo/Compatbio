@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { produto_TIPO } from "@prisma/client";
 
 const COST_PER_REQUEST = 1; // 1 crédito por solicitação
+const STATUS_PENDENTE = "PENDENTE";
 
 function toPositiveInt(v: any): number | null {
   const n = Number(v);
@@ -103,7 +104,7 @@ export async function criarSolicitacaoAnalise(req: Request, res: Response) {
           ID_CLIENTE: cliente.ID,
           ID_PRODUTO_QUIMICO: prodQuimico.ID,
           ID_PRODUTO_BIOLOGICO: prodBiologico.ID,
-          STATUS: "PENDENTE",
+          STATUS: STATUS_PENDENTE,
           DESCRICAO: descricao || null,
           DATA_RESPOSTA: null,
           ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO: null,
@@ -152,9 +153,6 @@ export async function criarSolicitacaoAnalise(req: Request, res: Response) {
 /**
  * GET /api/solicitacoes/analise/minhas?page=1&pageSize=20
  * Lista solicitações do cliente logado.
- *
- * Observação:
- * - sua tabela não tem "createdAt", então ordeno por ID desc (mais recente primeiro).
  */
 export async function listarMinhasSolicitacoes(req: Request, res: Response) {
   const email = req.auth?.email;
@@ -202,4 +200,84 @@ export async function listarMinhasSolicitacoes(req: Request, res: Response) {
     totalPages: Math.ceil(total / pageSize),
     solicitacoes,
   });
+}
+
+/**
+ * ✅ NOVO
+ * POST /api/solicitacoes/analise/reembolsar
+ * Body: { id }   // id da solicitacao_analise
+ *
+ * Regras:
+ * - precisa estar autenticado
+ * - a solicitação precisa ser do cliente logado
+ * - só permite se STATUS = PENDENTE
+ * - devolve 1 crédito e DELETA a solicitação (tudo em transação)
+ */
+export async function reembolsarSolicitacaoPendente(req: Request, res: Response) {
+  const email = req.auth?.email;
+  if (!email) return res.status(401).json({ error: "Não autenticado" });
+
+  const id = toPositiveInt(req.body?.id);
+  if (!id) {
+    return res.status(400).json({ error: "Campo obrigatório: id (inteiro > 0)." });
+  }
+
+  const cliente = await prisma.cliente.findUnique({
+    where: { EMAIL: email },
+    select: { ID: true },
+  });
+
+  if (!cliente) return res.status(404).json({ error: "Cliente não encontrado" });
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // delete condicional evita race + garante regra "somente PENDENTE"
+      const del = await tx.solicitacao_analise.deleteMany({
+        where: {
+          ID: id,
+          ID_CLIENTE: cliente.ID,
+          STATUS: STATUS_PENDENTE,
+        },
+      });
+
+      if (del.count === 0) {
+        // pode ser: não existe, não é do usuário, ou já não está PENDENTE
+        return { ok: false as const, reason: "NOT_ALLOWED" as const };
+      }
+
+      await tx.cliente.update({
+        where: { ID: cliente.ID },
+        data: { SALDO: { increment: COST_PER_REQUEST } },
+      });
+
+      const clienteAtualizado = await tx.cliente.findUnique({
+        where: { ID: cliente.ID },
+        select: { SALDO: true },
+      });
+
+      return {
+        ok: true as const,
+        deletedId: id,
+        reembolsado: COST_PER_REQUEST,
+        saldoAtual: clienteAtualizado?.SALDO ?? null,
+      };
+    });
+
+    if (!result.ok) {
+      return res.status(409).json({
+        error:
+          "Só é possível reembolsar quando a solicitação estiver PENDENTE e pertencer ao usuário logado.",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      deletedId: result.deletedId,
+      reembolsado: result.reembolsado,
+      saldoAtual: result.saldoAtual,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Erro ao reembolsar solicitação pendente." });
+  }
 }
