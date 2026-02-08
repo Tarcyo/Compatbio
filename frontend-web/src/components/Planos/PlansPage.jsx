@@ -38,10 +38,6 @@ async function postJson(baseUrl, path, body, credentials = "include") {
   return { res, data };
 }
 
-/**
- * Tenta uma lista de rotas. Se 404, tenta a próxima.
- * Se erro 4xx/5xx com mensagem, joga a mensagem.
- */
 async function postWithFallback({ baseUrl, attempts }) {
   let lastErr = null;
 
@@ -306,12 +302,11 @@ export default function PlansCreditsPage() {
     };
   }, [reloadPlanoAtual, reloadPlanos]);
 
-  // seu plano atual (e assinaturaId)
+  // seu plano atual
   const currentPlan = useMemo(() => {
     const assinatura = assinaturaData?.assinatura || null;
     const plano = assinaturaData?.plano || null;
 
-    // tenta achar o ID da assinatura com variações comuns
     const assinaturaId =
       assinatura?.ID ?? assinatura?.id ?? assinatura?.Id ?? assinatura?.ASSINATURA_ID ?? null;
 
@@ -357,9 +352,7 @@ export default function PlansCreditsPage() {
 
   // PF/PJ por "enterprise" no nome
   const { pfPlans, pjPlans } = useMemo(() => {
-    const isEnterprise = (name) =>
-      typeof name === "string" && name.toLowerCase().includes("enterprise");
-
+    const isEnterprise = (name) => typeof name === "string" && name.toLowerCase().includes("enterprise");
     const pj = planos.filter((p) => isEnterprise(p?.NOME));
     const pf = planos.filter((p) => !isEnterprise(p?.NOME));
     return { pfPlans: pf, pjPlans: pj };
@@ -373,10 +366,12 @@ export default function PlansCreditsPage() {
       const valor = p?.VALOR_MENSAL;
       const price = valor == null ? "—" : moneyBR(valor);
 
-      const features = [`Créditos/mês: ${credito}`, `Valor/mês: ${valor == null ? "—" : moneyBR(valor)}`];
+      const features = [
+        `Créditos/mês: ${credito}`,
+        `Valor/mês: ${valor == null ? "—" : moneyBR(valor)}`,
+      ];
 
-      const isEnterprise =
-        typeof nome === "string" && nome.toLowerCase().includes("enterprise");
+      const isEnterprise = typeof nome === "string" && nome.toLowerCase().includes("enterprise");
 
       const id = String(p?.ID);
       const isCurrent = currentPlan?.planId && id === currentPlan.planId;
@@ -408,7 +403,7 @@ export default function PlansCreditsPage() {
     }
   }, []);
 
-  // assinar plano (checkout subscription)
+  // assinar plano
   const handleChoose = useCallback(
     async (planoId) => {
       setSubErr("");
@@ -450,7 +445,7 @@ export default function PlansCreditsPage() {
     [API_BASE]
   );
 
-  // ✅ cancelar assinatura (robusto: com/sem assinaturaId e com rotas alternativas)
+  // cancelar assinatura
   const handleCancelSubscription = useCallback(async () => {
     setCancelErr("");
     setCancelMsg("");
@@ -474,12 +469,10 @@ export default function PlansCreditsPage() {
       setCancelLoading(true);
 
       const attempts = [
-        // novos endpoints (não exigem assinaturaId)
         { path: "/api/assinaturas/cancelar", body: { atPeriodEnd: true } },
         { path: "/api/assinatura/cancelar", body: { atPeriodEnd: true } },
       ];
 
-      // legados (exigem assinaturaId)
       if (assinaturaId && Number.isFinite(assinaturaId) && assinaturaId > 0) {
         attempts.push(
           { path: "/api/assinaturas/cancelar", body: { assinaturaId, atPeriodEnd: true } },
@@ -493,9 +486,7 @@ export default function PlansCreditsPage() {
 
       const cancelAtPeriodEnd = !!data?.cancelAtPeriodEnd;
       setCancelMsg(
-        cancelAtPeriodEnd
-          ? "Cancelamento agendado para o fim do período atual."
-          : "Cancelamento solicitado."
+        cancelAtPeriodEnd ? "Cancelamento agendado para o fim do período atual." : "Cancelamento solicitado."
       );
 
       await reloadPlanoAtual();
@@ -561,8 +552,10 @@ export default function PlansCreditsPage() {
   const showCancelBtn = hasSubscription && statusUpper !== "CANCELADA";
 
   return (
-    <div className="pg-wrap">
-      <section className="pg-card plansCard">
+    <div className="pg-wrap plansPage">
+      {/* ✅ removido: <div className="plansBg" /> */}
+
+      <section className="plansCard">
         <header className="plansCardHeader">
           <h1 className="plansCardTitle">Planos e Créditos</h1>
         </header>
@@ -598,7 +591,6 @@ export default function PlansCreditsPage() {
                   ))}
                 </ul>
 
-                {/* feedback cancelamento */}
                 {cancelMsg ? (
                   <p className="creditsHint" style={{ marginTop: 10, color: "rgba(190,255,140,0.98)" }}>
                     {cancelMsg}
@@ -653,7 +645,6 @@ export default function PlansCreditsPage() {
             ]}
           />
 
-          {/* feedback assinatura */}
           {subErr ? (
             <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
               {subErr}
@@ -731,23 +722,8 @@ export default function PlansCreditsPage() {
               type="button"
               className="buyBtn is-green"
               onClick={handleBuyCredits}
-              disabled={
-                buyLoading ||
-                loadingPrice ||
-                !!errPrice ||
-                !pricePerCredit ||
-                subLoading ||
-                cancelLoading
-              }
-              title={
-                buyLoading
-                  ? "Abrindo checkout..."
-                  : loadingPrice
-                  ? "Carregando preço..."
-                  : errPrice
-                  ? errPrice
-                  : ""
-              }
+              disabled={buyLoading || loadingPrice || !!errPrice || !pricePerCredit || subLoading || cancelLoading}
+              title={buyLoading ? "Abrindo checkout..." : loadingPrice ? "Carregando preço..." : errPrice ? errPrice : ""}
             >
               <IconCheckCircle className="buyBtnIco" />
               {buyLoading ? "Abrindo..." : "Comprar Créditos"}

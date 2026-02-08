@@ -15,17 +15,6 @@ function IconArrow(props) {
   );
 }
 
-function IconChevronRight(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M9 18l6-6-6-6 1.4-1.4L18.8 12l-8.4 8.4L9 18Z"
-      />
-    </svg>
-  );
-}
-
 function IconX(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -45,17 +34,9 @@ function normalizeStatus(s) {
 function statusMeta(status) {
   const s = normalizeStatus(status);
 
-  // verde
-  if (s.includes("compat") && !s.includes("incompat")) {
-    return { label: "Compatível", cls: "is-ok" };
-  }
+  if (s.includes("compat") && !s.includes("incompat")) return { label: "Compatível", cls: "is-ok" };
+  if (s.includes("incompat")) return { label: "Incompatível", cls: "is-bad" };
 
-  // vermelho
-  if (s.includes("incompat")) {
-    return { label: "Incompatível", cls: "is-bad" };
-  }
-
-  // amarelo: em análise / pendente / parcial
   if (s.includes("anal") || s.includes("pend") || s.includes("parc")) {
     if (s.includes("pend")) return { label: "Pendente", cls: "is-warn" };
     if (s.includes("parc")) return { label: "Parcial", cls: "is-warn" };
@@ -66,8 +47,7 @@ function statusMeta(status) {
 }
 
 function isPendente(statusRaw) {
-  const s = normalizeStatus(statusRaw);
-  return s.includes("pend");
+  return normalizeStatus(statusRaw).includes("pend");
 }
 
 function formatDateBR(dateLike) {
@@ -77,12 +57,25 @@ function formatDateBR(dateLike) {
   return new Intl.DateTimeFormat("pt-BR").format(d);
 }
 
+function pickBestDate(raw) {
+  return (
+    raw?.DATA_RESPOSTA ||
+    raw?.DATA_CRIACAO ||
+    raw?.DATA_SOLICITACAO ||
+    raw?.createdAt ||
+    raw?.created_at ||
+    raw?.dataCriacao ||
+    raw?.data_solicitacao ||
+    null
+  );
+}
+
 function ConfirmModal({ open, onClose, title, children, footer, busy }) {
   useEffect(() => {
     if (!open) return;
 
     const onKey = (e) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key === "Escape" && !busy) onClose?.();
     };
     window.addEventListener("keydown", onKey);
 
@@ -93,7 +86,7 @@ function ConfirmModal({ open, onClose, title, children, footer, busy }) {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, onClose]);
+  }, [open, onClose, busy]);
 
   if (!open) return null;
 
@@ -141,14 +134,12 @@ export default function Result() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // toast
   const [toast, setToast] = useState("");
 
-  // modal
   const [refundOpen, setRefundOpen] = useState(false);
   const [refundBusy, setRefundBusy] = useState(false);
   const [refundErr, setRefundErr] = useState("");
-  const [refundTarget, setRefundTarget] = useState(null); // row
+  const [refundTarget, setRefundTarget] = useState(null);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -189,17 +180,21 @@ export default function Result() {
         const biologico =
           s?.produto_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto?.NOME || "—";
 
+        const bestDate = pickBestDate(s);
+
         return {
           id: s.ID,
           statusRaw: s.STATUS,
           status: statusMeta(s.STATUS),
-          date: formatDateBR(s.DATA_RESPOSTA),
+          date: formatDateBR(bestDate),
           chemical: quimico,
           biological: biologico,
           raw: s,
+          _sortTs: bestDate ? new Date(bestDate).getTime() : 0,
         };
       });
 
+      mapped.sort((a, b) => (b._sortTs || 0) - (a._sortTs || 0));
       setRows(mapped);
     } catch (e) {
       setRows([]);
@@ -243,7 +238,6 @@ export default function Result() {
   const confirmRefund = async () => {
     if (!refundTarget?.id) return;
 
-    // segurança extra no front
     if (!isPendente(refundTarget.statusRaw)) {
       setRefundErr("Só é possível reembolsar quando o status está PENDENTE.");
       return;
@@ -263,7 +257,6 @@ export default function Result() {
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error || `Falha ao reembolsar (${res.status})`);
 
-      // remove da lista
       setRows((prev) => prev.filter((x) => x.id !== refundTarget.id));
 
       setToast(
@@ -284,7 +277,7 @@ export default function Result() {
 
   const refundHint = useMemo(() => {
     if (!refundTarget) return "";
-    return `Você vai deletar a solicitação #${refundTarget.id} e receber 1 crédito de volta.`;
+    return `Você vai cancelar a solicitação #${refundTarget.id} e receber 1 crédito de volta.`;
   }, [refundTarget]);
 
   return (
@@ -293,6 +286,7 @@ export default function Result() {
         <section ref={cardRef} className="pg-card resultsCard">
           <header className="resultsCardHeader">
             <h1 className="resultsCardTitle">Resultados das Análises</h1>
+
             <button
               type="button"
               className="resultsReloadBtn"
@@ -305,28 +299,41 @@ export default function Result() {
           </header>
 
           <div className="resultsCardBody">
-            {toast ? <div className="resultsToast">{toast}</div> : null}
+            {toast ? (
+              <div className="resultsToast" role="status" aria-live="polite">
+                <span>{toast}</span>
+                <button
+                  type="button"
+                  className="resultsToastBtn"
+                  onClick={() => setToast("")}
+                  aria-label="Fechar aviso"
+                  title="Fechar"
+                >
+                  <IconX style={{ width: 18, height: 18 }} />
+                </button>
+              </div>
+            ) : null}
 
-            {loading ? (
-              <p style={{ color: "rgba(255,255,255,0.82)", fontWeight: 800 }}>
-                Carregando...
-              </p>
-            ) : err ? (
-              <p style={{ color: "rgba(255,140,140,0.92)", fontWeight: 900 }}>
-                {err}
-              </p>
-            ) : !hasRows ? (
-              <p style={{ color: "rgba(255,255,255,0.78)", fontWeight: 800 }}>
-                Nenhuma solicitação encontrada.
-              </p>
-            ) : (
-              <>
-                <ul className="resultsList">
-                  {rows.map((r, idx) => {
-                    const canRefund = isPendente(r.statusRaw);
+            <div className="resultsScroller">
+              {loading ? (
+                <p style={{ color: "rgba(255,255,255,0.82)", fontWeight: 800, margin: 0 }}>
+                  Carregando...
+                </p>
+              ) : err ? (
+                <p style={{ color: "rgba(255,140,140,0.92)", fontWeight: 900, margin: 0 }}>
+                  {err}
+                </p>
+              ) : !hasRows ? (
+                <p style={{ color: "rgba(255,255,255,0.78)", fontWeight: 800, margin: 0 }}>
+                  Nenhuma solicitação encontrada.
+                </p>
+              ) : (
+                <ul className="resultsList" aria-label="Lista de solicitações de análise">
+                  {rows.map((r) => {
+                    const pendente = isPendente(r.statusRaw);
 
                     return (
-                      <li key={`${r.id}-${idx}`} className="resultsRow">
+                      <li key={r.id} className="resultsRow">
                         <span className="resultsDate">{r.date}</span>
 
                         <span className="resultsName resultsName--left" title={r.chemical}>
@@ -341,53 +348,41 @@ export default function Result() {
                           {r.biological}
                         </span>
 
-                        <span className={`resultsStatus ${r.status.cls}`}>
+                        <span className={`resultsStatus ${r.status.cls}`} title={r.statusRaw || ""}>
                           {r.status.label}
                         </span>
 
-                        {/* ✅ AÇÕES: detalhe + reembolso */}
                         <div className="resultsActions">
-                          <button
-                            type="button"
-                            className="resultsDetailBtn"
-                            onClick={() => onDetail(r)}
-                          >
-                            Detalhar Análise
-                          </button>
-
-                          <button
-                            type="button"
-                            className={`resultsRefundBtn ${canRefund ? "is-on" : ""}`}
-                            disabled={!canRefund}
-                            onClick={() => openRefund(r)}
-                            title={
-                              canRefund
-                                ? "Cancelar solicitação e reembolsar 1 crédito"
-                                : "Disponível apenas quando está PENDENTE"
-                            }
-                          >
-                            Reembolsar (PENDENTE)
-                          </button>
+                          {pendente ? (
+                            <button
+                              type="button"
+                              className="resultsActionBtn is-refund"
+                              onClick={() => openRefund(r)}
+                              title="Cancelar solicitação e reembolsar 1 crédito"
+                            >
+                              Reembolsar
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="resultsActionBtn"
+                              onClick={() => onDetail(r)}
+                              title="Ver detalhes desta análise"
+                            >
+                              Detalhar Análise
+                            </button>
+                          )}
                         </div>
                       </li>
                     );
                   })}
                 </ul>
-
-                <button
-                  type="button"
-                  className="resultsScrollHint"
-                  aria-label="Mais resultados"
-                >
-                  <IconChevronRight />
-                </button>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </section>
       </div>
 
-      {/* ✅ MODAL CONFIRMAÇÃO */}
       <ConfirmModal
         open={refundOpen}
         onClose={closeRefund}

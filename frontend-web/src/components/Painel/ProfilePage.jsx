@@ -377,6 +377,7 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  // ✅ ALTERADO: ao salvar, recarrega a página
   const saveEdit = async () => {
     const before = currentEmpresaId ?? null;
     const after = draftEmpresaId ?? null;
@@ -387,10 +388,14 @@ export default function ProfilePage() {
         await postJson("/api/cliente/empresa", { idEmpresa: after });
         await loadMe();
       }
-      setIsEditing(false);
+
+      // Recarrega a página ao clicar em "Salvar" (mesmo se não houve mudança)
+      window.location.reload();
     } catch (e) {
       alert(e?.message || "Erro ao atualizar empresa.");
     } finally {
+      // caso o reload seja bloqueado por algum motivo, garantimos estado consistente
+      setIsEditing(false);
       setActionBusy(false);
     }
   };
@@ -761,10 +766,12 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="profileUserRight">
-                      {(u.isYou || u.isAdmin) ? (
+                      {u.isYou || u.isAdmin ? (
                         <span className="profileBadges">
                           {u.isYou ? <span className="profileBadge is-you">você</span> : null}
-                          {u.isAdmin ? <span className="profileBadge is-admin">admin</span> : null}
+                          {u.isAdmin ? (
+                            <span className="profileBadge is-admin">admin</span>
+                          ) : null}
                         </span>
                       ) : null}
 

@@ -107,16 +107,32 @@ function Modal({ open, title, children, footer, onClose, disableClose = false })
   );
 }
 
+// ✅ defaults FORA do componente (referência estável)
+const DEFAULT_GET_LABEL = (p) => p?.NOME ?? "";
+const DEFAULT_GET_KEY = (p) => p?.ID ?? p?.id ?? DEFAULT_GET_LABEL(p);
+
 function SearchableDropdown({
   label,
   placeholder,
   fetchUrl,
   value,
   onChange,
-  getLabel = (p) => p?.NOME ?? "",
-  getKey = (p) => p?.ID,
+  getLabel = DEFAULT_GET_LABEL,
+  getKey = DEFAULT_GET_KEY,
 }) {
-  const [query, setQuery] = useState(value ? getLabel(value) : "");
+  // ✅ guarda as funções em ref (não causam reset do input)
+  const getLabelRef = useRef(getLabel);
+  const getKeyRef = useRef(getKey);
+
+  useEffect(() => {
+    getLabelRef.current = getLabel;
+  }, [getLabel]);
+
+  useEffect(() => {
+    getKeyRef.current = getKey;
+  }, [getKey]);
+
+  const [query, setQuery] = useState(value ? getLabelRef.current(value) : "");
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -126,9 +142,10 @@ function SearchableDropdown({
   const abortRef = useRef(null);
   const debounceRef = useRef(null);
 
+  // ✅ IMPORTANTE: só atualiza o texto quando o VALUE mudar
   useEffect(() => {
-    setQuery(value ? getLabel(value) : "");
-  }, [value, getLabel]);
+    setQuery(value ? getLabelRef.current(value) : "");
+  }, [value]);
 
   useEffect(() => {
     function onDocClick(e) {
@@ -137,6 +154,14 @@ function SearchableDropdown({
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  // ✅ cleanup (evita setState após unmount)
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (abortRef.current) abortRef.current.abort();
+    };
   }, []);
 
   const doFetch = async (q) => {
@@ -182,6 +207,8 @@ function SearchableDropdown({
     const next = e.target.value;
     setQuery(next);
     setOpen(true);
+
+    // se já tinha um item selecionado e começou a digitar, limpa seleção
     if (value) onChange(null);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -190,7 +217,7 @@ function SearchableDropdown({
 
   const selectItem = (item) => {
     onChange(item);
-    setQuery(getLabel(item));
+    setQuery(getLabelRef.current(item));
     setOpen(false);
   };
 
@@ -212,6 +239,7 @@ function SearchableDropdown({
 
         <input
           className="requestInput"
+          type="text"
           value={query}
           onChange={onInput}
           onFocus={onFocus}
@@ -243,9 +271,9 @@ function SearchableDropdown({
           ) : (
             <ul className="requestDropdownList">
               {items.map((p) => (
-                <li key={getKey(p)} className="requestDropdownItem">
+                <li key={getKeyRef.current(p)} className="requestDropdownItem">
                   <button type="button" className="requestDropdownBtn" onClick={() => selectItem(p)}>
-                    <span className="requestDropdownName">{getLabel(p)}</span>
+                    <span className="requestDropdownName">{getLabelRef.current(p)}</span>
                     {p?.E_PARA_DEMO ? <span className="requestDropdownTag">demo</span> : null}
                   </button>
                 </li>
@@ -259,7 +287,9 @@ function SearchableDropdown({
 }
 
 export default function RequestAnalysisPage() {
-  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000").toString().replace(/\/+$/, "");
+  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
+    .toString()
+    .replace(/\/+$/, "");
 
   const [chemicalProduct, setChemicalProduct] = useState(null);
   const [biologicalProduct, setBiologicalProduct] = useState(null);
@@ -448,7 +478,6 @@ export default function RequestAnalysisPage() {
     setProdErr("");
 
     try {
-      // ✅ Se sua rota estiver sem /api, troque para: `${API_BASE}/solicitacoes/adicao-produto`
       const res = await fetch(`${API_BASE}/api/solicitacoes/adicao-produto`, {
         method: "POST",
         credentials: "include",
@@ -616,7 +645,6 @@ export default function RequestAnalysisPage() {
           <div className="apModalRow">
             <label className="apModalLabel">Tipo</label>
 
-            {/* usa o mesmo estilo do input */}
             <div className="requestSearch" style={{ gridTemplateColumns: "54px 1fr" }}>
               <span className="requestSearchIco" aria-hidden="true">
                 <IconSearch />

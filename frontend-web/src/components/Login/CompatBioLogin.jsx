@@ -1,4 +1,3 @@
-
 import React, { useCallback, useMemo, useState } from "react";
 import "./CompatBioLogin.css";
 
@@ -9,11 +8,8 @@ import googleIcon from "../../assets/google-icon.png";
 export default function CompatBioLogin({ onGoogleClick }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  // backend /login
   const AUTH_URL = useMemo(() => {
-    const fromEnv = (import.meta?.env?.VITE_GOOGLE_AUTH_URL ?? "")
-      .toString()
-      .trim();
+    const fromEnv = (import.meta?.env?.VITE_GOOGLE_AUTH_URL ?? "").toString().trim();
     return fromEnv || "http://localhost:3000/login";
   }, []);
 
@@ -23,7 +19,6 @@ export default function CompatBioLogin({ onGoogleClick }) {
 
     if (typeof onGoogleClick === "function") onGoogleClick();
 
-    // OAuth deve iniciar por navegação
     window.location.assign(AUTH_URL);
   }, [AUTH_URL, isLoading, onGoogleClick]);
 
@@ -32,17 +27,17 @@ export default function CompatBioLogin({ onGoogleClick }) {
       <section className="cb-card" role="dialog" aria-label="Login CompatBio">
         <img className="cb-logo" src={logo} alt="CompatBio" />
         <div className="cb-divider" />
-        <h1 className="cb-title">Bem-vindo ao CompatBio!</h1>
 
         <button
           type="button"
           className="cb-google-btn"
           onClick={startGoogleAuth}
           disabled={isLoading}
+          aria-busy={isLoading}
         >
           <img className="cb-google-icon" src={googleIcon} alt="" />
           <span className="cb-google-text">
-            {isLoading ? "Redirecionando..." : "Continuar com o Google"}
+            {isLoading ? "Conectando ao Google..." : "Entrar com o Google"}
           </span>
         </button>
 
@@ -60,11 +55,7 @@ export default function CompatBioLogin({ onGoogleClick }) {
 
         <p className="cb-help">
           Precisa de ajuda? Fale com o{" "}
-          <a
-            className="cb-link cb-link-strong"
-            href="#"
-            onClick={(e) => e.preventDefault()}
-          >
+          <a className="cb-link cb-link-strong" href="#" onClick={(e) => e.preventDefault()}>
             Suporte
           </a>
           .

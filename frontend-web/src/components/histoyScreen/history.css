@@ -1,556 +1,685 @@
-/* CreditsHistory.css — completo (card + lista + badges + modal centralizado) */
+/* CreditsHistory.css — COMPLETO (Plans palette + SEM glass + tudo mais arredondado/pílula)
+   ✅ Remove transparência/blur (mata glassmorphism)
+   ✅ Nada de “card preto em volta” por overlay do container
+   ✅ Tudo mais arredondado: pílulas nos pills/badges/botões/itens/modal
+   ✅ Contraste consistente com o card principal
+*/
 
-.histCard {
-  --surface-0: rgba(22, 30, 40, 0.72);
-  --surface-1: rgba(22, 30, 40, 0.72);
-
-  --border-0: rgba(255, 255, 255, 0.16);
-  --text-0: rgba(255, 255, 255, 0.96);
-  --text-1: rgba(255, 255, 255, 0.86);
-
-  --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.42);
-  --shadow-md: 0 18px 44px rgba(0, 0, 0, 0.34);
-
-  --r-lg: 18px;
-  --r-sm: 14px;
-
-  width: min(1240px, 100%);
-  padding: 44px 46px 42px;
-  border-radius: var(--r-lg);
-
-  background: linear-gradient(180deg, var(--surface-0) 0%, var(--surface-1) 100%);
-  border: 1px solid var(--border-0);
-
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-
-  color: var(--text-0);
-  position: relative;
-  overflow: hidden;
+/* =========================
+   BASE / NITIDEZ
+========================= */
+.histPage,
+.histPage * {
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision !important;
 }
 
+/* Se você não tiver .histPage no JSX, pode ignorar.
+   (Não quebra nada: só não aplica.) */
+.histPage {
+  position: relative !important;
+  isolation: isolate !important;
+  min-height: 100dvh !important;
+
+  /* tokens (Plans) */
+  --accent: rgba(160, 234, 82, 1);
+
+  --bg-0: #2a3443;
+  --bg-1: #222b38;
+
+  --panel: #39465b;
+  --panel2: #334156;
+
+  --tile: #344256;
+  --tile2: #2f3c50;
+
+  --btn-0: #3b4961;
+  --btn-1: #313e54;
+
+  --stroke-0: rgba(255, 255, 255, 0.14);
+  --stroke-1: rgba(255, 255, 255, 0.18);
+
+  --text-0: rgba(255, 255, 255, 0.96);
+  --text-1: rgba(255, 255, 255, 0.86);
+  --text-2: rgba(255, 255, 255, 0.72);
+
+  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
+  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
+}
+
+/* 🔥 evita “card preto em volta” se alguém aplicar overlay no container */
+.histPage::before,
+.histPage::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* =========================
+   🔥 KILL GLASS (caso venha de .pg-card / estilos globais)
+========================= */
+.pg-wrap .pg-card.histCard,
+.pg-card.histCard,
+.histCard {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* =========================
+   CARD PRINCIPAL (SÓLIDO + MAIS ARREDONDADO)
+========================= */
+.histCard {
+  /* fallback dos tokens caso .histPage não exista */
+  --accent: rgba(160, 234, 82, 1);
+  --bg-0: #2a3443;
+  --bg-1: #222b38;
+  --panel: #39465b;
+  --panel2: #334156;
+  --tile: #344256;
+  --tile2: #2f3c50;
+  --btn-0: #3b4961;
+  --btn-1: #313e54;
+  --stroke-0: rgba(255, 255, 255, 0.14);
+  --stroke-1: rgba(255, 255, 255, 0.18);
+  --text-0: rgba(255, 255, 255, 0.96);
+  --text-1: rgba(255, 255, 255, 0.86);
+  --text-2: rgba(255, 255, 255, 0.72);
+  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
+  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
+
+  --r-xl: 30px;
+  --r-pill: 9999px;
+
+  width: min(1240px, 100%) !important;
+  padding: 44px 46px 42px !important;
+  border-radius: var(--r-xl) !important;
+
+  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
+  background-color: var(--bg-0) !important;
+
+  border: 1px solid var(--stroke-0) !important;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+
+  color: var(--text-0) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* brilho sutil (só dentro do card) */
 .histCard::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    900px 340px at 22% 18%,
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.06) 26%,
-    rgba(255, 255, 255, 0.00) 56%
-  );
-  opacity: 0.85;
+  content: "" !important;
+  position: absolute !important;
+  inset: -2px !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  background:
+    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%) !important;
+  opacity: 0.88 !important;
 }
 
 .histCard::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
   background: linear-gradient(
     120deg,
-    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.05) 0%,
     rgba(255, 255, 255, 0.00) 44%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  opacity: 0.5;
+    rgba(255, 255, 255, 0.03) 100%
+  ) !important;
+  opacity: 0.50 !important;
 }
 
 .histCard > * {
-  position: relative;
-  z-index: 1;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
+/* =========================
+   HEADER
+========================= */
 .histHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
 
-  margin: 0 0 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0 0 24px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .histHeaderLeft {
-  display: grid;
-  gap: 10px;
-  min-width: 0;
+  display: grid !important;
+  gap: 10px !important;
+  min-width: 0 !important;
 }
 
 .histTitle {
-  margin: 0;
-  font-size: clamp(28px, 3.2vw, 40px);
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-  line-height: 1.08;
-  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.40);
+  margin: 0 !important;
+  font-size: clamp(28px, 3.2vw, 40px) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
+  line-height: 1.08 !important;
+  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.40) !important;
 }
 
 .histSubtitle {
-  margin: 0;
-  font-size: 15.5px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.76);
-  text-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+  margin: 0 !important;
+  font-size: 15.5px !important;
+  font-weight: 900 !important;
+  color: rgba(255, 255, 255, 0.76) !important;
+  text-shadow: 0 12px 24px rgba(0, 0, 0, 0.22) !important;
 }
 
 .histHeaderRight {
-  display: grid;
-  gap: 10px;
-  justify-items: end;
+  display: grid !important;
+  gap: 10px !important;
+  justify-items: end !important;
 }
 
+/* =========================
+   PILLS (Top right) — MAIS PÍLULA
+========================= */
 .histPills {
-  display: inline-flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: inline-flex !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
 }
 
 .histPill {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
 
-  padding: 12px 14px;
-  border-radius: 16px;
+  padding: 12px 16px !important;
+  border-radius: 9999px !important; /* ✅ pílula */
 
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 36px rgba(0,0,0,0.18) !important;
 
-  min-width: 150px;
-  text-align: right;
+  min-width: 160px !important;
+  text-align: right !important;
 }
 
 .histPill.is-green {
-  border-color: rgba(180, 255, 120, 0.22);
-  background: rgba(160, 234, 82, 0.10);
+  border-color: rgba(160, 234, 82, 0.30) !important;
+  background:
+    radial-gradient(420px 200px at 18% 40%, rgba(160, 234, 82, 0.16), rgba(0,0,0,0) 70%),
+    linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
 }
 
 .histPillLabel {
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, 0.72) !important;
 }
 
 .histPillValue {
-  font-size: 18px;
-  font-weight: 1000;
-  color: rgba(255, 255, 255, 0.94);
+  font-size: 18px !important;
+  font-weight: 1000 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
 }
 
 .histPagerTop .histPagerText {
-  font-size: 13.5px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.76);
+  font-size: 13.5px !important;
+  font-weight: 900 !important;
+  color: rgba(255, 255, 255, 0.76) !important;
 }
 
-.histBody {
-  display: block;
-}
+/* =========================
+   BODY
+========================= */
+.histBody { display: block !important; }
 
 .histToast {
-  margin: 0 0 14px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(180, 255, 120, 0.24);
-  background: rgba(160, 234, 82, 0.12);
-  color: rgba(220, 255, 190, 0.96);
-  font-weight: 900;
+  margin: 0 0 14px !important;
+  padding: 12px 14px !important;
+  border-radius: 9999px !important; /* ✅ pílula */
+  border: 1px solid rgba(160, 234, 82, 0.30) !important;
+  background:
+    radial-gradient(420px 200px at 18% 40%, rgba(160, 234, 82, 0.16), rgba(0,0,0,0) 70%),
+    linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
+  color: rgba(220, 255, 190, 0.96) !important;
+  font-weight: 900 !important;
 }
 
 .histState {
-  padding: 18px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.86);
-  font-weight: 900;
+  padding: 18px 16px !important;
+  border-radius: 22px !important; /* mais arredondado */
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
+  color: rgba(255, 255, 255, 0.86) !important;
+  font-weight: 900 !important;
+  box-shadow: 0 18px 44px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .histState.is-error {
-  border-color: rgba(255, 120, 120, 0.24);
-  background: rgba(255, 120, 120, 0.08);
-  color: rgba(255, 220, 220, 0.95);
+  border-color: rgba(255, 120, 120, 0.24) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(255, 120, 120, 0.16), rgba(255, 120, 120, 0.08)) !important;
+  color: rgba(255, 220, 220, 0.95) !important;
 }
 
+/* =========================
+   LISTA
+========================= */
 .histList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: 14px !important;
 }
 
+/* item mais arredondado */
 .histItem {
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 26px !important;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
   box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  overflow: hidden;
+    0 18px 44px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden !important;
+
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
+}
+
+.histItem:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.04) !important;
+  border-color: rgba(255,255,255,0.18) !important;
 }
 
 .histTopRow {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 16px;
-  padding: 16px 16px;
-  align-items: start;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 16px !important;
+  padding: 18px 18px !important;
+  align-items: start !important;
 }
 
-.histLeft {
-  min-width: 0;
-}
-
-.histRight {
-  display: grid;
-  justify-items: end;
-}
+.histLeft { min-width: 0 !important; }
+.histRight { display: grid !important; justify-items: end !important; }
 
 .histTitleRow {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 10px !important;
 }
 
 .histId {
-  font-weight: 1000;
-  color: rgba(255, 255, 255, 0.94);
+  font-weight: 1000 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
 }
 
 .histMeta {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.80);
-  font-weight: 850;
+  margin-top: 10px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: center !important;
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 850 !important;
 }
 
-.histMetaItem {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.histIco {
-  width: 18px;
-  height: 18px;
-  opacity: 0.95;
-}
-
-.histMetaDot {
-  opacity: 0.5;
-}
+.histMetaItem { display: inline-flex !important; gap: 8px !important; align-items: center !important; }
+.histIco { width: 18px !important; height: 18px !important; opacity: 0.95 !important; }
+.histMetaDot { opacity: 0.5 !important; }
 
 .histNumbers {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
+  margin-top: 10px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: center !important;
 
-  color: rgba(255, 255, 255, 0.82);
-  font-weight: 850;
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-weight: 850 !important;
 }
 
-.histNumDot {
-  opacity: 0.55;
-}
+.histNumDot { opacity: 0.55 !important; }
 
 .histHint {
-  margin-top: 8px;
-  color: rgba(255, 255, 255, 0.74);
-  font-weight: 850;
-  font-size: 13px;
+  margin-top: 8px !important;
+  color: rgba(255, 255, 255, 0.74) !important;
+  font-weight: 850 !important;
+  font-size: 13px !important;
 }
 
+/* =========================
+   AÇÕES (pílula)
+========================= */
 .histActions {
-  display: grid;
-  gap: 10px;
-  justify-items: end;
+  display: grid !important;
+  gap: 10px !important;
+  justify-items: end !important;
 }
 
 .histRefundBtn {
-  height: 44px;
-  padding: 0 14px;
-  border-radius: 12px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
+  height: 46px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important; /* ✅ pílula */
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.92);
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
 
-  cursor: pointer;
-  user-select: none;
-  transition: transform 160ms ease, filter 160ms ease, background 160ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+
+  cursor: pointer !important;
+  user-select: none !important;
+
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
 .histRefundBtn.is-on {
-  border-color: rgba(255, 210, 90, 0.30);
-  background: rgba(255, 210, 90, 0.12);
-  color: rgba(255, 245, 210, 0.98);
+  border-color: rgba(255, 210, 90, 0.38) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(255, 210, 90, 0.22), rgba(255, 210, 90, 0.12)) !important;
+  color: rgba(255, 245, 210, 0.98) !important;
 }
 
 .histRefundBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
+  transform: translateY(-1px) !important;
+  filter: brightness(1.05) !important;
 }
 
 .histRefundBtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
 }
 
-.histDetails {
-  width: 100%;
-}
+/* =========================
+   DETAILS (summary + box) — MAIS ARREDONDADO
+========================= */
+.histDetails { width: 100% !important; }
 
 .histSummary {
-  cursor: pointer;
-  user-select: none;
-  font-weight: 1000;
-  color: rgba(255, 255, 255, 0.84);
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(0, 0, 0, 0.16);
+  cursor: pointer !important;
+  user-select: none !important;
+
+  font-weight: 1000 !important;
+  color: rgba(255, 255, 255, 0.86) !important;
+
+  padding: 12px 14px !important;
+  border-radius: 9999px !important; /* ✅ pílula */
+
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: rgba(0, 0, 0, 0.16) !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .histDetailBox {
-  margin-top: 10px;
-  padding: 14px 14px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-top: 12px !important;
+  padding: 16px 16px !important;
+  border-radius: 22px !important;
+
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+
+  box-shadow: 0 16px 36px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .histDetailGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
 }
 
 .histFieldLabel {
-  display: block;
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.70);
-  margin-bottom: 6px;
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, 0.70) !important;
+  margin-bottom: 6px !important;
 }
 
 .histFieldValue {
-  font-size: 14.5px;
-  font-weight: 1000;
-  color: rgba(255, 255, 255, 0.94);
-  word-break: break-word;
+  font-size: 14.5px !important;
+  font-weight: 1000 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+  word-break: break-word !important;
 }
 
 .histSubDivider {
-  height: 1px;
-  margin: 12px 0;
-  background: rgba(255, 255, 255, 0.14);
+  height: 1px !important;
+  margin: 12px 0 !important;
+  background: rgba(255, 255, 255, 0.14) !important;
 }
 
 .histSubTitle {
-  margin: 0 0 10px;
-  font-size: 14px;
-  font-weight: 1000;
-  color: rgba(255, 255, 255, 0.90);
-  letter-spacing: 0.02em;
+  margin: 0 0 10px !important;
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+  letter-spacing: 0.02em !important;
 }
 
 .histMuted {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.74);
-  font-weight: 850;
+  margin: 0 !important;
+  color: rgba(255, 255, 255, 0.74) !important;
+  font-weight: 850 !important;
 }
 
+/* =========================
+   BADGES — já eram pílulas, só melhora contraste/sombra
+========================= */
 .histStatus,
 .histRefundStatus,
 .histReqStatus {
-  font-size: 12px;
-  font-weight: 1000;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
-  white-space: nowrap;
+  font-size: 12px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+
+  padding: 7px 12px !important;
+  border-radius: 9999px !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+
+  white-space: nowrap !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 12px 26px rgba(0,0,0,0.14) !important;
 }
 
 .histStatus.is-ok,
 .histRefundStatus.is-ok,
 .histReqStatus.is-ok {
-  border-color: rgba(160, 234, 82, 0.30);
-  background: rgba(160, 234, 82, 0.10);
-  color: rgba(190, 255, 140, 0.98);
+  border-color: rgba(160, 234, 82, 0.30) !important;
+  background: rgba(160, 234, 82, 0.10) !important;
+  color: rgba(190, 255, 140, 0.98) !important;
 }
 
 .histStatus.is-pending,
 .histRefundStatus.is-pending,
 .histReqStatus.is-pending {
-  border-color: rgba(255, 210, 90, 0.30);
-  background: rgba(255, 210, 90, 0.10);
-  color: rgba(255, 235, 190, 0.95);
+  border-color: rgba(255, 210, 90, 0.30) !important;
+  background: rgba(255, 210, 90, 0.10) !important;
+  color: rgba(255, 235, 190, 0.95) !important;
 }
 
 .histStatus.is-bad,
 .histRefundStatus.is-bad,
 .histReqStatus.is-bad {
-  border-color: rgba(255, 120, 120, 0.30);
-  background: rgba(255, 120, 120, 0.10);
-  color: rgba(255, 200, 200, 0.98);
+  border-color: rgba(255, 120, 120, 0.30) !important;
+  background: rgba(255, 120, 120, 0.10) !important;
+  color: rgba(255, 200, 200, 0.98) !important;
 }
 
 .histStatus.is-neutral,
 .histRefundStatus.is-neutral,
 .histReqStatus.is-neutral {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.86);
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.86) !important;
 }
 
-.histReqBox {
-  display: grid;
-  gap: 10px;
-}
+/* =========================
+   REQ + REFUND LIST (mais arredondado)
+========================= */
+.histReqBox { display: grid !important; gap: 10px !important; }
 
 .histReqRow {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
 }
 
 .histReqMotivo {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.80);
-  font-weight: 850;
-  line-height: 1.45;
+  margin: 0 !important;
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
 }
 
 .histRefundList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: 10px !important;
 }
 
 .histRefundItem {
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 12px !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .histRefundTop {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
 }
 
 .histRefundId {
-  font-weight: 950;
-  color: rgba(255, 255, 255, 0.84);
+  font-weight: 950 !important;
+  color: rgba(255, 255, 255, 0.84) !important;
 }
 
 .histRefundMeta {
-  margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.80);
-  font-weight: 850;
+  margin-top: 8px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: center !important;
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 850 !important;
 }
 
+/* =========================
+   PAGER + BOTTOM ACTIONS (pílula)
+========================= */
 .histPager {
-  margin-top: 18px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
+  margin-top: 18px !important;
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
 }
 
 .histPagerCenter {
-  color: rgba(255, 255, 255, 0.80);
-  font-weight: 900;
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 900 !important;
 }
 
 .histBottomActions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  margin-top: 16px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
 }
 
 .histGhostBtn,
 .histBackBtn,
 .histPrimaryBtn {
-  height: 46px;
-  padding: 0 16px;
-  border-radius: 14px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  user-select: none;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.16);
-  color: rgba(255, 255, 255, 0.92);
-  transition: transform 160ms ease, filter 160ms ease, background 160ms ease;
+  height: 48px !important;
+  padding: 0 18px !important;
+  border-radius: 9999px !important; /* ✅ pílula */
+
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
+
+  cursor: pointer !important;
+  user-select: none !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
 .histPrimaryBtn {
-  border-color: rgba(160, 234, 82, 0.26);
-  background: rgba(160, 234, 82, 0.12);
-  color: rgba(230, 255, 210, 0.96);
+  border-color: rgba(160, 234, 82, 0.30) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 55%),
+    linear-gradient(180deg, rgba(160, 234, 82, 0.22) 0%, rgba(160, 234, 82, 0.12) 100%) !important;
+  color: rgba(230, 255, 210, 0.96) !important;
 }
 
 .histGhostBtn:hover,
 .histBackBtn:hover,
 .histPrimaryBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
+  transform: translateY(-1px) !important;
+  filter: brightness(1.05) !important;
+  border-color: rgba(255,255,255,0.22) !important;
 }
 
 .histGhostBtn:disabled,
 .histBackBtn:disabled,
 .histPrimaryBtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 /* =========================
-   MODAL / POPUP (CENTRO)
+   MODAL / POPUP (CENTRO) — SÓLIDO + PÍLULA
 ========================= */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -563,297 +692,304 @@
 }
 
 .modalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 
-  padding: 18px;
+  padding: 18px !important;
 
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.70) !important;
 
-  animation: fadeIn 160ms ease-out;
+  /* ✅ sem blur (mesmo cuidado de “sem glass”) */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  animation: fadeIn 160ms ease-out !important;
 }
 
 .modalCard {
-  width: min(720px, 100%);
-  border-radius: 18px;
+  width: min(720px, 100%) !important;
+  border-radius: 28px !important; /* mais arredondado */
+  overflow: hidden !important;
 
-  background: linear-gradient(180deg, rgba(22, 30, 40, 0.92) 0%, rgba(22, 30, 40, 0.86) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
 
   box-shadow:
-    0 34px 90px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    0 34px 110px rgba(0, 0, 0, 0.70),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
 
-  color: rgba(255, 255, 255, 0.96);
-  overflow: hidden;
+  color: rgba(255, 255, 255, 0.96) !important;
 
-  animation: popIn 180ms ease-out;
+  animation: popIn 180ms ease-out !important;
 }
 
 .modalHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
 
-  padding: 18px 18px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 18px 18px 14px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
-.modalHeaderLeft {
-  display: grid;
-  gap: 6px;
-}
+.modalHeaderLeft { display: grid !important; gap: 6px !important; }
 
 .modalKicker {
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.70);
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, 0.70) !important;
 }
 
 .modalTitle {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
+  margin: 0 !important;
+  font-size: 22px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
 }
 
 .modalCloseBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.92);
-  cursor: pointer;
-  transition: transform 160ms ease, filter 160ms ease;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 9999px !important; /* ✅ pílula/círculo */
+
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+
+  cursor: pointer !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+
+  transition: transform 160ms ease, filter 160ms ease !important;
 }
 
 .modalCloseBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+  transform: translateY(-1px) !important;
+  filter: brightness(1.06) !important;
 }
 
 .modalCloseBtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
 }
 
-.modalCloseIco {
-  width: 18px;
-  height: 18px;
-}
+.modalCloseIco { width: 18px !important; height: 18px !important; }
 
-.modalBody {
-  padding: 16px 18px 18px;
-}
+.modalBody { padding: 16px 18px 18px !important; }
 
 .modalSummary {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 12px !important;
 
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  padding: 12px !important;
+  border-radius: 22px !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
 }
 
-.modalSummaryItem {
-  display: grid;
-  gap: 6px;
-}
+.modalSummaryItem { display: grid !important; gap: 6px !important; }
 
 .modalSummaryItem.is-strong .modalSummaryValue {
-  color: rgba(160, 234, 82, 0.96);
+  color: rgba(160, 234, 82, 0.96) !important;
 }
 
 .modalSummaryLabel {
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.70);
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, 0.70) !important;
 }
 
 .modalSummaryValue {
-  font-size: 15px;
-  font-weight: 1000;
-  color: rgba(255, 255, 255, 0.94);
+  font-size: 15px !important;
+  font-weight: 1000 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
 }
 
 .modalInfo {
-  margin-top: 12px;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 210, 90, 0.22);
-  background: rgba(255, 210, 90, 0.08);
+  margin-top: 12px !important;
+  padding: 12px 12px !important;
+  border-radius: 22px !important;
+
+  border: 1px solid rgba(255, 210, 90, 0.24) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(255, 210, 90, 0.12), rgba(255, 210, 90, 0.08)) !important;
 }
 
 .modalInfoText {
-  margin: 0;
-  color: rgba(255, 245, 220, 0.92);
-  font-weight: 900;
-  line-height: 1.45;
+  margin: 0 !important;
+  color: rgba(255, 245, 220, 0.92) !important;
+  font-weight: 900 !important;
+  line-height: 1.45 !important;
 }
 
 .modalField {
-  margin-top: 14px;
-  display: grid;
-  gap: 10px;
+  margin-top: 14px !important;
+  display: grid !important;
+  gap: 10px !important;
 }
 
 .modalFieldLabel {
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.74);
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, 0.74) !important;
 }
 
 .modalTextarea {
-  min-height: 120px;
-  resize: vertical;
+  min-height: 120px !important;
+  resize: vertical !important;
 
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.18);
+  padding: 12px 12px !important;
+  border-radius: 22px !important;
 
-  color: rgba(255, 255, 255, 0.96);
-  font-size: 14.5px;
-  font-weight: 900;
-  line-height: 1.45;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
 
-  outline: none;
-  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  color: rgba(255, 255, 255, 0.96) !important;
+  font-size: 14.5px !important;
+  font-weight: 900 !important;
+  line-height: 1.45 !important;
+
+  outline: none !important;
+
+  transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
 }
 
 .modalTextarea:focus {
-  border-color: rgba(180, 255, 120, 0.38);
-  background: rgba(0, 0, 0, 0.22);
-  box-shadow: 0 0 0 4px rgba(180, 255, 120, 0.10);
+  border-color: rgba(160, 234, 82, 0.32) !important;
+  box-shadow: 0 0 0 4px rgba(160, 234, 82, 0.10) !important;
+  filter: brightness(1.03) !important;
 }
 
-.modalTextarea:disabled {
-  opacity: 0.75;
-}
+.modalTextarea:disabled { opacity: 0.75 !important; }
 
 .modalCounterRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
 }
 
-.modalMiniHint {
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.70);
-}
-
+.modalMiniHint,
 .modalCounter {
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.70);
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  color: rgba(255, 255, 255, 0.70) !important;
 }
 
 .modalError {
-  margin-top: 12px;
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 120, 120, 0.24);
-  background: rgba(255, 120, 120, 0.10);
-  color: rgba(255, 220, 220, 0.95);
-  font-weight: 900;
+  margin-top: 12px !important;
+  padding: 12px 12px !important;
+  border-radius: 22px !important;
+
+  border: 1px solid rgba(255, 120, 120, 0.24) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(255, 120, 120, 0.14), rgba(255, 120, 120, 0.10)) !important;
+
+  color: rgba(255, 220, 220, 0.95) !important;
+  font-weight: 900 !important;
 }
 
 .modalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
 
-  padding: 14px 18px 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 14px 18px 18px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .modalBtnGhost,
 .modalBtnPrimary {
-  height: 46px;
-  padding: 0 16px;
-  border-radius: 14px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  user-select: none;
-  transition: transform 160ms ease, filter 160ms ease;
+  height: 48px !important;
+  padding: 0 18px !important;
+  border-radius: 9999px !important; /* ✅ pílula */
+
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
+
+  cursor: pointer !important;
+  user-select: none !important;
+
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
 .modalBtnGhost {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.16);
-  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
 }
 
 .modalBtnPrimary {
-  border: 1px solid rgba(180, 255, 120, 0.22);
-  background: linear-gradient(
-    180deg,
-    rgba(160, 234, 82, 0.98) 0%,
-    rgba(76, 148, 18, 0.96) 100%
-  );
-  color: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(180, 255, 120, 0.22) !important;
+
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.00) 55%),
+    linear-gradient(180deg, rgba(160, 234, 82, 0.98) 0%, rgba(76, 148, 18, 0.96) 100%) !important;
+
+  color: rgba(255, 255, 255, 0.98) !important;
 
   box-shadow:
     0 18px 44px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
 
 .modalBtnGhost:hover,
 .modalBtnPrimary:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
+  transform: translateY(-1px) !important;
+  filter: brightness(1.05) !important;
 }
 
 .modalBtnGhost:disabled,
 .modalBtnPrimary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
 }
 
-/* Responsivo */
+/* =========================
+   RESPONSIVO
+========================= */
 @media (max-width: 980px) {
-  .histCard { padding: 34px 30px; }
-  .histHeader { flex-direction: column; align-items: stretch; }
-  .histHeaderRight { justify-items: start; }
-  .histPills { justify-content: flex-start; }
-  .histTopRow { grid-template-columns: 1fr; }
-  .histRight { justify-items: start; }
-  .histDetailGrid { grid-template-columns: 1fr 1fr; }
-  .modalSummary { grid-template-columns: 1fr; }
+  .histCard { padding: 34px 30px !important; }
+  .histHeader { flex-direction: column !important; align-items: stretch !important; }
+  .histHeaderRight { justify-items: start !important; }
+  .histPills { justify-content: flex-start !important; }
+  .histTopRow { grid-template-columns: 1fr !important; }
+  .histRight { justify-items: start !important; }
+  .histDetailGrid { grid-template-columns: 1fr 1fr !important; }
+  .modalSummary { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 560px) {
-  .histCard { padding: 24px 18px; }
-  .histDetailGrid { grid-template-columns: 1fr; }
-  .modalCounterRow { flex-direction: column; align-items: flex-start; }
+  .histCard { padding: 24px 18px !important; }
+  .histDetailGrid { grid-template-columns: 1fr !important; }
+  .modalCounterRow { flex-direction: column !important; align-items: flex-start !important; }
 }
 
-/* Acessibilidade */
+/* =========================
+   ACESSIBILIDADE
+========================= */
 .histGhostBtn:focus-visible,
 .histBackBtn:focus-visible,
 .histPrimaryBtn:focus-visible,
@@ -863,10 +999,13 @@
 .modalBtnPrimary:focus-visible,
 .modalTextarea:focus-visible,
 .histSummary:focus-visible {
-  outline: 2px solid rgba(180, 255, 120, 0.45);
-  outline-offset: 2px;
+  outline: 2px solid rgba(160, 234, 82, 0.38) !important;
+  outline-offset: 2px !important;
 }
 
+/* =========================
+   REDUZIR MOVIMENTO
+========================= */
 @media (prefers-reduced-motion: reduce) {
   .modalOverlay, .modalCard,
   .histGhostBtn, .histBackBtn, .histPrimaryBtn, .histRefundBtn,
