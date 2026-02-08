@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "./AdminPlanosPage.css";
 
 const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
@@ -19,6 +20,7 @@ function toPositiveInt(v) {
   return n;
 }
 function clampInt(v, def, min, max) {
+  if (v == null || v === "") return def;
   const n = Number(v);
   if (!Number.isFinite(n) || !Number.isInteger(n)) return def;
   return Math.max(min, Math.min(max, n));
@@ -67,6 +69,7 @@ function Modal({ open, title, children, footer, onClose, disableClose }) {
 
   useEffect(() => {
     if (!open) return;
+
     const onKey = (e) => {
       if (e.key === "Escape" && !disableClose) onClose?.();
     };
@@ -74,6 +77,7 @@ function Modal({ open, title, children, footer, onClose, disableClose }) {
 
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
@@ -87,9 +91,17 @@ function Modal({ open, title, children, footer, onClose, disableClose }) {
     if (panelRef.current && !panelRef.current.contains(e.target)) onClose?.();
   };
 
-  return (
-    <div className="cbModalOverlay" onMouseDown={onOverlay} role="dialog" aria-modal="true">
-      <div className="cbModalPanel" ref={panelRef}>
+  // ✅ GARANTIA: renderiza no body (evita “quadro preto” por containers com transform/overflow)
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      className="cbModalOverlay apModalOverlay"
+      onMouseDown={onOverlay}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="cbModalPanel apModalPanel" ref={panelRef}>
         <div className="cbModalHeader">
           <h3 className="cbModalTitle">{title}</h3>
           <button
@@ -107,7 +119,8 @@ function Modal({ open, title, children, footer, onClose, disableClose }) {
         <div className="cbModalBody">{children}</div>
         {footer ? <div className="cbModalFooter">{footer}</div> : null}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -126,8 +139,9 @@ export default function AdminPlanosPage() {
 
   const [formNome, setFormNome] = useState("");
   const [formStripeId, setFormStripeId] = useState("");
-  const [formCreditos, setFormCreditos] = useState("100"); // QUANT_CREDITO_MENSAL
+  const [formCreditos, setFormCreditos] = useState("100");
   const [formPrioridade, setFormPrioridade] = useState("3");
+  const [formMaxUsuarios, setFormMaxUsuarios] = useState("9999");
 
   // delete
   const [deleteModal, setDeleteModal] = useState({ open: false, current: null });
@@ -180,6 +194,7 @@ export default function AdminPlanosPage() {
     setFormStripeId("");
     setFormCreditos("100");
     setFormPrioridade("3");
+    setFormMaxUsuarios("9999");
     setModal({ open: true, mode: "create", current: null });
   };
 
@@ -188,6 +203,7 @@ export default function AdminPlanosPage() {
     setFormStripeId(String(p?.ID_STRIPE || ""));
     setFormCreditos(String(p?.QUANT_CREDITO_MENSAL ?? ""));
     setFormPrioridade(String(p?.PRIORIDADE ?? 3));
+    setFormMaxUsuarios(String(p?.MAX_USUARIOS_DEPENDENTES ?? 9999));
     setModal({ open: true, mode: "edit", current: p });
   };
 
@@ -200,26 +216,28 @@ export default function AdminPlanosPage() {
     const nome = safeText(formNome);
     const stripe = safeText(formStripeId);
     const cred = toPositiveInt(formCreditos);
-    const prio = clampInt(toPositiveInt(formPrioridade), 3, 1, 999);
-    return !!nome && !!stripe && cred != null && prio != null;
-  }, [formNome, formStripeId, formCreditos, formPrioridade]);
+    const prio = clampInt(formPrioridade, 3, 1, 999);
+    const maxUsers = clampInt(formMaxUsuarios, 9999, 1, 9999);
+    return !!nome && !!stripe && cred != null && prio != null && maxUsers != null;
+  }, [formNome, formStripeId, formCreditos, formPrioridade, formMaxUsuarios]);
 
   const savePlano = async () => {
     const nome = safeText(formNome);
     const stripeId = safeText(formStripeId);
     const creditos = toPositiveInt(formCreditos);
-    const prioridade = clampInt(toPositiveInt(formPrioridade), 3, 1, 999);
+    const prioridade = clampInt(formPrioridade, 3, 1, 999);
+    const maxUsuariosDependentes = clampInt(formMaxUsuarios, 9999, 1, 9999);
 
     if (!nome) return alert("Informe o nome do plano.");
     if (!stripeId) return alert("Informe o ID do Stripe.");
     if (!creditos) return alert("Informe créditos mensais (inteiro > 0).");
+    if (!maxUsuariosDependentes || maxUsuariosDependentes < 1)
+      return alert("Informe Máx. usuários (inteiro >= 1).");
 
     setSaving(true);
     try {
       const isEdit = modal.mode === "edit";
-      const url = isEdit
-        ? `${API_BASE}/admin/api/planos/${modal.current?.ID}`
-        : `${API_BASE}/admin/api/planos`;
+      const url = isEdit ? `${API_BASE}/admin/api/planos/${modal.current?.ID}` : `${API_BASE}/admin/api/planos`;
 
       const res = await fetch(url, {
         method: isEdit ? "PUT" : "POST",
@@ -230,6 +248,7 @@ export default function AdminPlanosPage() {
           idStripe: stripeId,
           quantCreditoMensal: creditos,
           prioridade,
+          maxUsuariosDependentes,
         }),
       });
 
@@ -281,13 +300,13 @@ export default function AdminPlanosPage() {
   };
 
   return (
-    <div className="analysisPage">
+    <div className="analysisPage apPage">
       <div className="pg-card apCard">
         <header className="apHeader">
           <div className="apHeaderLeft">
             <h1 className="apTitle">Planos</h1>
             <p className="apSubtitle">
-              Crie, edite e remova planos. Ajuste créditos mensais e prioridade (menor = mais importante).
+              Crie, edite e remova planos. Ajuste créditos mensais, prioridade e limite de usuários.
             </p>
           </div>
 
@@ -303,7 +322,7 @@ export default function AdminPlanosPage() {
               <IconSearch />
             </span>
             <input
-              className="apSearchInput"
+              className="apSearchInput apInput"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar por nome ou Stripe ID..."
@@ -340,12 +359,17 @@ export default function AdminPlanosPage() {
                           <span className="apPillV">{p.QUANT_CREDITO_MENSAL ?? "—"}</span>
                         </span>
 
-                        <span className="apPill is-blue">
+                        <span className="apPill">
                           <span className="apPillK">Prioridade</span>
                           <span className="apPillV">{p.PRIORIDADE ?? 3}</span>
                         </span>
 
-                        <span className="apPill is-green">
+                        <span className="apPill">
+                          <span className="apPillK">Máx usuários</span>
+                          <span className="apPillV">{p.MAX_USUARIOS_DEPENDENTES ?? 9999}</span>
+                        </span>
+
+                        <span className="apPill">
                           <span className="apPillK">Stripe</span>
                           <span className="apPillV">{p.ID_STRIPE || "—"}</span>
                         </span>
@@ -356,7 +380,12 @@ export default function AdminPlanosPage() {
                       <button type="button" className="apIconBtn" onClick={() => openEdit(p)} title="Editar">
                         <IconEdit className="apIcon" aria-hidden="true" />
                       </button>
-                      <button type="button" className="apIconBtn is-danger" onClick={() => openDelete(p)} title="Remover">
+                      <button
+                        type="button"
+                        className="apIconBtn is-danger"
+                        onClick={() => openDelete(p)}
+                        title="Remover"
+                      >
                         <IconTrash className="apIcon" aria-hidden="true" />
                       </button>
                     </div>
@@ -427,6 +456,21 @@ export default function AdminPlanosPage() {
             </div>
 
             <div className="apRow">
+              <label className="apLabel">Máx. usuários (inclui admin)</label>
+              <input
+                className="apInput"
+                value={formMaxUsuarios}
+                onChange={(e) => setFormMaxUsuarios(e.target.value.replace(/[^\d]/g, ""))}
+                placeholder="9999"
+                disabled={saving}
+                inputMode="numeric"
+              />
+              <div className="apHelp">
+                Campo: <code>MAX_USUARIOS_DEPENDENTES</code>. Use <strong>9999</strong> para “ilimitado”.
+              </div>
+            </div>
+
+            <div className="apRow">
               <label className="apLabel">Stripe ID</label>
               <input
                 className="apInput"
@@ -446,7 +490,8 @@ export default function AdminPlanosPage() {
                 <div className="apPreviewName">{safeText(formNome) || "Nome do plano"}</div>
                 <div className="apPreviewMeta">
                   <span>Créditos/mês: {toPositiveInt(formCreditos) ?? "—"}</span>
-                  <span>Prioridade: {clampInt(toPositiveInt(formPrioridade), 3, 1, 999) ?? 3}</span>
+                  <span>Prioridade: {clampInt(formPrioridade, 3, 1, 999)}</span>
+                  <span>Máx usuários: {clampInt(formMaxUsuarios, 9999, 1, 9999)}</span>
                 </div>
                 <div className="apPreviewStripe">{safeText(formStripeId) || "Stripe ID"}</div>
               </div>
@@ -473,12 +518,9 @@ export default function AdminPlanosPage() {
         >
           <div className="apDeleteBox">
             <p className="apDeleteText">
-              Você tem certeza que deseja remover o plano{" "}
-              <strong>{deleteModal.current?.NOME || "—"}</strong>?
+              Você tem certeza que deseja remover o plano <strong>{deleteModal.current?.NOME || "—"}</strong>?
             </p>
-            <p className="apDeleteWarn">
-              Se existir assinatura vinculada, o backend deve bloquear (recomendado).
-            </p>
+            <p className="apDeleteWarn">Se existir assinatura vinculada, o backend deve bloquear (recomendado).</p>
           </div>
         </Modal>
       </div>

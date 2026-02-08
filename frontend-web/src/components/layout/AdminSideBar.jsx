@@ -45,7 +45,7 @@ function IconCard(props) {
   );
 }
 
-/* ✅ novo ícone de Produtos */
+/* ✅ ícone de Produtos */
 function IconBox(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -57,10 +57,26 @@ function IconBox(props) {
   );
 }
 
+/* ✅ ícone de Reembolso (refund) */
+function IconRefund(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      {/* setas circulares + moeda */}
+      <path
+        fill="currentColor"
+        d="M12 3a9 9 0 0 0-9 9H1l3.2 3.2L7.4 12H5a7 7 0 1 1 2.05 4.95l-1.42 1.42A9 9 0 1 0 12 3Zm1 5h-2v1.1c-1.2.25-2 1.04-2 2.15 0 1.2.8 1.9 2.3 2.22l.7.15c.9.2 1.1.45 1.1.78 0 .4-.4.75-1.25.75-.95 0-1.45-.35-1.55-.95H8.9c.12 1.15.95 1.9 2.1 2.1V19h2v-1.1c1.35-.25 2.15-1.1 2.15-2.25 0-1.25-.8-1.95-2.4-2.3l-.75-.16c-.8-.18-1-.42-1-.72 0-.35.35-.65 1.05-.65.8 0 1.2.3 1.3.8h1.5c-.13-1-.83-1.7-1.95-1.95V8Z"
+      />
+    </svg>
+  );
+}
+
 function IconPower(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path fill="currentColor" d="M11 2h2v10h-2V2Zm7.07 3.93 1.41 1.41A9 9 0 1 1 4.52 7.34l1.41-1.41A7 7 0 1 0 18.07 5.93Z" />
+      <path
+        fill="currentColor"
+        d="M11 2h2v10h-2V2Zm7.07 3.93 1.41 1.41A9 9 0 1 1 4.52 7.34l1.41-1.41A7 7 0 1 0 18.07 5.93Z"
+      />
     </svg>
   );
 }
@@ -75,17 +91,14 @@ export default function AdminSidebar() {
     () => [
       { to: "/admin/dashboard", label: "Dashboard", icon: IconDashboard },
       { to: "/admin/solicitacoes", label: "Solicitações", icon: IconDoc },
-      { to: "/admin/produtos", label: "Produtos", icon: IconBox }, // ✅ ADICIONADO
+      { to: "/admin/produtos", label: "Produtos", icon: IconBox },
       { to: "/admin/empresas", label: "Empresas", icon: IconBuilding },
       { to: "/admin/planos", label: "Planos", icon: IconCard },
-      { to: "/admin/reembolso", label: "Reembolso", icon: IconCard },
-
-
+      { to: "/admin/reembolso", label: "Reembolso", icon: IconRefund }, // ✅ AQUI
     ],
     []
   );
 
-  // redundante (porque /admin já está protegido), mas deixa mais resiliente
   useEffect(() => {
     if (!adminAuthReady) return;
     if (!isAdminAuthenticated) {
@@ -93,7 +106,6 @@ export default function AdminSidebar() {
     }
   }, [adminAuthReady, isAdminAuthenticated, navigate, location]);
 
-  // pill animada
   const navRef = useRef(null);
   const [pill, setPill] = useState({ y: 0, h: 54, show: false });
 

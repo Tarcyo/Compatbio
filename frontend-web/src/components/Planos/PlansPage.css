@@ -60,7 +60,8 @@
   margin: 0 !important;
   margin-right: auto !important;
 
-  padding: 28px 28px 22px;
+  /* ✅ um pouco menor por dentro (itens “menores” visualmente) */
+  padding: 24px 24px 18px;
   border-radius: 26px;
 
   background: linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 100%) !important;
@@ -73,9 +74,9 @@
 
   overflow: hidden;
 
-  /* ✅ garante folga no rodapé (bem mais)
-     (quanto maior o + 80px, maior a folga inferior) */
-  max-height: calc(100dvh - (var(--padTop) + var(--padBottom) + 80px));
+  /* ✅ CARD MAIS ALTO (mais espaço vertical útil) */
+  min-height: clamp(560px, 78vh, 780px);
+  max-height: calc(100dvh - (var(--padTop) + var(--padBottom) + 40px));
 
   display: flex;
   flex-direction: column;
@@ -88,15 +89,16 @@
   justify-content: space-between;
   gap: 14px;
 
-  margin: 0 0 14px;
-  padding-bottom: 14px;
+  margin: 0 0 12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   flex: 0 0 auto;
 }
 
 .plansCardTitle {
   margin: 0;
-  font-size: clamp(22px, 2.6vw, 30px);
+  /* ✅ um pouco menor */
+  font-size: clamp(20px, 2.3vw, 28px);
   font-weight: 1000;
   letter-spacing: 0.2px;
   color: #fff;
@@ -114,13 +116,14 @@
 /* títulos */
 .plansSectionTitle {
   margin: 0 0 10px;
-  font-size: 18px;
+  /* ✅ um pouco menor */
+  font-size: 17px;
   font-weight: 1000;
   color: #fff;
 }
 
 .plansDivider {
-  margin: 16px 0;
+  margin: 14px 0;
   height: 1px;
   background: rgba(255,255,255,0.12);
 }
@@ -130,7 +133,8 @@
   margin-top: 8px;
   color: rgba(255,255,255,0.88);
   font-weight: 800;
-  font-size: 12.5px;
+  /* ✅ menor */
+  font-size: 12px;
 }
 
 .plansLink {
@@ -158,7 +162,8 @@
   justify-content: space-between;
   gap: 14px;
 
-  padding: 16px 16px;
+  /* ✅ menor */
+  padding: 14px 14px;
   border-radius: 18px;
 
   background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
@@ -169,8 +174,9 @@
 }
 
 .currentPlanTitle {
-  margin: 0 0 8px;
-  font-size: 16px;
+  margin: 0 0 6px;
+  /* ✅ menor */
+  font-size: 15px;
   font-weight: 1000;
   color: #fff;
 }
@@ -181,9 +187,10 @@
   padding: 0;
 
   display: grid;
-  gap: 8px;
+  /* ✅ menor */
+  gap: 7px;
 
-  max-height: 140px;
+  max-height: 120px;
   overflow: auto;
   padding-right: 8px;
   scrollbar-gutter: stable both-edges;
@@ -192,15 +199,16 @@
 .currentPlanItem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   color: #fff;
-  font-size: 13px;
+  /* ✅ menor */
+  font-size: 12.5px;
   font-weight: 850;
 }
 
 .currentPlanCheck {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   color: rgba(160, 234, 82, 0.92);
 }
 
@@ -238,15 +246,16 @@
 
 .plansTab {
   flex: 0 0 auto;
-  height: 36px;
-  padding: 0 14px;
+  height: 34px;
+  padding: 0 12px;
   border-radius: 999px;
 
   border: 1px solid rgba(255,255,255,0.14);
   background: #344154;
   color: #fff;
 
-  font-size: 13px;
+  /* ✅ menor */
+  font-size: 12.5px;
   font-weight: 950;
 
   cursor: pointer;
@@ -288,7 +297,8 @@
 ========================= */
 .planTile {
   border-radius: 18px;
-  padding: 14px 14px 12px;
+  /* ✅ menor */
+  padding: 13px 13px 11px;
 
   background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%);
   border: 1px solid rgba(255,255,255,0.14);
@@ -315,7 +325,7 @@
   height: 18px;
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 
 .planBadge {
@@ -340,8 +350,9 @@
 }
 
 .planTitle {
-  margin: 0 0 8px;
-  font-size: 14px;
+  margin: 0 0 7px;
+  /* ✅ menor */
+  font-size: 13.5px;
   font-weight: 1000;
   color: #fff;
 
@@ -354,30 +365,32 @@
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 }
 
 .planPriceMain {
-  font-size: 16px;
+  /* ✅ menor */
+  font-size: 15px;
   font-weight: 1000;
   color: #fff;
 }
 
 .planPriceInterval {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 900;
   color: rgba(255,255,255,0.86);
 }
 
 .planFeatures {
   list-style: none;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   padding: 0;
 
   display: grid;
-  gap: 8px;
+  /* ✅ menor */
+  gap: 7px;
 
-  max-height: 128px;
+  max-height: 120px;
   overflow: auto;
   padding-right: 8px;
   scrollbar-gutter: stable both-edges;
@@ -389,14 +402,15 @@
   gap: 8px;
   align-items: center;
 
-  font-size: 12.5px;
+  /* ✅ menor */
+  font-size: 12px;
   font-weight: 850;
   color: #fff;
 }
 
 .planCheck {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   color: rgba(160,234,82,0.90);
 }
 
@@ -406,8 +420,8 @@
 .planBtn,
 .chooseBtn,
 .buyBtn {
-  height: 42px;
-  padding: 0 16px;
+  height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
 
   display: inline-flex;
@@ -422,7 +436,8 @@
   background: linear-gradient(180deg, #3b4961 0%, #313e54 100%);
   color: #fff;
 
-  font-size: 13px;
+  /* ✅ menor */
+  font-size: 12.5px;
   font-weight: 950;
   letter-spacing: 0.2px;
 
@@ -451,9 +466,10 @@
   background: linear-gradient(180deg, #3b4961 0%, #313e54 100%) !important;
 }
 
+/* ✅ botão “danger” do cancelamento */
 .is-danger {
-  background: linear-gradient(180deg, #3b4961 0%, #313e54 100%) !important;
-  border-color: rgba(255, 170, 170, 0.30) !important;
+  background: linear-gradient(180deg, #4b2f3a 0%, #3a2530 100%) !important;
+  border-color: rgba(255, 170, 170, 0.32) !important;
 }
 
 .buyBtnIco {
@@ -468,7 +484,7 @@
 ========================= */
 .creditsLabel {
   margin: 0 0 10px;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 900;
   color: #fff;
 }
@@ -481,7 +497,7 @@
 
 .creditsInput {
   width: 160px;
-  height: 42px;
+  height: 40px;
   padding: 0 14px;
 
   border-radius: 999px;
@@ -490,7 +506,7 @@
   background: #2b3646;
   color: #fff;
 
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 950;
 
   outline: none;
@@ -549,7 +565,7 @@
 }
 
 /* =========================
-   MODAL
+   MODAL (CONFIRMAÇÃO BONITA)
 ========================= */
 .pcModalOverlay {
   position: fixed;
@@ -561,8 +577,18 @@
   padding: 18px;
 }
 
+.pcModalOverlay--blur {
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(8px);
+}
+
+@keyframes pcPop {
+  from { transform: translateY(6px) scale(0.985); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
 .pcModalPanel {
-  width: min(560px, 100%);
+  width: min(580px, 100%);
   border-radius: 22px;
 
   background: linear-gradient(180deg, #303b4c 0%, #273242 100%);
@@ -571,6 +597,10 @@
   box-shadow: 0 34px 90px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08);
   overflow: hidden;
   color: #fff;
+}
+
+.pcModalPanel--anim {
+  animation: pcPop 180ms ease-out;
 }
 
 .pcModalHeader {
@@ -582,11 +612,46 @@
   border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
+.pcModalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pcModalIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.pcModalIcon.is-danger {
+  background: rgba(255, 120, 120, 0.10);
+  border-color: rgba(255, 170, 170, 0.26);
+}
+
+.pcModalIconSvg {
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 170, 170, 0.95);
+}
+
 .pcModalTitle {
   margin: 0;
   color: #fff;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 1000;
+}
+
+.pcModalSub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.82);
 }
 
 .pcModalClose {
@@ -609,16 +674,49 @@
 }
 
 .pcModalBody {
-  padding: 18px 18px 8px;
+  padding: 16px 18px 10px;
 }
 
 .pcModalText {
   margin: 0;
   color: rgba(255,255,255,0.95);
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 850;
   line-height: 1.5;
   white-space: pre-line;
+}
+
+.pcModalBullets {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.pcModalBullet {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.92);
+}
+
+.pcModalBulletIco {
+  width: 16px;
+  height: 16px;
+  color: rgba(160,234,82,0.92);
+}
+
+.pcModalTip {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  font-size: 12px;
+  font-weight: 850;
+  color: rgba(255,255,255,0.90);
 }
 
 .pcModalFooter {
@@ -631,8 +729,8 @@
 
 .pcBtnGhost,
 .pcBtnPrimary {
-  height: 42px;
-  padding: 0 16px;
+  height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
   font-weight: 1000;
   cursor: pointer;
@@ -657,6 +755,12 @@
   filter: none;
 }
 
+/* ✅ botão primário “danger” */
+.pcBtnDanger {
+  background: linear-gradient(180deg, #5b2f3a 0%, #44232c 100%) !important;
+  border-color: rgba(255, 170, 170, 0.34) !important;
+}
+
 /* =========================
    RESPONSIVO
 ========================= */
@@ -667,12 +771,14 @@
 }
 
 @media (max-width: 720px) {
- /* ✅ CARD EXTERNO TOTALMENTE TRANSPARENTE */
-.plansCard{
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  box-shadow: none !important;
-}
+  /* ✅ CARD EXTERNO TOTALMENTE TRANSPARENTE */
+  .plansCard{
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+    min-height: unset;
+    max-height: unset;
+  }
 
   .plansHeaderRow {
     flex-direction: column;

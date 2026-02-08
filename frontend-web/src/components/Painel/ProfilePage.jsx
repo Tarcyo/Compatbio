@@ -261,6 +261,7 @@ export default function ProfilePage() {
         status: "—",
         creditosMes: null,
         usuarios: 0,
+        maxUsuarios: null,
         dono: "",
         isAtiva: false,
         adminId: null,
@@ -278,6 +279,10 @@ export default function ProfilePage() {
     const adminId =
       assinatura.ID_CLIENTE_ADMIN_DA_ASSINATURA ?? assinaturaData?.dono?.ID ?? null;
 
+    const maxUsuariosRaw = plano?.MAX_USUARIOS_DEPENDENTES ?? null;
+    const maxUsuariosNum = Number(maxUsuariosRaw);
+    const maxUsuarios = Number.isFinite(maxUsuariosNum) ? maxUsuariosNum : null;
+
     return {
       has: true,
       badge: isAtiva ? "Seu Plano Ativo" : `Status: ${status}`,
@@ -285,6 +290,7 @@ export default function ProfilePage() {
       status,
       creditosMes: plano.QUANT_CREDITO_MENSAL ?? null,
       usuarios,
+      maxUsuarios,
       dono,
       isAtiva,
       adminId,
@@ -301,6 +307,13 @@ export default function ProfilePage() {
     const donoEmail = (assinaturaData?.dono?.EMAIL || "").toLowerCase();
     return Boolean(myEmail && donoEmail && myEmail === donoEmail);
   }, [planoAtual.has, planoAtual.adminId, cliente, googleUser, assinaturaData]);
+
+  const assinaturaCheia = useMemo(() => {
+    if (!planoAtual.has) return false;
+    const max = planoAtual.maxUsuarios;
+    if (max == null || !Number.isFinite(max) || max <= 0) return false;
+    return (planoAtual.usuarios || 0) >= max;
+  }, [planoAtual.has, planoAtual.maxUsuarios, planoAtual.usuarios]);
 
   // ✅ usuários vinculados (você sempre primeiro)
   const usuariosAssinatura = useMemo(() => {
@@ -506,7 +519,9 @@ export default function ProfilePage() {
             <h1 className="profileCardTitle">Perfil</h1>
           </header>
           <div className="profileCardBody">
-            <p className="profileText">Não autenticado. Faça login com Google novamente.</p>
+            <p className="profileText">
+              Não autenticado. Faça login com Google novamente.
+            </p>
             <pre className="profileText" style={{ opacity: 0.8 }}>
               GET {API_BASE}/me retornou 401/erro
             </pre>
@@ -596,7 +611,11 @@ export default function ProfilePage() {
                         </span>
                       </div>
 
-                      <div className={`profileSelectWrap ${loadingEmpresas ? "is-loading" : ""}`}>
+                      <div
+                        className={`profileSelectWrap ${
+                          loadingEmpresas ? "is-loading" : ""
+                        }`}
+                      >
                         <select
                           className="profileSelect"
                           value={draftEmpresaId == null ? "" : String(draftEmpresaId)}
@@ -608,7 +627,9 @@ export default function ProfilePage() {
                           title="Clique para selecionar uma empresa"
                         >
                           <option value="">
-                            {loadingEmpresas ? "Carregando empresas..." : "— Sem empresa —"}
+                            {loadingEmpresas
+                              ? "Carregando empresas..."
+                              : "— Sem empresa —"}
                           </option>
 
                           {empresas.map((emp) => (
@@ -620,7 +641,9 @@ export default function ProfilePage() {
                       </div>
 
                       {errEmpresas ? (
-                        <small className="profileCompanyHint is-error">{errEmpresas}</small>
+                        <small className="profileCompanyHint is-error">
+                          {errEmpresas}
+                        </small>
                       ) : (
                         <small className="profileCompanyHint">
                           Clique no campo acima para abrir a lista.
@@ -681,7 +704,13 @@ export default function ProfilePage() {
                       <IconCheckCircle className="profileCurrentPlanCheck" />
                       <span>
                         Usuários na assinatura:{" "}
-                        <strong>{formatCredits.format(planoAtual.usuarios || 0)}</strong>
+                        <strong>
+                          ({formatCredits.format(planoAtual.usuarios || 0)} de{" "}
+                          {planoAtual.maxUsuarios == null
+                            ? "—"
+                            : formatCredits.format(planoAtual.maxUsuarios)}
+                          )
+                        </strong>
                       </span>
                     </li>
 
@@ -726,8 +755,12 @@ export default function ProfilePage() {
                   type="button"
                   className="profileAddUserBtn"
                   onClick={openAdd}
-                  disabled={actionBusy}
-                  title="Adicionar cliente à assinatura"
+                  disabled={actionBusy || assinaturaCheia}
+                  title={
+                    assinaturaCheia
+                      ? "Limite de usuários do plano atingido"
+                      : "Adicionar cliente à assinatura"
+                  }
                   aria-label="Adicionar cliente à assinatura"
                 >
                   <IconPlus className="profileAddUserIco" />
@@ -769,9 +802,7 @@ export default function ProfilePage() {
                       {u.isYou || u.isAdmin ? (
                         <span className="profileBadges">
                           {u.isYou ? <span className="profileBadge is-you">você</span> : null}
-                          {u.isAdmin ? (
-                            <span className="profileBadge is-admin">admin</span>
-                          ) : null}
+                          {u.isAdmin ? <span className="profileBadge is-admin">admin</span> : null}
                         </span>
                       ) : null}
 

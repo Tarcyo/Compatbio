@@ -1,112 +1,146 @@
-/* =========================
-   Base / card (glass premium)
-========================= */
+/* AdminSolicitacaoPage.css — COMPLETO
+   ✅ Paleta/contraste do CompatBioLogin (Plans)
+   ✅ SEM glassmorphism (sem blur / sem transparência nos painéis)
+   ✅ Card sólido azul
+   ✅ Card movido levemente p/ cima e esquerda
+   ✅ Altura máx menor + scrollbars
+   ✅ Modal "Responder" com MESMO design do card principal
+*/
 
+/* =========================
+   RESET LOCAL
+========================= */
+.pg-wrap,
+.pg-wrap * {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================
+   VARIÁVEIS (TEM QUE FICAR NO PAI DO MODAL)
+   Modal está fora de .analysisPage, então define aqui!
+========================= */
+.pg-wrap {
+  /* Paleta base do PlansPage / CompatBioLogin */
+  --bg0: #2a3443;
+  --bg1: #222b38;
+
+  --panel: #303b4c;
+  --panel2: #2b3646;
+
+  --row: #243146;
+  --row2: #1f2a3c;
+
+  --stroke0: rgba(255, 255, 255, 0.14);
+  --stroke1: rgba(255, 255, 255, 0.16);
+
+  --text0: rgba(255, 255, 255, 0.96);
+  --text1: rgba(255, 255, 255, 0.82);
+  --text2: rgba(255, 255, 255, 0.72);
+
+  --shadowLg: 0 30px 90px rgba(0, 0, 0, 0.55);
+  --shadowMd: 0 16px 42px rgba(0, 0, 0, 0.45);
+
+  --btn0: #3b4961;
+  --btn1: #313e54;
+
+  --focus: rgba(160, 234, 82, 0.38);
+}
+
+/* =========================
+   POSICIONAMENTO DO CONTEÚDO
+========================= */
 .analysisPage {
   width: 100%;
   display: grid;
   justify-items: start;
   align-items: start;
   padding: 0;
-}
 
-.admCard {
-  --surface-0: rgba(22, 30, 40, 0.72);
-  --surface-1: rgba(22, 30, 40, 0.72);
-  --border-0: rgba(255, 255, 255, 0.16);
-  --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.42);
-
-  width: min(1100px, 100%);
-  min-height: 660px;
-
-  padding: 40px 44px 38px;
-  border-radius: 16px;
-
-  background: linear-gradient(180deg, var(--surface-0) 0%, var(--surface-1) 100%);
-  border: 1px solid var(--border-0);
-
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.10);
-
-  color: rgba(255, 255, 255, 0.96);
-  position: relative;
-  overflow: hidden;
-}
-
-.admCard::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    820px 300px at 22% 18%,
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.06) 26%,
-    rgba(255, 255, 255, 0.00) 56%
-  );
-  opacity: 0.85;
-}
-
-.admCard::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 255, 255, 0.00) 44%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  opacity: 0.5;
-}
-
-.admCard > * {
-  position: relative;
-  z-index: 1;
+  /* ✅ move um pouco para cima e esquerda */
+  transform: translate(-18px, -18px);
 }
 
 /* =========================
-   Header
+   CARD PRINCIPAL (SÓLIDO, SEM GLASS)
 ========================= */
+.pg-card.admCard {
+  width: min(1200px, 100%);
+  min-height: 620px;
 
+  /* ✅ reduz altura máxima (fica mais "baixo") */
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+
+  padding: 40px 44px 34px;
+  border-radius: 28px;
+
+  /* ✅ cor sólida azul */
+  background: var(--panel2) !important;
+
+  border: 1px solid var(--stroke0) !important;
+
+  /* ✅ mata glass da .pg-card base (Pages.css) */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  box-shadow: var(--shadowLg), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: var(--text0);
+
+  position: relative;
+}
+
+/* se tiver pseudo efeitos antigos, mata */
+.pg-card.admCard::before,
+.pg-card.admCard::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* =========================
+   HEADER
+========================= */
 .admHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  margin: 0 0 22px;
+
+  margin: 0 0 18px;
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+.admHeaderLeft {
+  min-width: 0;
+}
+
 .admTitle {
   margin: 0;
-  font-size: clamp(26px, 3.2vw, 34px);
-  font-weight: 950;
-  line-height: 1.1;
-  text-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 1000;
+  line-height: 1.06;
+  letter-spacing: 0.2px;
+  color: var(--text0);
+  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.40);
 }
 
 .admSubtitle {
   margin: 10px 0 0;
-  color: rgba(255, 255, 255, 0.74);
-  font-weight: 760;
+  max-width: 640px;
+  color: var(--text2);
+  font-weight: 800;
   line-height: 1.35;
-  max-width: 520px;
+  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
 }
 
 /* =========================
-   Filters (alta visibilidade)
+   FILTROS (SÓLIDOS)
 ========================= */
-
 .admFilters {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   justify-items: end;
   min-width: min(420px, 100%);
 }
@@ -120,59 +154,52 @@
   margin: 0 0 10px;
   font-size: 12.5px;
   font-weight: 950;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.78);
-  text-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
 }
 
 .admSelectShell {
   height: 58px;
-  border-radius: 14px;
+  border-radius: 999px;
 
   display: grid;
   grid-template-columns: 54px 1fr 46px;
   align-items: center;
 
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.14) 0%,
-    rgba(0, 0, 0, 0.22) 70%,
-    rgba(0, 0, 0, 0.26) 100%
-  );
+  background: var(--btn1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 
-  border: 1px solid rgba(255, 255, 255, 0.26);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    0 16px 38px rgba(0, 0, 0, 0.26);
+    0 14px 30px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
-  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  transition: border-color 160ms ease, filter 160ms ease;
 }
 
 .admSelectShell:hover {
-  border-color: rgba(255, 255, 255, 0.34);
-  filter: brightness(1.03);
+  filter: brightness(1.04);
+  border-color: rgba(255, 255, 255, 0.24);
 }
 
 .admSelectShell:focus-within {
-  border-color: rgba(180, 255, 120, 0.52);
+  border-color: rgba(160, 234, 82, 0.42);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 0 0 4px rgba(180, 255, 120, 0.14),
-    0 18px 44px rgba(0, 0, 0, 0.28);
+    0 0 0 4px rgba(160, 234, 82, 0.14),
+    0 16px 34px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .admSelectIcon {
   display: grid;
   place-items: center;
-  color: rgba(255, 255, 255, 0.90);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .admSelectIcon svg {
   width: 20px;
   height: 20px;
   opacity: 0.95;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.30));
 }
 
 .admSelect {
@@ -194,9 +221,9 @@
 }
 
 .admSelect option {
-  background: #0f141b;
+  background: #222b38;
   color: #ffffff;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .admSelectCaret {
@@ -211,41 +238,66 @@
   content: "";
   width: 10px;
   height: 10px;
-  border-right: 2px solid rgba(255, 255, 255, 0.90);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.90);
+  border-right: 2px solid rgba(255, 255, 255, 0.92);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.92);
   transform: rotate(45deg);
-  opacity: 0.95;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
 }
 
-/* variação no modal */
+/* versão modal */
 .admSelectShell--modal {
-  height: 56px;
-  border-radius: 12px;
+  height: 58px;
+  border-radius: 999px;
+  background: var(--btn1);
 }
 
 /* =========================
-   Body / states
+   BODY + SCROLL
 ========================= */
-
 .admBody {
-  margin-top: 18px;
+  margin-top: 14px;
+
+  max-height: calc(100vh - 360px);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 8px;
 }
 
+.admBody::-webkit-scrollbar { width: 12px; }
+.admBody::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.26);
+  border-radius: 999px;
+}
+.admBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  border: 3px solid rgba(0, 0, 0, 0.26);
+}
+.admBody::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* estados */
 .admState {
-  padding: 18px 14px;
-  color: rgba(255, 255, 255, 0.78);
-  font-weight: 850;
+  padding: 16px 14px;
+  border-radius: 18px;
+
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  color: rgba(255, 255, 255, 0.80);
+  font-weight: 900;
 }
 
 .admState.is-error {
-  color: rgba(255, 120, 120, 0.95);
+  border-color: rgba(255, 120, 120, 0.28);
+  background: rgba(255, 120, 120, 0.12);
+  color: rgba(255, 210, 210, 0.96);
 }
 
 /* =========================
-   ✅ Cards (versão simplificada e elegante)
+   LISTA / CARDS (SÓLIDOS)
 ========================= */
-
 .admCards {
   list-style: none;
   margin: 0;
@@ -255,28 +307,28 @@
 }
 
 .admCardItem {
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.20);
+  border-radius: 26px;
+  background: var(--row);
   border: 1px solid rgba(255, 255, 255, 0.14);
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 14px 34px rgba(0, 0, 0, 0.18);
+    0 16px 36px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-  padding: 16px 16px;
+  padding: 18px 18px;
 }
 
 .admCardTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
 }
 
 .admCardLeft {
   min-width: 0;
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .admCardTitleRow {
@@ -286,160 +338,95 @@
   flex-wrap: wrap;
 }
 
-.admCardId {
+/* =========================
+   Linha de produto (destaque)
+========================= */
+.admProductLine {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  font-size: 18px;
   font-weight: 1000;
   letter-spacing: 0.2px;
-  color: rgba(255, 255, 255, 0.92);
+
+  color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
 }
 
-.admCardMeta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-  min-width: 0;
-}
-
-.admMetaStrong {
-  font-size: 13px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.admMetaMuted {
-  font-size: 13px;
-  font-weight: 760;
-  color: rgba(255, 255, 255, 0.74);
+.admProductName {
+  display: inline-block;
+  max-width: 520px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 680px;
 }
 
-.admMetaDot {
-  opacity: 0.45;
-}
-
-/* Descrição “colapsável” */
-.admDetails {
-  margin-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-  padding-top: 10px;
-}
-
-.admSummary {
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 850;
-  color: rgba(255, 255, 255, 0.72);
-  user-select: none;
-  list-style: none;
-}
-
-.admSummary::-webkit-details-marker {
-  display: none;
-}
-
-.admSummary::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  display: inline-block;
-  margin-right: 10px;
-  border-right: 2px solid rgba(255, 255, 255, 0.80);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.80);
-  transform: rotate(-45deg);
-  transition: transform 180ms ease, opacity 180ms ease;
-  opacity: 0.85;
-}
-
-.admDetails[open] .admSummary::before {
-  transform: rotate(45deg);
-}
-
-.admDesc {
-  margin: 10px 0 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
-  line-height: 1.45;
-  font-weight: 740;
-  white-space: pre-wrap;
-}
-
-.admDesc--empty {
-  margin-top: 12px;
-  color: rgba(255, 255, 255, 0.62);
-  font-weight: 760;
+.admProductArrow {
+  opacity: 0.75;
+  font-weight: 1000;
 }
 
 /* =========================
-   Pills (status / prioridade)
+   Status pills
 ========================= */
-
-.admPriority {
-  font-size: 13px;
-  font-weight: 950;
-  letter-spacing: 0.06em;
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: rgba(190, 255, 140, 0.98);
-  border: 1px solid rgba(160, 234, 82, 0.22);
-  background: rgba(160, 234, 82, 0.10);
-}
-
 .admStatus {
   font-size: 12px;
   font-weight: 1000;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 6px 10px;
+
+  padding: 7px 12px;
   border-radius: 999px;
+
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.90);
+
+  white-space: nowrap;
 }
 
 .admStatus.is-pending {
   border-color: rgba(255, 210, 90, 0.30);
-  background: rgba(255, 210, 90, 0.10);
+  background: rgba(255, 210, 90, 0.12);
   color: rgba(255, 235, 190, 0.95);
 }
 
 .admStatus.is-ok {
   border-color: rgba(160, 234, 82, 0.30);
-  background: rgba(160, 234, 82, 0.10);
+  background: rgba(160, 234, 82, 0.12);
   color: rgba(190, 255, 140, 0.98);
 }
 
 .admStatus.is-bad {
   border-color: rgba(255, 120, 120, 0.30);
-  background: rgba(255, 120, 120, 0.10);
-  color: rgba(255, 200, 200, 0.98);
+  background: rgba(255, 120, 120, 0.12);
+  color: rgba(255, 210, 210, 0.98);
 }
 
 .admStatus.is-neutral {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.86);
 }
 
-/* ✅ NOVO: EM_ANALISE */
 .admStatus.is-progress {
-  border-color: rgba(120, 190, 255, 0.32);
-  background: rgba(120, 190, 255, 0.10);
-  color: rgba(200, 235, 255, 0.96);
+  border-color: rgba(120, 190, 255, 0.34);
+  background: rgba(120, 190, 255, 0.12);
+  color: rgba(210, 240, 255, 0.96);
 }
 
 /* =========================
-   Button: responder
+   Botão responder
 ========================= */
-
 .admReplyBtn {
   height: 46px;
-  padding: 0 16px;
-  border-radius: 14px;
+  padding: 0 18px;
+  border-radius: 999px;
 
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
   background: linear-gradient(
     180deg,
     rgba(160, 234, 82, 0.98) 0%,
@@ -460,19 +447,281 @@
   transition: transform 180ms ease, filter 180ms ease;
 }
 
-.admReplyBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
+.admReplyBtn:hover { transform: translateY(-1px); filter: brightness(1.03); }
+.admReplyBtn:active { transform: translateY(0); }
+
+/* =========================
+   Details / descrição
+========================= */
+.admDetails {
+  margin-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding-top: 12px;
 }
 
-.admReplyBtn:active {
-  transform: translateY(0);
+.admSummary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--row2);
+
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.admSummary::-webkit-details-marker { display: none; }
+
+.admSummary::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-right: 2px solid rgba(255, 255, 255, 0.80);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.80);
+  transform: rotate(-45deg);
+  opacity: 0.9;
+  transition: transform 180ms ease;
+}
+
+.admDetails[open] .admSummary::before { transform: rotate(45deg); }
+
+.admDesc {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 18px;
+
+  background: var(--row2);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-weight: 800;
+
+  white-space: pre-wrap;
+}
+
+.admDesc--empty {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 18px;
+
+  background: var(--row2);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+
+  color: rgba(255, 255, 255, 0.66);
+  font-weight: 850;
+}
+
+/* =========================================================
+   MODAL — FORÇA APLICAR (SEM GLASS)
+   ✅ Usa seletores mais fortes + !important
+========================================================= */
+.pg-wrap .cbModalOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  background: rgba(0, 0, 0, 0.62) !important;
+  padding: 18px !important;
+
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.pg-wrap .cbModalPanel {
+  width: min(860px, 100%) !important;
+  border-radius: 28px !important;
+
+  /* ✅ mesma cor sólida do card principal */
+  background: var(--panel2) !important;
+  border: 1px solid var(--stroke0) !important;
+
+  /* ✅ mata qualquer gradiente/vidro antigo */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  box-shadow: var(--shadowLg), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden !important;
+  color: var(--text0) !important;
+}
+
+.pg-wrap .cbModalPanel::before,
+.pg-wrap .cbModalPanel::after {
+  content: none !important;
+  display: none !important;
+}
+
+.pg-wrap .cbModalHeader {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+
+  padding: 18px 20px 14px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: transparent !important;
+}
+
+.pg-wrap .cbModalTitle {
+  margin: 0 !important;
+  font-size: 20px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
+  color: var(--text0) !important;
+  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.30) !important;
+}
+
+.pg-wrap .cbModalClose {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 16px !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: var(--btn1) !important;
+
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 22px !important;
+  font-weight: 1000 !important;
+
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+
+  transition: transform 160ms ease, filter 160ms ease !important;
+}
+
+.pg-wrap .cbModalClose:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.05) !important;
+}
+
+.pg-wrap .cbModalBody {
+  padding: 18px 20px 12px !important;
+
+  /* ✅ limita altura e adiciona scroll */
+  max-height: min(68vh, 560px) !important;
+  overflow: auto !important;
+
+  background: transparent !important;
+}
+
+.pg-wrap .cbModalBody::-webkit-scrollbar { width: 12px; }
+.pg-wrap .cbModalBody::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.26);
+  border-radius: 999px;
+}
+.pg-wrap .cbModalBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  border: 3px solid rgba(0, 0, 0, 0.26);
+}
+.pg-wrap .cbModalBody::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.pg-wrap .cbModalFooter {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+
+  padding: 14px 20px 18px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+
+  background: transparent !important;
+}
+
+/* Sucesso/erro */
+.pg-wrap .cbModalContent {
+  display: flex !important;
+  gap: 14px !important;
+  align-items: flex-start !important;
+
+  padding: 14px 14px !important;
+  border-radius: 20px !important;
+  background: var(--row) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+.pg-wrap .cbModalIcon { width: 22px !important; height: 22px !important; margin-top: 3px !important; }
+.pg-wrap .cbModalIcon.is-success { color: rgba(160, 234, 82, 0.98) !important; }
+.pg-wrap .cbModalIcon.is-error { color: rgba(255, 120, 120, 0.95) !important; }
+
+.pg-wrap .cbModalText {
+  margin: 0 !important;
+  white-space: pre-line !important;
+  color: rgba(255, 255, 255, 0.84) !important;
+  font-size: 15.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.45 !important;
+}
+
+/* Botões modal */
+.pg-wrap .cbBtnPrimary,
+.pg-wrap .cbBtnGhost {
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  font-weight: 1000 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: transform 160ms ease, filter 160ms ease !important;
+}
+
+.pg-wrap .cbBtnPrimary {
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(160, 234, 82, 0.98) 0%,
+    rgba(76, 148, 18, 0.96) 100%
+  ) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.pg-wrap .cbBtnGhost {
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: var(--btn1) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.pg-wrap .cbBtnGhost.cbBtnGhost--info {
+  border-color: rgba(120, 190, 255, 0.28) !important;
+  background: rgba(120, 190, 255, 0.14) !important;
+  color: rgba(210, 240, 255, 0.96) !important;
+}
+
+.pg-wrap .cbBtnPrimary:hover,
+.pg-wrap .cbBtnGhost:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.03) !important;
+}
+
+.pg-wrap .cbBtnPrimary:disabled,
+.pg-wrap .cbBtnGhost:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 /* =========================
-   Modal form inputs
+   Form do modal (blocos sólidos)
 ========================= */
-
 .admModalForm {
   display: grid;
   gap: 14px;
@@ -480,82 +729,89 @@
 
 .admModalRow {
   display: grid;
-  gap: 8px;
+  gap: 10px;
+
+  padding: 14px 14px;
+  border-radius: 22px;
+
+  background: var(--row);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .admModalLabel {
   color: rgba(255, 255, 255, 0.82);
   font-weight: 950;
   font-size: 13px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
 }
 
-.admModalInput,
 .admModalTextarea {
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  background: var(--row2);
   color: rgba(255, 255, 255, 0.94);
+
   padding: 12px 12px;
   outline: none;
-  font-weight: 800;
-}
+  font-weight: 850;
 
-.admModalTextarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 130px;
+
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.admModalInput:focus,
 .admModalTextarea:focus {
-  border-color: rgba(180, 255, 120, 0.52);
-  box-shadow: 0 0 0 4px rgba(180, 255, 120, 0.14);
+  border-color: rgba(160, 234, 82, 0.42);
+  box-shadow: 0 0 0 4px rgba(160, 234, 82, 0.14);
 }
 
 /* =========================
-   ✅ Banner de catálogo
+   Catálogo (sólido)
 ========================= */
-
 .admCatalogHint {
   margin: 0 0 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  font-weight: 850;
-  color: rgba(255, 255, 255, 0.78);
+  padding: 12px 12px;
+  border-radius: 18px;
+
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.80);
+
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--row);
 }
 
 .admCatalogHint.is-error {
   border-color: rgba(255, 120, 120, 0.28);
-  background: rgba(255, 120, 120, 0.10);
-  color: rgba(255, 200, 200, 0.95);
+  background: rgba(255, 120, 120, 0.12);
+  color: rgba(255, 210, 210, 0.96);
 }
 
-/* ✅ NOVO: hint quando não achou no catálogo */
 .admCatalogHint--missing {
-  border-color: rgba(120, 190, 255, 0.22);
-  background: rgba(120, 190, 255, 0.08);
-  color: rgba(210, 240, 255, 0.92);
+  border-color: rgba(120, 190, 255, 0.26);
+  background: rgba(120, 190, 255, 0.14);
+  color: rgba(210, 240, 255, 0.96);
 }
 
 .admCatalogHintSub {
   display: block;
   margin-top: 6px;
-  opacity: 0.9;
-  font-weight: 800;
+  opacity: 0.95;
+  font-weight: 900;
 }
 
 .admCatalogBanner {
   display: grid;
   gap: 10px;
   margin: 0 0 14px;
+
   padding: 12px 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(160, 234, 82, 0.22);
-  background: rgba(160, 234, 82, 0.10);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+
+  border: 1px solid rgba(160, 234, 82, 0.26);
+  background: rgba(160, 234, 82, 0.14);
 }
 
 .admCatalogBannerTop {
@@ -569,13 +825,13 @@
   margin: 0;
   font-weight: 1000;
   letter-spacing: 0.2px;
-  color: rgba(190, 255, 140, 0.98);
+  color: rgba(210, 255, 180, 0.98);
 }
 
 .admCatalogBannerMeta {
   margin-top: 6px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 850;
+  color: rgba(255, 255, 255, 0.88);
   font-size: 13.5px;
   line-height: 1.35;
 }
@@ -589,14 +845,14 @@
 }
 
 .admCatalogLoadBtn {
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
   font-weight: 1000;
   cursor: pointer;
   user-select: none;
 
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: linear-gradient(
     180deg,
     rgba(160, 234, 82, 0.98) 0%,
@@ -604,47 +860,45 @@
   );
   color: rgba(255, 255, 255, 0.98);
 
-  box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-
   transition: transform 180ms ease, filter 180ms ease;
 }
 
-.admCatalogLoadBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.03);
-}
-
-.admCatalogLoadBtn:active {
-  transform: translateY(0);
-}
+.admCatalogLoadBtn:hover { transform: translateY(-1px); filter: brightness(1.03); }
+.admCatalogLoadBtn:active { transform: translateY(0); }
 
 .admCatalogSmall {
   font-size: 12.5px;
-  font-weight: 850;
-  color: rgba(255, 255, 255, 0.78);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.80);
 }
 
 /* =========================
-   Responsivo
+   RESPONSIVO
 ========================= */
-
 @media (max-width: 980px) {
-  .admCard {
+  .pg-card.admCard {
     padding: 30px;
     width: min(980px, 100%);
   }
 
-  .admMetaMuted {
+  .admProductName {
     max-width: 100%;
+    white-space: normal;
   }
 }
 
-@media (max-width: 720px) {
-  .admCard {
-    min-height: auto;
+@media (max-width: 860px) {
+  /* não desloca no mobile */
+  .analysisPage {
+    transform: none;
+  }
+
+  .pg-card.admCard {
+    max-height: none;
+    overflow: visible;
+    border-radius: 22px;
     padding: 24px;
+    min-height: auto;
   }
 
   .admHeader {
@@ -658,211 +912,49 @@
     justify-items: stretch;
   }
 
-  .admReplyBtn {
-    width: 100%;
-  }
+  .admReplyBtn { width: 100%; }
 
   .admCardTop {
     flex-direction: column;
     align-items: stretch;
   }
-}
 
-/* =========================
-   Modal (padrão premium)
-========================= */
-
-.cbModalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-
-  display: grid;
-  place-items: center;
-
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  padding: 18px;
-}
-
-.cbModalPanel {
-  width: min(560px, 100%);
-  border-radius: 18px;
-
-  background: linear-gradient(
-    180deg,
-    rgba(22, 30, 40, 0.88) 0%,
-    rgba(18, 24, 34, 0.86) 100%
-  );
-
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 34px 90px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-  overflow: hidden;
-  position: relative;
-}
-
-.cbModalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  padding: 16px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-}
-
-.cbModalTitle {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 18px;
-  font-weight: 950;
-  letter-spacing: 0.2px;
-}
-
-.cbModalClose {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-
-  color: rgba(255, 255, 255, 0.90);
-  font-size: 22px;
-  font-weight: 900;
-
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-
-.cbModalBody {
-  padding: 18px 18px 6px;
-}
-
-.cbModalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-
-  padding: 14px 18px 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-}
-
-.cbModalContent {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.cbModalIcon {
-  width: 22px;
-  height: 22px;
-  margin-top: 3px;
-}
-
-.cbModalIcon.is-success {
-  color: rgba(160, 234, 82, 0.98);
-}
-
-.cbModalIcon.is-error {
-  color: rgba(255, 120, 120, 0.95);
-}
-
-.cbModalText {
-  margin: 0;
-  white-space: pre-line;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 15.5px;
-  font-weight: 700;
-  line-height: 1.45;
-}
-
-/* Botões */
-.cbBtnPrimary,
-.cbBtnGhost {
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 12px;
-  font-weight: 950;
-  cursor: pointer;
-  user-select: none;
-}
-
-.cbBtnPrimary {
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: linear-gradient(
-    180deg,
-    rgba(160, 234, 82, 0.98) 0%,
-    rgba(76, 148, 18, 0.96) 100%
-  );
-  color: rgba(255, 255, 255, 0.98);
-}
-
-.cbBtnGhost {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.92);
-}
-
-/* ✅ NOVO: botão “info” (marcar em análise) */
-.cbBtnGhost.cbBtnGhost--info {
-  border-color: rgba(120, 190, 255, 0.24);
-  background: rgba(120, 190, 255, 0.10);
-  color: rgba(210, 240, 255, 0.96);
-}
-
-.cbBtnPrimary:disabled,
-.cbBtnGhost:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* =========================
-   Produtos em destaque (cards)
-========================= */
-
-.admProductLine {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
-
-  margin-top: 4px;
-
-  font-size: 18px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-
-  color: rgba(255, 255, 255, 0.96);
-  text-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
-}
-
-.admProductName {
-  display: inline-block;
-  max-width: 430px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.admProductArrow {
-  opacity: 0.7;
-  font-weight: 900;
-}
-
-@media (max-width: 720px) {
-  .admProductLine {
-    font-size: 16px;
+  .admBody {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
   }
-  .admProductName {
-    max-width: 100%;
-    white-space: normal;
+
+  .pg-wrap .cbModalHeader {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .pg-wrap .cbModalClose {
+    align-self: flex-end !important;
+  }
+}
+
+/* =========================
+   ACESSIBILIDADE
+========================= */
+.admSelectShell:focus-within,
+.admReplyBtn:focus-visible,
+.pg-wrap .cbBtnPrimary:focus-visible,
+.pg-wrap .cbBtnGhost:focus-visible,
+.pg-wrap .cbModalClose:focus-visible,
+.admSummary:focus-visible,
+.admModalTextarea:focus-visible {
+  outline: 2px solid rgba(160, 234, 82, 0.38);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admSelectShell,
+  .admReplyBtn,
+  .pg-wrap .cbBtnPrimary,
+  .pg-wrap .cbBtnGhost,
+  .pg-wrap .cbModalClose {
+    transition: none !important;
   }
 }

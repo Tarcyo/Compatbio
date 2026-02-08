@@ -1,7 +1,9 @@
-/* DashboardLayout.css
+/* DashboardLayout.css — COMPLETO (Plans palette + SEM glass + contraste + pílulas)
    ✅ Background fullscreen sem faixa branca
-   ✅ Sidebar (com pill + modal) aqui dentro
-   ✅ Agora: Sidebar e tudo dentro MAIORES
+   ✅ Sidebar e modal com a MESMA cor dos cards (Plans)
+   ✅ Remove glassmorphism (sem blur / sem transparência)
+   ✅ Aumenta contraste (strokes + sombras)
+   ✅ Tudo mais arredondado/pílula
 */
 
 /* =========================
@@ -45,9 +47,34 @@ body {
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   color-scheme: dark;
+
+  /* ✅ tokens (Plans) no escopo da página */
+  --accent: rgba(160, 234, 82, 1);
+
+  --bg-0: #2a3443;
+  --bg-1: #222b38;
+
+  --panel: #39465b;
+  --panel2: #334156;
+
+  --tile: #344256;
+  --tile2: #2f3c50;
+
+  --btn-0: #3b4961;
+  --btn-1: #313e54;
+
+  --stroke-0: rgba(255, 255, 255, 0.14);
+  --stroke-1: rgba(255, 255, 255, 0.18);
+
+  --text-0: rgba(255, 255, 255, 0.96);
+  --text-1: rgba(255, 255, 255, 0.84);
+  --text-2: rgba(255, 255, 255, 0.68);
+
+  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
+  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
 }
 
-/* overlay leve */
+/* overlay leve (SEM virar “card preto”) */
 .ds-overlay {
   position: absolute;
   inset: 0;
@@ -55,34 +82,25 @@ body {
   z-index: 0;
 
   background:
-    radial-gradient(
-      circle at 22% 12%,
-      rgba(0, 0, 0, 0.06) 0%,
-      rgba(0, 0, 0, 0.20) 55%,
-      rgba(0, 0, 0, 0.30) 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(0,0,0,0.06),
-      rgba(0,0,0,0.22)
-    );
+    radial-gradient(1100px 540px at 18% 10%, rgba(160, 234, 82, 0.10), rgba(0,0,0,0) 58%),
+    radial-gradient(900px 520px at 82% 12%, rgba(255,255,255,0.05), rgba(0,0,0,0) 55%),
+    linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.26));
 }
 
 /* =========================
    LAYOUT (SIDEBAR + MAIN)
-   ✅ Sidebar maior (coluna maior)
 ========================= */
 .ds-shell {
   position: relative;
   z-index: 1;
 
   display: grid;
-  grid-template-columns: 340px 1fr; /* ✅ era 280px */
+  grid-template-columns: 340px 1fr;
   height: 100%;
   min-height: 0;
 
-  padding: 24px; /* ✅ era 22px */
-  gap: 20px;     /* ✅ era 18px */
+  padding: 24px;
+  gap: 20px;
 
   align-items: start;
 }
@@ -140,41 +158,60 @@ html::-webkit-scrollbar-thumb {
 html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32); }
 
 /* ============================================================
-   SIDEBAR — MAIOR + tudo maior
+   SIDEBAR — SÓLIDA (Plans) + CONTRASTE + PÍLULAS
 ============================================================ */
 
 /* =========================
-   SIDEBAR (CARD / GLASS)
+   SIDEBAR (CARD — SÓLIDO)
 ========================= */
 .sb {
   width: 100%;
-  height: 90dvh;        /* ✅ era 85dvh */
-  max-height: 90dvh;    /* ✅ era 85dvh */
+  height: 90dvh;
+  max-height: 90dvh;
   min-height: 0;
 
   position: relative;
-
   display: flex;
   flex-direction: column;
 
-  padding: 22px 18px;   /* ✅ era 18px 14px */
-  border-radius: 30px;  /* ✅ era 26px */
+  padding: 22px 18px;
+  border-radius: 32px; /* mais arredondado */
 
-  background: rgba(22, 30, 40, 0.72);
+  /* ✅ MESMA COR DOS CARDS (Plans) */
+  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--stroke-0);
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.42);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.08);
 
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* ✅ remove glassmorphism */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 
   overflow: hidden;
+}
+
+/* brilho interno sutil (premium) */
+.sb::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%);
+  opacity: 0.85;
+}
+
+.sb > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sb-top {
   display: flex;
   flex-direction: column;
-  gap: 18px;     /* ✅ era 16px */
+  gap: 18px;
   min-height: 0;
   flex: 1 1 auto;
 }
@@ -183,12 +220,12 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px 14px; /* ✅ maior */
+  padding: 10px 6px 14px;
 }
 
 .sb-logo {
   width: 100%;
-  max-width: 260px; /* ✅ era 220px */
+  max-width: 260px;
   height: auto;
   display: block;
   filter: drop-shadow(0 12px 26px rgba(0,0,0,.30));
@@ -202,9 +239,9 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 
   display: flex;
   flex-direction: column;
-  gap: 12px;     /* ✅ era 10px */
+  gap: 12px;
 
-  padding: 8px 6px; /* ✅ maior */
+  padding: 8px 6px;
 
   flex: 1 1 auto;
   min-height: 0;
@@ -227,24 +264,23 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 }
 .sb-nav::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32); }
 
+/* pill ativa mais arredondada */
 .sb-activePill {
   position: absolute;
-  left: 10px;   /* ✅ era 8px */
-  right: 10px;  /* ✅ era 8px */
-  top: 8px;     /* ✅ era 6px */
+  left: 10px;
+  right: 10px;
+  top: 8px;
 
-  border-radius: 12px; /* ✅ era 10px */
+  border-radius: 9999px; /* ✅ pílula */
   pointer-events: none;
   opacity: 0;
 
-  background: linear-gradient(
-    180deg,
-    rgba(132, 205, 62, 0.96) 0%,
-    rgba(92, 162, 34, 0.94) 100%
-  );
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(132, 205, 62, 0.96) 0%, rgba(92, 162, 34, 0.94) 100%);
 
   box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.35),
+    0 18px 44px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255,255,255,0.20);
 
   transition:
@@ -258,33 +294,38 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 .sb-activePill.is-show { opacity: 1; }
 
 /* =========================
-   ITENS (MAIORES)
+   ITENS (MAIORES + PÍLULA)
 ========================= */
 .sb-item {
   position: relative;
   z-index: 1;
 
-  height: 64px;          /* ✅ era 54px */
-  border-radius: 12px;   /* ✅ era 10px */
+  height: 66px;
+  border-radius: 9999px; /* ✅ pílula */
 
   display: grid;
-  grid-template-columns: 52px 1fr; /* ✅ era 44px 1fr */
+  grid-template-columns: 52px 1fr;
   align-items: center;
 
-  padding: 0 14px; /* ✅ era 0 12px */
+  padding: 0 16px;
   text-decoration: none;
 
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.84);
 
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  /* ✅ mais contraste (sólido) */
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.06);
 
   overflow: hidden;
   transition:
     transform 220ms cubic-bezier(.2,.8,.2,1),
     color 220ms ease,
     border-color 220ms ease,
-    background 220ms ease;
+    filter 220ms ease;
 }
 
 .sb-item::before {
@@ -293,7 +334,7 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   inset: -40px -60px -40px -60px;
   background: radial-gradient(
     circle at 20% 30%,
-    rgba(255,255,255,0.20) 0%,
+    rgba(255,255,255,0.18) 0%,
     rgba(255,255,255,0.08) 35%,
     rgba(255,255,255,0.00) 60%
   );
@@ -304,9 +345,9 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 
 .sb-item:hover {
   transform: translateY(-1px);
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 0.96);
   border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.085);
+  filter: brightness(1.05);
 }
 
 .sb-item:hover::before {
@@ -315,17 +356,15 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 }
 
 .sb-item.is-active {
-  background: linear-gradient(
-    180deg,
-    rgba(132, 205, 62, 0.96) 0%,
-    rgba(92, 162, 34, 0.94) 100%
-  ) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(132, 205, 62, 0.96) 0%, rgba(92, 162, 34, 0.94) 100%) !important;
 
   border-color: rgba(180, 255, 120, 0.32) !important;
 
   box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    0 18px 44px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 
   color: rgba(255, 255, 255, 0.98) !important;
 }
@@ -333,15 +372,15 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 .sb-itemIcon { display: grid; place-items: center; }
 
 .sb-icon {
-  width: 26px;  /* ✅ era 22px */
-  height: 26px; /* ✅ era 22px */
+  width: 26px;
+  height: 26px;
   opacity: 0.94;
   transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1);
 }
 
 .sb-itemLabel {
-  font-size: 18px; /* ✅ era 16px */
-  font-weight: 800; /* ✅ mais forte */
+  font-size: 18px;
+  font-weight: 850;
   letter-spacing: 0.2px;
   transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1);
 }
@@ -350,47 +389,46 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 .sb-item.is-active .sb-itemLabel { transform: translateX(2px); }
 
 /* =========================
-   LOGOUT (Sair) — MAIOR
+   LOGOUT (Sair) — PÍLULA + CONTRASTE
 ========================= */
 .sb-bottom {
   margin-top: auto;
-  padding-top: 20px;  /* ✅ era 18px */
+  padding-top: 20px;
   padding-bottom: 12px;
 
   background: linear-gradient(
     180deg,
-    rgba(22, 30, 40, 0.00) 0%,
-    rgba(22, 30, 40, 0.36) 35%,
-    rgba(22, 30, 40, 0.56) 100%
+    rgba(0, 0, 0, 0.00) 0%,
+    rgba(0, 0, 0, 0.18) 35%,
+    rgba(0, 0, 0, 0.28) 100%
   );
 }
 
 .sb-logout {
   width: 100%;
-  height: 64px;         /* ✅ era 56px */
-  border-radius: 14px;  /* ✅ era 12px */
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  height: 66px;
+  border-radius: 9999px; /* ✅ pílula */
 
-  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
   color: rgba(255, 255, 255, 0.90);
 
   display: grid;
-  grid-template-columns: 52px 1fr; /* ✅ era 44px 1fr */
+  grid-template-columns: 52px 1fr;
   align-items: center;
-  padding: 0 14px;
+  padding: 0 16px;
 
   cursor: pointer;
   transition:
     transform 200ms cubic-bezier(.2,.8,.2,1),
-    background 200ms ease,
-    border-color 200ms ease,
-    filter 200ms ease;
+    filter 200ms ease,
+    border-color 200ms ease;
 }
 
 .sb-logout:hover {
-  background: rgba(255, 255, 255, 0.10);
   border-color: rgba(255, 255, 255, 0.18);
   transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .sb-logout:active { transform: translateY(0px); }
@@ -401,14 +439,13 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   color: rgba(255, 120, 120, 0.95);
 }
 
-/* troca o ícone antigo */
 .sb-iconPower { display: none !important; }
 
 /* ícone novo (mask) */
 .sb-logoutIcon::before {
   content: "";
-  width: 26px;  /* ✅ era 22px */
-  height: 26px; /* ✅ era 22px */
+  width: 26px;
+  height: 26px;
   display: block;
   background: currentColor;
 
@@ -424,14 +461,14 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 }
 
 .sb-logoutLabel {
-  font-size: 20px; /* ✅ era 18px */
+  font-size: 20px;
   font-weight: 1000;
   letter-spacing: 0.2px;
 }
 
-/* =========================
-   MODAL (LOGOUT) — MAIOR
-========================= */
+/* ============================================================
+   MODAL (LOGOUT) — MESMA COR DOS CARDS + SEM GLASS + CONTRASTE
+============================================================ */
 .sb-modalOverlay {
   position: fixed;
   inset: 0;
@@ -442,57 +479,78 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 
   padding: 18px;
 
-  background: rgba(0, 0, 0, 0.60);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  /* ✅ overlay mais forte (contraste) */
+  background: rgba(0, 0, 0, 0.72);
+
+  /* ✅ remove glassmorphism */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 
   animation: sb-fadeIn 160ms ease-out;
 }
 
 .sb-modal {
-  width: min(620px, 92vw); /* ✅ era 520px */
-  border-radius: 20px;     /* ✅ maior */
+  width: min(620px, 92vw);
+  border-radius: 26px;
 
-  background: linear-gradient(
-    180deg,
-    rgba(28, 38, 50, 0.92) 0%,
-    rgba(18, 24, 32, 0.90) 100%
-  );
+  /* ✅ MESMA COR DOS CARDS (Plans) */
+  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 
-  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 40px 110px rgba(0, 0, 0, 0.70),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 
   overflow: hidden;
   transform-origin: center;
 
   animation: sb-popIn 200ms cubic-bezier(.2,.9,.2,1);
+  position: relative;
+}
+
+/* brilho sutil no modal (igual card) */
+.sb-modal::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(900px 320px at 18% 10%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.10), rgba(0,0,0,0) 58%);
+  opacity: 0.80;
+}
+
+.sb-modal > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sb-modalHeader {
   display: grid;
-  grid-template-columns: 64px 1fr; /* ✅ era 54px */
+  grid-template-columns: 64px 1fr;
   gap: 16px;
   align-items: start;
-  padding: 22px 22px 10px; /* ✅ maior */
+  padding: 22px 22px 12px;
+
+  border-bottom: 1px solid rgba(255,255,255,0.10);
 }
 
 .sb-modalIcon {
-  width: 56px; /* ✅ era 46px */
+  width: 56px;
   height: 56px;
-  border-radius: 16px;
+  border-radius: 18px;
 
   display: grid;
   place-items: center;
 
   background: rgba(255, 90, 90, 0.14);
-  border: 1px solid rgba(255, 90, 90, 0.24);
+  border: 1px solid rgba(255, 90, 90, 0.26);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .sb-modalIconSvg {
-  width: 28px; /* ✅ era 24px */
+  width: 28px;
   height: 28px;
   color: rgba(255, 110, 110, 0.95);
 }
@@ -501,7 +559,7 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 
 .sb-modalTitle {
   margin: 0;
-  font-size: 20px; /* ✅ era 18px */
+  font-size: 20px;
   font-weight: 1000;
   letter-spacing: 0.2px;
   color: rgba(255, 255, 255, 0.96);
@@ -509,7 +567,7 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 
 .sb-modalDesc {
   margin: 8px 0 0;
-  font-size: 15.5px; /* ✅ era 14px */
+  font-size: 15.5px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
 }
@@ -520,16 +578,17 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   justify-content: flex-end;
   padding: 16px 22px 22px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.12);
 }
 
+/* botões do modal — pílula + sólido */
 .sb-btn {
-  height: 52px;    /* ✅ era 44px */
-  padding: 0 18px; /* ✅ era 14px */
-  border-radius: 14px;
+  height: 54px;
+  padding: 0 18px;
+  border-radius: 9999px; /* ✅ pílula */
 
-  font-size: 15px; /* ✅ era 14px */
+  font-size: 15px;
   font-weight: 1000;
   letter-spacing: 0.2px;
 
@@ -542,20 +601,19 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 .sb-btn:active { transform: translateY(0px); }
 
 .sb-btnGhost {
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.90);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%);
+  color: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
 }
-.sb-btnGhost:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.sb-btnGhost:hover { filter: brightness(1.06); transform: translateY(-1px); }
 
 .sb-btnDanger {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 90, 90, 0.96) 0%,
-    rgba(210, 52, 52, 0.94) 100%
-  );
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(255, 90, 90, 0.96) 0%, rgba(210, 52, 52, 0.94) 100%);
   color: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(255, 120, 120, 0.26);
+  border: 1px solid rgba(255, 120, 120, 0.28);
   box-shadow:
     0 16px 34px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
@@ -565,7 +623,9 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 @keyframes sb-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes sb-popIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-/* reduz movimento */
+/* =========================
+   REDUZ MOVIMENTO
+========================= */
 @media (prefers-reduced-motion: reduce) {
   .sb-activePill,
   .sb-item,
@@ -575,10 +635,21 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   .sb-logout,
   .sb-modalOverlay,
   .sb-modal,
-  .sb-btn {
+  .sb-btn,
+  .ds-routeAnim {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* =========================
+   ACESSIBILIDADE
+========================= */
+.sb-item:focus-visible,
+.sb-logout:focus-visible,
+.sb-btn:focus-visible {
+  outline: 2px solid rgba(160, 234, 82, 0.38);
+  outline-offset: 2px;
 }
 
 /* =========================
@@ -586,14 +657,14 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 ========================= */
 @media (max-width: 980px) {
   .ds-shell {
-    grid-template-columns: 320px 1fr; /* ✅ era 280px */
+    grid-template-columns: 320px 1fr;
     padding: 16px;
     gap: 14px;
   }
 
   .ds-main { padding: 20px; }
 
-  .sb-logo { max-width: 76px; } /* ✅ maior no colapsado */
+  .sb-logo { max-width: 76px; }
 
   .sb-item {
     grid-template-columns: 1fr;
@@ -617,4 +688,53 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
     left: 10px;
     right: 10px;
   }
+}
+/* =========================================
+   SIDEBAR ACTIVE — FUNDO BRANCO + TEXTO PRETO
+========================================= */
+.sb-item.is-active {
+  background: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+
+  color: rgba(0, 0, 0, 0.92) !important;
+}
+
+/* garante que label e ícone fiquem pretos também */
+.sb-item.is-active .sb-itemLabel,
+.sb-item.is-active .sb-itemIcon,
+.sb-item.is-active .sb-icon {
+  color: rgba(0, 0, 0, 0.92) !important;
+}
+
+/* ícone SVG herdando cor certinho */
+.sb-item.is-active .sb-icon {
+  opacity: 1 !important;
+  transform: translateX(2px) scale(1.06);
+}
+
+/* opcional: reduz o brilho “hover” quando ativo */
+.sb-item.is-active::before {
+  opacity: 0 !important;
+}
+/* =========================================
+   ACTIVE PILL (ANIMAÇÃO) — BRANCA (não verde)
+========================================= */
+.sb-activePill {
+  /* pílula branca com leve profundidade */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(236, 241, 248, 0.96) 100%
+  ) !important;
+
+  /* borda sutil + sombra mais “premium” */
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80) !important;
 }

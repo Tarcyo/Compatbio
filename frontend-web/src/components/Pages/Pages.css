@@ -1,5 +1,6 @@
 /* Pages.css
    BASE compartilhada entre telas
+   ✅ SEM GLASSMORPHISM (sem blur / sem rgba no card)
 */
 
 /* =========================
@@ -11,6 +12,7 @@
   gap: 16px;
 }
 
+/* Header genérico */
 .pg-header {
   display: flex;
   align-items: center;
@@ -18,39 +20,53 @@
   gap: 14px;
 
   padding: 4px 2px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .pg-title {
   margin: 0;
   font-size: 28px;
-  font-weight: 900;
+  font-weight: 1000;
   letter-spacing: 0.2px;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.94);
   text-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-/* Card “genérico” */
+/* =========================
+   Card “genérico” (SÓLIDO)
+   - remove glassmorphism globalmente
+========================= */
 .pg-card {
-  border-radius: 12px;
+  /* ✅ mais arredondado */
+  border-radius: 22px;
   padding: 22px;
+
   border: 1px solid rgba(255, 255, 255, 0.14);
 
-  /* ✅ mesma cor e opacidade do sidebar */
-  background: rgba(22, 30, 40, 0.72);
+  /* ✅ SÓLIDO (uma cor só) */
+  background: #253246;
 
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  /* ✅ mata o vidro */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 
   box-shadow:
-    0 26px 70px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 26px 70px rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* caso algum card antigo tenha pseudo-elementos de brilho */
+.pg-card::before,
+.pg-card::after {
+  content: none !important;
+}
+
+/* textos padrão */
 .pg-placeholder {
   color: rgba(255, 255, 255, 0.88);
 }
 
+/* animação de entrada */
 .pg-enter {
   animation: pgEnter 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
   transform-origin: top left;

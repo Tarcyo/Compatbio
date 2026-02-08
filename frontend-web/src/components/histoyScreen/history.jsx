@@ -3,50 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../Pages/Pages.css";
 import "./history.css";
 
-function IconClock(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm1 5h-2v6l5 3 1-1.7-4-2.3V7Z"
-      />
-    </svg>
-  );
-}
-
-function IconReceipt(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M6 2h12a2 2 0 0 1 2 2v18l-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1V4a2 2 0 0 1 2-2Zm2 6h8v2H8V8Zm0 4h8v2H8v-2Zm0 4h6v2H8v-2Z"
-      />
-    </svg>
-  );
-}
-
-function IconMoney(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M12 1a11 11 0 1 0 .001 22.001A11 11 0 0 0 12 1Zm1 17h-2v-1.1c-1.8-.3-3-1.5-3.2-3.1h2.1c.2 1 1 1.7 2.1 1.7 1.2 0 2-.6 2-1.5 0-1-.9-1.4-2.5-1.8-2.1-.5-3.6-1.3-3.6-3.4 0-1.7 1.2-2.9 3.1-3.2V4h2v1.1c1.6.3 2.7 1.3 3 2.8h-2.1c-.2-.8-.8-1.3-1.9-1.3-1.1 0-1.8.5-1.8 1.3 0 .9.9 1.2 2.4 1.6 2.3.6 3.7 1.5 3.7 3.6 0 1.8-1.3 3-3.3 3.3V18Z"
-      />
-    </svg>
-  );
-}
-
-function IconX(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.3 9.17 12 2.88 5.71 4.29 4.29 10.59 10.6l6.3-6.31 1.41 1.42Z"
-      />
-    </svg>
-  );
-}
-
+/* ========= helpers ========= */
 function upper(v) {
   return String(v ?? "").toUpperCase();
 }
@@ -73,11 +30,7 @@ function formatDateBR(value) {
   if (!value) return "—";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 function shortId(v, keep = 10) {
@@ -89,65 +42,61 @@ function shortId(v, keep = 10) {
 
 function within7Days(dateStr) {
   if (!dateStr) return false;
-  const paidAt = new Date(dateStr);
-  if (Number.isNaN(paidAt.getTime())) return false;
-  const diff = Date.now() - paidAt.getTime();
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return false;
+  const diff = Date.now() - d.getTime();
   return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
 }
 
+/* ========= pills ========= */
 function StatusPill({ status }) {
   const s = upper(status);
   const klass =
-    s === "PAGO"
-      ? "is-ok"
-      : s === "PENDENTE"
-      ? "is-pending"
-      : s === "CANCELADO"
-      ? "is-bad"
-      : "is-neutral";
+    s === "PAGO" ? "is-ok" : s === "PENDENTE" ? "is-pending" : s === "CANCELADO" ? "is-bad" : "is-neutral";
   return <span className={`histStatus ${klass}`}>{status || "—"}</span>;
-}
-
-function RefundPill({ status }) {
-  const s = upper(status);
-  const klass =
-    s === "SUCESSO"
-      ? "is-ok"
-      : s === "PENDENTE"
-      ? "is-pending"
-      : s === "FALHOU"
-      ? "is-bad"
-      : "is-neutral";
-  return <span className={`histRefundStatus ${klass}`}>{status || "—"}</span>;
 }
 
 function RequestPill({ status }) {
   const s = upper(status);
-  const klass =
-    s === "PENDENTE" ? "is-pending" : s === "APROVADA" ? "is-ok" : s === "NEGADA" ? "is-bad" : "is-neutral";
+  const klass = s === "PENDENTE" ? "is-pending" : s === "APROVADA" ? "is-ok" : s === "NEGADA" ? "is-bad" : "is-neutral";
   return <span className={`histReqStatus ${klass}`}>Solicitação: {status || "—"}</span>;
 }
 
-function TabButton({ active, onClick, children }) {
+/* ========= icons ========= */
+function IconX(props) {
   return (
-    <button
-      type="button"
-      className={`histGhostBtn ${active ? "is-on" : ""}`}
-      onClick={onClick}
-      style={{ minWidth: 140 }}
-      aria-pressed={active}
-    >
-      {children}
-    </button>
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.29 19.71 2.88 18.3 9.17 12 2.88 5.71 4.29 4.29 10.59 10.6l6.3-6.31 1.41 1.42Z"
+      />
+    </svg>
   );
 }
 
-/**
- * Modal genérico para solicitar reembolso
- * - Enter = enviar
- * - Shift+Enter = quebra linha
- * - Esc = fechar
- */
+function IconRefund(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2Zm1 5a1 1 0 0 1 2 0v1.1a4.9 4.9 0 0 1 1.88 1.01 1 1 0 1 1-1.34 1.48A3 3 0 0 0 14 9.9h-2a1.9 1.9 0 0 0 0 3.8h1a3.9 3.9 0 0 1 0 7.8v.5a1 1 0 0 1-2 0v-.6a5 5 0 0 1-2.5-1.44 1 1 0 1 1 1.5-1.32 3 3 0 0 0 2.2.96h2a1.9 1.9 0 0 0 0-3.8h-1a3.9 3.9 0 0 1 0-7.8V7Z"
+      />
+    </svg>
+  );
+}
+
+function IconCheck(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M9.2 16.6 4.9 12.3l1.4-1.4 2.9 2.9 8-8 1.4 1.4-9.4 9.4Z"
+      />
+    </svg>
+  );
+}
+
+/* ========= modal ========= */
 function RefundModal({
   open,
   onClose,
@@ -165,9 +114,7 @@ function RefundModal({
   useEffect(() => {
     if (!open) return;
 
-    const t = setTimeout(() => {
-      textareaRef.current?.focus?.();
-    }, 0);
+    const t = setTimeout(() => textareaRef.current?.focus?.(), 0);
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose?.();
@@ -188,57 +135,75 @@ function RefundModal({
 
   return (
     <div
-      className="modalOverlay"
+      className="refundOverlay"
       role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
-      <div className="modalCard" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title">
-        <div className="modalHeader">
-          <div className="modalHeaderLeft">
-            <div className="modalKicker">{kicker}</div>
-            <h2 id="refund-modal-title" className="modalTitle">
-              {title}
-            </h2>
+      <div className="refundModal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title">
+        <div className="refundTopBar">
+          <div className="refundTopLeft">
+            <div className="refundIconWrap" aria-hidden="true">
+              <IconRefund className="refundIcon" />
+            </div>
+
+            <div className="refundTitles">
+              <div className="refundKicker">{kicker}</div>
+              <h2 id="refund-modal-title" className="refundTitle">
+                {title}
+              </h2>
+              <p className="refundSubtitle">
+                Confirme os dados abaixo e, se quiser, deixe um motivo. Vamos analisar sua solicitação com cuidado.
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
-            className="modalCloseBtn"
+            className="refundCloseBtn"
             onClick={onClose}
             aria-label="Fechar"
             disabled={submitting}
-            title="Fechar (Esc)"
+            title="Fechar"
           >
-            <IconX className="modalCloseIco" />
+            <IconX className="refundCloseIco" />
           </button>
         </div>
 
-        <div className="modalBody">
+        <div className="refundBody">
           {summaryItems?.length ? (
-            <div className="modalSummary">
+            <div className="refundSummary">
               {summaryItems.map((it, idx) => (
-                <div key={idx} className={`modalSummaryItem ${it?.strong ? "is-strong" : ""}`}>
-                  <span className="modalSummaryLabel">{it?.label}</span>
-                  <span className="modalSummaryValue">{it?.value}</span>
+                <div key={idx} className={`refundSummaryItem ${it?.strong ? "is-strong" : ""}`}>
+                  <span className="refundSummaryLabel">{it?.label}</span>
+                  <span className="refundSummaryValue">{it?.value}</span>
                 </div>
               ))}
             </div>
           ) : null}
 
-          <div className="modalInfo">
-            <p className="modalInfoText">
-              Dica: <b>Enter</b> envia • <b>Shift+Enter</b> quebra linha • <b>Esc</b> fecha.
-            </p>
+          <div className="refundInfoBox" role="note" aria-label="Informações">
+            <div className="refundInfoRow">
+              <IconCheck className="refundInfoIco" />
+              <span>Se aprovado, o reembolso será processado pela Stripe.</span>
+            </div>
+            <div className="refundInfoRow">
+              <IconCheck className="refundInfoIco" />
+              <span>Solicitações podem levar um tempinho para serem analisadas.</span>
+            </div>
+            <div className="refundInfoRow">
+              <IconCheck className="refundInfoIco" />
+              <span>Se já existir solicitação/reembolso, não é possível abrir outro.</span>
+            </div>
           </div>
 
-          <label className="modalField">
-            <span className="modalFieldLabel">Motivo (opcional)</span>
+          <label className="refundField">
+            <span className="refundFieldLabel">Motivo (opcional)</span>
             <textarea
               ref={textareaRef}
-              className="modalTextarea"
-              placeholder="Digite o motivo... (Enter para enviar)"
+              className="refundTextarea"
+              placeholder="Ex: Compra duplicada, engano, necessidade cancelada…"
               value={motivo}
               onChange={(e) => onMotivoChange(e.target.value)}
               maxLength={1000}
@@ -246,28 +211,27 @@ function RefundModal({
               onKeyDown={(e) => {
                 const composing = e.nativeEvent?.isComposing;
                 if (composing) return;
-
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   if (!submitting) onConfirm?.();
                 }
               }}
             />
-            <div className="modalCounterRow">
-              <span className="modalMiniHint">Enter para enviar • Shift+Enter nova linha</span>
-              <span className="modalCounter">{(motivo?.length || 0)}/1000</span>
+
+            <div className="refundCounterRow">
+              <span className="refundMiniHint">Enter envia • Shift+Enter quebra linha</span>
+              <span className="refundCounter">{(motivo?.length || 0)}/1000</span>
             </div>
           </label>
 
-          {errorText ? <div className="modalError">{errorText}</div> : null}
+          {errorText ? <div className="refundError">{errorText}</div> : null}
         </div>
 
-        <div className="modalFooter">
-          <button type="button" className="modalBtnGhost" onClick={onClose} disabled={submitting}>
+        <div className="refundFooter">
+          <button type="button" className="refundBtnGhost" onClick={onClose} disabled={submitting}>
             Cancelar
           </button>
-
-          <button type="button" className="modalBtnPrimary" onClick={onConfirm} disabled={submitting}>
+          <button type="button" className="refundBtnPrimary" onClick={onConfirm} disabled={submitting}>
             {submitting ? "Enviando..." : "Confirmar solicitação"}
           </button>
         </div>
@@ -276,32 +240,27 @@ function RefundModal({
   );
 }
 
+/* ========= page ========= */
 export default function CreditsHistoryPage() {
   const navigate = useNavigate();
-
   const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000").toString().replace(/\/+$/, "");
 
-  // Tabs: "CREDITO" | "ASSINATURA"
   const [tab, setTab] = useState("CREDITO");
 
-  // ===== Créditos =====
+  // Créditos
   const [loadingCredits, setLoadingCredits] = useState(true);
   const [errCredits, setErrCredits] = useState("");
-
   const [pageCredits, setPageCredits] = useState(1);
   const [pageSizeCredits] = useState(10);
-
   const [totalCreditsCount, setTotalCreditsCount] = useState(0);
   const [totalCreditsPages, setTotalCreditsPages] = useState(1);
   const [compras, setCompras] = useState([]);
 
-  // ===== Assinatura (faturas) =====
+  // Assinatura
   const [loadingAssin, setLoadingAssin] = useState(true);
   const [errAssin, setErrAssin] = useState("");
-
   const [pageAssin, setPageAssin] = useState(1);
   const [pageSizeAssin] = useState(10);
-
   const [totalAssinCount, setTotalAssinCount] = useState(0);
   const [totalAssinPages, setTotalAssinPages] = useState(1);
   const [faturas, setFaturas] = useState([]);
@@ -309,21 +268,17 @@ export default function CreditsHistoryPage() {
   // toast
   const [toast, setToast] = useState("");
 
-  // modal state (genérico)
+  // modal refund
   const [refundOpen, setRefundOpen] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [refundErr, setRefundErr] = useState("");
   const [refundMotivo, setRefundMotivo] = useState("");
+  const [refundTarget, setRefundTarget] = useState(null); // { tipo, data }
 
-  // alvo do modal (pode ser compra ou fatura)
-  const [refundTarget, setRefundTarget] = useState(null); // { tipo: "CREDITO" | "ASSINATURA", data: {...} }
-
-  // ====== Loads ======
   const loadCredits = useCallback(
     async (p) => {
       setLoadingCredits(true);
       setErrCredits("");
-
       try {
         const url = new URL(`${API_BASE}/api/creditos/historico`);
         url.searchParams.set("page", String(p));
@@ -354,14 +309,10 @@ export default function CreditsHistoryPage() {
     [API_BASE, pageSizeCredits]
   );
 
-  // ⚠️ Endpoint sugerido:
-  // GET /api/assinatura/historico?page=&pageSize=
-  // Espera: { page, pageSize, total, totalPages, faturas: [...] }
   const loadAssinaturas = useCallback(
     async (p) => {
       setLoadingAssin(true);
       setErrAssin("");
-
       try {
         const url = new URL(`${API_BASE}/api/assinatura/historico`);
         url.searchParams.set("page", String(p));
@@ -392,14 +343,14 @@ export default function CreditsHistoryPage() {
     [API_BASE, pageSizeAssin]
   );
 
-  // first load (carrega os dois, para alternar sem “piscar”)
+  // first load
   useEffect(() => {
     loadCredits(pageCredits);
     loadAssinaturas(pageAssin);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // reload ao paginar em cada aba
+  // reload ao paginar em cada aba (a pagina ainda existe, só não tem rodapé UI)
   useEffect(() => {
     if (tab === "CREDITO") loadCredits(pageCredits);
   }, [tab, loadCredits, pageCredits]);
@@ -414,43 +365,25 @@ export default function CreditsHistoryPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  // ===== summaries =====
-  const creditsSummary = useMemo(() => {
+  const creditsPaidSum = useMemo(() => {
     const paid = compras.filter((c) => upper(c?.STATUS) === "PAGO");
     const totalPaidValue = paid.reduce((acc, c) => acc + Number(c?.VALOR_TOTAL ?? 0), 0);
-    const totalCredits = compras.reduce((acc, c) => acc + Number(c?.QUANTIDADE ?? 0), 0);
-
-    return {
-      totalCredits: Number.isFinite(totalCredits) ? totalCredits : 0,
-      totalPaidValue: Number.isFinite(totalPaidValue) ? totalPaidValue : 0,
-    };
+    return Number.isFinite(totalPaidValue) ? totalPaidValue : 0;
   }, [compras]);
 
-  const assinSummary = useMemo(() => {
-    // Espera campos tipo: VALOR, STATUS ("PAGO"|"FALHOU"), CREDITOS_CONCEDIDOS
+  const assinPaidSum = useMemo(() => {
     const paid = faturas.filter((f) => upper(f?.STATUS) === "PAGO");
     const totalPaidValue = paid.reduce((acc, f) => acc + Number(f?.VALOR ?? 0), 0);
-    const totalCreditsConcedidos = faturas.reduce((acc, f) => acc + Number(f?.CREDITOS_CONCEDIDOS ?? 0), 0);
-
-    return {
-      totalCreditsConcedidos: Number.isFinite(totalCreditsConcedidos) ? totalCreditsConcedidos : 0,
-      totalPaidValue: Number.isFinite(totalPaidValue) ? totalPaidValue : 0,
-    };
+    return Number.isFinite(totalPaidValue) ? totalPaidValue : 0;
   }, [faturas]);
 
-  // ===== pager helpers =====
   const isCreditsTab = tab === "CREDITO";
   const loading = isCreditsTab ? loadingCredits : loadingAssin;
   const err = isCreditsTab ? errCredits : errAssin;
-
   const page = isCreditsTab ? pageCredits : pageAssin;
   const totalPages = isCreditsTab ? totalCreditsPages : totalAssinPages;
-  const total = isCreditsTab ? totalCreditsCount : totalAssinCount;
 
-  const canPrev = page > 1 && !loading;
-  const canNext = page < totalPages && !loading;
-
-  // ===== modal open/close =====
+  // modal open/close
   const openRefundModalCredito = (compra) => {
     setRefundErr("");
     setRefundMotivo("");
@@ -473,7 +406,6 @@ export default function CreditsHistoryPage() {
     setRefundErr("");
   };
 
-  // ===== submit refund request =====
   const confirmRefundRequest = async () => {
     if (!refundTarget?.tipo) return;
 
@@ -497,12 +429,7 @@ export default function CreditsHistoryPage() {
 
         setCompras((prev) =>
           prev.map((c) =>
-            c?.ID === compra.ID
-              ? {
-                  ...c,
-                  solicitacao_reembolso: json?.solicitacao || { STATUS: "PENDENTE" },
-                }
-              : c
+            c?.ID === compra.ID ? { ...c, solicitacao_reembolso: json?.solicitacao || { STATUS: "PENDENTE" } } : c
           )
         );
 
@@ -513,10 +440,6 @@ export default function CreditsHistoryPage() {
 
       if (refundTarget.tipo === "ASSINATURA") {
         const fatura = refundTarget.data;
-
-        // ⚠️ Endpoint sugerido:
-        // POST /api/assinatura/reembolso/solicitar
-        // body: { stripeInvoiceId, motivo }
         const stripeInvoiceId = String(fatura?.STRIPE_INVOICE_ID || "").trim();
         if (!stripeInvoiceId) throw new Error("Fatura sem STRIPE_INVOICE_ID.");
 
@@ -530,19 +453,15 @@ export default function CreditsHistoryPage() {
         const json = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(json?.error || `Falha ao solicitar reembolso (${res.status})`);
 
-        // Atualiza localmente: coloca solicitacao_reembolso_assinatura dentro da fatura (se seu endpoint devolver isso)
         setFaturas((prev) =>
           prev.map((f) =>
             String(f?.STRIPE_INVOICE_ID || "") === stripeInvoiceId
-              ? {
-                  ...f,
-                  solicitacao_reembolso: json?.solicitacao || { STATUS: "PENDENTE" },
-                }
+              ? { ...f, solicitacao_reembolso: json?.solicitacao || { STATUS: "PENDENTE" } }
               : f
           )
         );
 
-        setToast("Solicitação de reembolso da assinatura enviada! Agora é só aguardar a análise.");
+        setToast("Solicitação enviada! Agora é só aguardar a análise.");
         closeRefundModal();
       }
     } catch (e) {
@@ -552,108 +471,94 @@ export default function CreditsHistoryPage() {
     }
   };
 
-  // ===== modal content (dinâmico) =====
   const modalConfig = useMemo(() => {
-    if (!refundTarget?.tipo) {
-      return {
-        title: "Solicitar reembolso",
-        kicker: "Reembolso",
-        summaryItems: [],
-      };
-    }
+    if (!refundTarget?.tipo) return { title: "Solicitar reembolso", kicker: "Reembolso", summaryItems: [] };
 
     if (refundTarget.tipo === "CREDITO") {
-      const compra = refundTarget.data;
-      const qty = Number(compra?.QUANTIDADE ?? 0);
-      const totalVal = compra?.VALOR_TOTAL;
-
+      const c = refundTarget.data;
       return {
         title: "Solicitar reembolso (créditos)",
-        kicker: "Reembolso",
+        kicker: "Solicitação",
         summaryItems: [
-          { label: "Compra", value: `#${compra?.ID ?? "—"}` },
-          { label: "Créditos", value: Number.isFinite(qty) ? qty : "—" },
-          { label: "Valor", value: formatBRL(totalVal), strong: true },
+          { label: "Compra", value: `#${c?.ID ?? "—"}` },
+          { label: "Valor", value: formatBRL(c?.VALOR_TOTAL), strong: true },
+          { label: "Pago em", value: c?.DATA_PAGAMENTO ? formatDateTimeBR(c.DATA_PAGAMENTO) : "—" },
         ],
       };
     }
 
-    // ASSINATURA
-    const fatura = refundTarget.data;
-    const creditos = Number(fatura?.CREDITOS_CONCEDIDOS ?? 0);
-    const valor = fatura?.VALOR;
-
+    const f = refundTarget.data;
     return {
       title: "Solicitar reembolso (assinatura)",
-      kicker: "Reembolso",
+      kicker: "Solicitação",
       summaryItems: [
-        { label: "Fatura", value: shortId(fatura?.STRIPE_INVOICE_ID, 10) },
-        { label: "Créditos", value: Number.isFinite(creditos) ? creditos : "—" },
-        { label: "Valor", value: formatBRL(valor), strong: true },
+        { label: "Fatura", value: shortId(f?.STRIPE_INVOICE_ID, 10) },
+        { label: "Valor", value: formatBRL(f?.VALOR), strong: true },
+        { label: "Data", value: f?.DATA_CRIACAO ? formatDateTimeBR(f.DATA_CRIACAO) : "—" },
       ],
     };
   }, [refundTarget]);
 
-  // ===== render =====
   return (
-    <div className="pg-wrap">
+    <div className="pg-wrap histPage">
       <section className="pg-card histCard">
         <header className="histHeader">
           <div className="histHeaderLeft">
             <h1 className="histTitle">Histórico</h1>
-            <p className="histSubtitle">Veja compras, faturas, status, reembolsos e solicitações.</p>
+            <p className="histSubtitle">Mostrando só o essencial. O restante fica em “Detalhar”.</p>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-              <TabButton active={tab === "CREDITO"} onClick={() => setTab("CREDITO")}>
+            <div className="histTabs" role="tablist" aria-label="Tipo de histórico">
+              <div className={`histTabPill ${tab === "CREDITO" ? "is-credit" : "is-assin"}`} />
+              <button
+                type="button"
+                className={`histTab ${tab === "CREDITO" ? "is-active" : ""}`}
+                onClick={() => setTab("CREDITO")}
+                role="tab"
+                aria-selected={tab === "CREDITO"}
+              >
                 Créditos
-              </TabButton>
-              <TabButton active={tab === "ASSINATURA"} onClick={() => setTab("ASSINATURA")}>
+              </button>
+              <button
+                type="button"
+                className={`histTab ${tab === "ASSINATURA" ? "is-active" : ""}`}
+                onClick={() => setTab("ASSINATURA")}
+                role="tab"
+                aria-selected={tab === "ASSINATURA"}
+              >
                 Assinatura
-              </TabButton>
+              </button>
             </div>
           </div>
 
           <div className="histHeaderRight">
-            {tab === "CREDITO" ? (
-              <div className="histPills">
-                <span className="histPill">
-                  <span className="histPillLabel">Compras</span>
-                  <span className="histPillValue">{totalCreditsCount}</span>
-                </span>
+            <div className="histPills">
+              {tab === "CREDITO" ? (
+                <>
+                  <span className="histPill">
+                    <span className="histPillLabel">Compras</span>
+                    <b>{totalCreditsCount}</b>
+                  </span>
+                  <span className="histPill">
+                    <span className="histPillLabel">Pago (pág.)</span>
+                    <b>{formatBRL(creditsPaidSum)}</b>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="histPill">
+                    <span className="histPillLabel">Faturas</span>
+                    <b>{totalAssinCount}</b>
+                  </span>
+                  <span className="histPill">
+                    <span className="histPillLabel">Pago (pág.)</span>
+                    <b>{formatBRL(assinPaidSum)}</b>
+                  </span>
+                </>
+              )}
+            </div>
 
-                <span className="histPill">
-                  <span className="histPillLabel">Créditos (pág.)</span>
-                  <span className="histPillValue">{creditsSummary.totalCredits}</span>
-                </span>
-
-                <span className="histPill is-green">
-                  <span className="histPillLabel">Pago (pág.)</span>
-                  <span className="histPillValue">{formatBRL(creditsSummary.totalPaidValue)}</span>
-                </span>
-              </div>
-            ) : (
-              <div className="histPills">
-                <span className="histPill">
-                  <span className="histPillLabel">Faturas</span>
-                  <span className="histPillValue">{totalAssinCount}</span>
-                </span>
-
-                <span className="histPill">
-                  <span className="histPillLabel">Créditos (pág.)</span>
-                  <span className="histPillValue">{assinSummary.totalCreditsConcedidos}</span>
-                </span>
-
-                <span className="histPill is-green">
-                  <span className="histPillLabel">Pago (pág.)</span>
-                  <span className="histPillValue">{formatBRL(assinSummary.totalPaidValue)}</span>
-                </span>
-              </div>
-            )}
-
-            <div className="histPagerTop">
-              <span className="histPagerText">
-                Página <b>{page}</b> de <b>{totalPages}</b>
-              </span>
+            <div className="histPagerTopText">
+              Página <b>{page}</b> de <b>{totalPages}</b>
             </div>
           </div>
         </header>
@@ -670,501 +575,327 @@ export default function CreditsHistoryPage() {
               <div className="histState">
                 Nenhuma compra encontrada ainda.
                 <div style={{ marginTop: 12 }}>
-                  <button className="histGhostBtn" type="button" onClick={() => navigate("/app/planos-creditos")}>
+                  <button className="histBtn" type="button" onClick={() => navigate("/app/planos-creditos")}>
                     Ir para compra de créditos
                   </button>
                 </div>
               </div>
             ) : (
-              <>
+              <div className="histScroll">
                 <ul className="histList" aria-label="Lista de compras">
                   {compras.map((c) => {
                     const id = c?.ID ?? "—";
                     const status = c?.STATUS;
+
                     const createdAt = c?.DATA_CRIACAO;
                     const paidAt = c?.DATA_PAGAMENTO;
 
+                    const totalVal = c?.VALOR_TOTAL;
+
                     const qty = Number(c?.QUANTIDADE ?? 0);
                     const unit = c?.VALOR_UNITARIO;
-                    const totalVal = c?.VALOR_TOTAL;
                     const sessionId = c?.STRIPE_SESSION_ID;
 
                     const reembolsos = Array.isArray(c?.reembolsos) ? c.reembolsos : [];
                     const solicitacao = c?.solicitacao_reembolso || null;
 
-                    const hasRefundRunningOrDone = reembolsos.some((r) =>
-                      ["PENDENTE", "SUCESSO"].includes(upper(r?.STATUS))
-                    );
+                    const hasRefundRunningOrDone = reembolsos.some((r) => ["PENDENTE", "SUCESSO"].includes(upper(r?.STATUS)));
 
                     const isPaid = upper(status) === "PAGO" && !!paidAt;
                     const eligibleWindow = isPaid && within7Days(paidAt);
                     const hasRequest = !!solicitacao;
                     const canRequest = eligibleWindow && !hasRefundRunningOrDone && !hasRequest;
 
+                    const displayDate = paidAt || createdAt;
+
                     return (
                       <li key={String(id)} className="histItem">
                         <div className="histTopRow">
-                          <div className="histLeft">
+                          <div>
                             <div className="histTitleRow">
                               <StatusPill status={status} />
                               <span className="histId">Compra #{id}</span>
                               {solicitacao?.STATUS ? <RequestPill status={solicitacao.STATUS} /> : null}
                             </div>
 
-                            <div className="histMeta">
-                              <span className="histMetaItem">
-                                <IconClock className="histIco" />
-                                <span>
-                                  Criada: <b>{formatDateTimeBR(createdAt)}</b>
-                                </span>
-                              </span>
-
-                              <span className="histMetaDot">•</span>
-
-                              <span className="histMetaItem">
-                                <IconReceipt className="histIco" />
-                                <span>
-                                  Pagamento: <b>{paidAt ? formatDateTimeBR(paidAt) : "—"}</b>
-                                </span>
-                              </span>
-
-                              <span className="histMetaDot">•</span>
-
-                              <span className="histMetaItem">
-                                <IconMoney className="histIco" />
-                                <span>
-                                  Total: <b>{formatBRL(totalVal)}</b>
-                                </span>
-                              </span>
-                            </div>
-
-                            <div className="histNumbers">
-                              <span className="histNum">
-                                Créditos: <b>{Number.isFinite(qty) ? qty : "—"}</b>
-                              </span>
-                              <span className="histNumDot">•</span>
-                              <span className="histNum">
-                                Unitário: <b>{formatBRL(unit)}</b>
-                              </span>
-                              <span className="histNumDot">•</span>
-                              <span className="histNum" title={sessionId ? String(sessionId) : ""}>
-                                Session: <b>{shortId(sessionId, 9)}</b>
-                              </span>
-                            </div>
-
-                            {!eligibleWindow && isPaid ? (
-                              <div className="histHint">
-                                Prazo de reembolso: <b>expirado</b> (válido até 7 dias após o pagamento).
+                            <div className="histEssGrid">
+                              <div className="histEssBox">
+                                <span className="histEssLabel">Valor pago</span>
+                                <span className="histEssValue">{formatBRL(totalVal)}</span>
                               </div>
-                            ) : null}
+                              <div className="histEssBox">
+                                <span className="histEssLabel">Data</span>
+                                <span className="histEssValue">{displayDate ? formatDateTimeBR(displayDate) : "—"}</span>
+                              </div>
+                            </div>
+
+                            <details className="histDetails">
+                              <summary className="histSummary">Detalhar</summary>
+
+                              <div className="histDetailBox">
+                                <div className="histDetailGrid">
+                                  <div>
+                                    <span className="histFieldLabel">Criada em</span>
+                                    <span className="histFieldValue">{formatDateTimeBR(createdAt)}</span>
+                                  </div>
+                                  <div>
+                                    <span className="histFieldLabel">Pago em</span>
+                                    <span className="histFieldValue">{paidAt ? formatDateTimeBR(paidAt) : "—"}</span>
+                                  </div>
+                                  <div>
+                                    <span className="histFieldLabel">Créditos</span>
+                                    <span className="histFieldValue">{Number.isFinite(qty) ? qty : "—"}</span>
+                                  </div>
+                                  <div>
+                                    <span className="histFieldLabel">Unitário</span>
+                                    <span className="histFieldValue">{formatBRL(unit)}</span>
+                                  </div>
+                                  <div>
+                                    <span className="histFieldLabel">Stripe session</span>
+                                    <span className="histFieldValue" title={sessionId ? String(sessionId) : ""}>
+                                      {shortId(sessionId, 12)}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="histFieldLabel">Status</span>
+                                    <span className="histFieldValue">{status || "—"}</span>
+                                  </div>
+                                </div>
+
+                                <div className="histDivider" />
+
+                                <p className="histMuted">
+                                  Solicitação: <b>{solicitacao?.STATUS ? solicitacao.STATUS : "Nenhuma"}</b>{" "}
+                                  {solicitacao?.DATA_CRIACAO ? `• ${formatDateTimeBR(solicitacao.DATA_CRIACAO)}` : ""}
+                                </p>
+
+                                {solicitacao?.MOTIVO ? (
+                                  <p className="histMuted" style={{ marginTop: 8 }}>
+                                    Motivo: <b>{String(solicitacao.MOTIVO)}</b>
+                                  </p>
+                                ) : null}
+
+                                <div className="histDivider" />
+
+                                <p className="histMuted">
+                                  Reembolsos: <b>{reembolsos.length}</b>
+                                </p>
+
+                                {reembolsos.length ? (
+                                  <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+                                    {reembolsos.map((r) => (
+                                      <div
+                                        key={String(r?.ID ?? Math.random())}
+                                        style={{
+                                          padding: 10,
+                                          borderRadius: 16,
+                                          border: "1px solid rgba(255,255,255,0.12)",
+                                          background: "rgba(0,0,0,0.10)",
+                                        }}
+                                      >
+                                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                                          <span className="histStatus is-neutral">{r?.STATUS || "—"}</span>
+                                          <span className="histMuted">
+                                            Refund: <b>{shortId(r?.STRIPE_REFUND_ID, 10)}</b>
+                                          </span>
+                                          <span className="histMuted">
+                                            Valor: <b>{formatBRL(r?.VALOR)}</b>
+                                          </span>
+                                          <span className="histMuted">
+                                            Criado: <b>{formatDateTimeBR(r?.DATA_CRIACAO)}</b>
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="histMuted" style={{ marginTop: 8 }}>
+                                    Nenhum reembolso registrado.
+                                  </p>
+                                )}
+                              </div>
+                            </details>
                           </div>
 
                           <div className="histRight">
-                            <div className="histActions">
-                              <button
-                                type="button"
-                                className={`histRefundBtn ${canRequest ? "is-on" : ""}`}
-                                disabled={!canRequest}
-                                onClick={() => openRefundModalCredito(c)}
-                                title={
-                                  canRequest
-                                    ? "Solicitar reembolso"
-                                    : hasRequest
-                                    ? "Já existe solicitação"
-                                    : hasRefundRunningOrDone
-                                    ? "Já existe reembolso"
-                                    : !isPaid
-                                    ? "Compra ainda não está paga"
-                                    : "Fora do prazo (7 dias)"
-                                }
-                              >
-                                Solicitar reembolso
-                              </button>
-
-                              <details className="histDetails">
-                                <summary className="histSummary">Detalhes</summary>
-
-                                <div className="histDetailBox">
-                                  <div className="histDetailGrid">
-                                    <div className="histField">
-                                      <span className="histFieldLabel">Status</span>
-                                      <span className="histFieldValue">{status || "—"}</span>
-                                    </div>
-                                    <div className="histField">
-                                      <span className="histFieldLabel">Créditos</span>
-                                      <span className="histFieldValue">{Number.isFinite(qty) ? qty : "—"}</span>
-                                    </div>
-                                    <div className="histField">
-                                      <span className="histFieldLabel">Valor unitário</span>
-                                      <span className="histFieldValue">{formatBRL(unit)}</span>
-                                    </div>
-                                    <div className="histField">
-                                      <span className="histFieldLabel">Valor total</span>
-                                      <span className="histFieldValue">{formatBRL(totalVal)}</span>
-                                    </div>
-                                  </div>
-
-                                  <div className="histSubDivider" />
-
-                                  <h4 className="histSubTitle">Solicitação</h4>
-                                  {!solicitacao ? (
-                                    <p className="histMuted">Nenhuma solicitação registrada.</p>
-                                  ) : (
-                                    <div className="histReqBox">
-                                      <div className="histReqRow">
-                                        <RequestPill status={solicitacao.STATUS} />
-                                        <span className="histMuted">
-                                          Criada em <b>{formatDateTimeBR(solicitacao.DATA_CRIACAO)}</b>
-                                        </span>
-                                      </div>
-                                      {solicitacao.MOTIVO ? <p className="histReqMotivo">{solicitacao.MOTIVO}</p> : null}
-                                    </div>
-                                  )}
-
-                                  <div className="histSubDivider" />
-
-                                  <h4 className="histSubTitle">Reembolsos</h4>
-                                  {reembolsos.length === 0 ? (
-                                    <p className="histMuted">Nenhum reembolso registrado.</p>
-                                  ) : (
-                                    <ul className="histRefundList" aria-label="Lista de reembolsos">
-                                      {reembolsos.map((r) => (
-                                        <li key={String(r?.ID ?? Math.random())} className="histRefundItem">
-                                          <div className="histRefundTop">
-                                            <RefundPill status={r?.STATUS} />
-                                            <span className="histRefundId">
-                                              Refund: {shortId(r?.STRIPE_REFUND_ID, 8)}
-                                            </span>
-                                          </div>
-
-                                          <div className="histRefundMeta">
-                                            <span>
-                                              Créditos: <b>{Number(r?.QUANTIDADE ?? 0) || 0}</b>
-                                            </span>
-                                            <span className="histMetaDot">•</span>
-                                            <span>
-                                              Valor: <b>{formatBRL(r?.VALOR)}</b>
-                                            </span>
-                                            <span className="histMetaDot">•</span>
-                                            <span>
-                                              Criado: <b>{formatDateTimeBR(r?.DATA_CRIACAO)}</b>
-                                            </span>
-                                          </div>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              </details>
-                            </div>
+                            <button
+                              type="button"
+                              className={`histBtn ${canRequest ? "histBtnWarn" : ""}`}
+                              disabled={!canRequest}
+                              onClick={() => openRefundModalCredito(c)}
+                              title={
+                                canRequest
+                                  ? "Solicitar reembolso"
+                                  : hasRequest
+                                  ? "Já existe solicitação"
+                                  : hasRefundRunningOrDone
+                                  ? "Já existe reembolso"
+                                  : !isPaid
+                                  ? "Compra ainda não está paga"
+                                  : "Fora do prazo (7 dias)"
+                              }
+                            >
+                              Solicitar reembolso
+                            </button>
                           </div>
                         </div>
                       </li>
                     );
                   })}
                 </ul>
-
-                <div className="histPager">
-                  <button
-                    className="histGhostBtn"
-                    type="button"
-                    onClick={() => setPageCredits(1)}
-                    disabled={!canPrev}
-                  >
-                    « Primeira
-                  </button>
-
-                  <button
-                    className="histGhostBtn"
-                    type="button"
-                    onClick={() => setPageCredits((p) => Math.max(1, p - 1))}
-                    disabled={!canPrev}
-                  >
-                    ‹ Anterior
-                  </button>
-
-                  <span className="histPagerCenter">
-                    Página <b>{pageCredits}</b> de <b>{totalCreditsPages}</b>
-                  </span>
-
-                  <button
-                    className="histGhostBtn"
-                    type="button"
-                    onClick={() => setPageCredits((p) => Math.min(totalCreditsPages, p + 1))}
-                    disabled={!canNext}
-                  >
-                    Próxima ›
-                  </button>
-
-                  <button
-                    className="histGhostBtn"
-                    type="button"
-                    onClick={() => setPageCredits(totalCreditsPages)}
-                    disabled={!canNext}
-                  >
-                    Última »
-                  </button>
-                </div>
-
-                <div className="histBottomActions">
-                  <button
-                    className="histBackBtn"
-                    type="button"
-                    onClick={() => navigate("/app/planos-creditos")}
-                    disabled={loading}
-                  >
-                    Voltar
-                  </button>
-                  <button className="histPrimaryBtn" type="button" onClick={() => loadCredits(pageCredits)} disabled={loading}>
-                    Recarregar
-                  </button>
-                </div>
-              </>
+              </div>
             )
-          ) : // ===== ASSINATURA TAB =====
-          faturas.length === 0 ? (
+          ) : faturas.length === 0 ? (
             <div className="histState">
               Nenhuma fatura de assinatura encontrada.
               <div style={{ marginTop: 12 }}>
-                <button className="histGhostBtn" type="button" onClick={() => navigate("/app/planos-creditos")}>
+                <button className="histBtn" type="button" onClick={() => navigate("/app/planos-creditos")}>
                   Ver planos
                 </button>
               </div>
             </div>
           ) : (
-            <>
+            <div className="histScroll">
               <ul className="histList" aria-label="Lista de faturas de assinatura">
                 {faturas.map((f) => {
-                  // Campos esperados do backend
                   const id = f?.ID ?? "—";
-                  const status = f?.STATUS; // "PAGO" | "FALHOU" (sugestão)
+                  const status = f?.STATUS;
                   const createdAt = f?.DATA_CRIACAO;
 
                   const stripeInvoiceId = f?.STRIPE_INVOICE_ID;
                   const valor = f?.VALOR;
-                  const creditos = Number(f?.CREDITOS_CONCEDIDOS ?? 0);
 
+                  const creditos = Number(f?.CREDITOS_CONCEDIDOS ?? 0);
                   const periodoIni = f?.PERIODO_INICIO;
                   const periodoFim = f?.PERIODO_FIM;
 
-                  // Estes 2 são "sugestões" de como seu endpoint pode devolver
                   const solicitacao = f?.solicitacao_reembolso || f?.solicitacao_reembolso_assinatura || null;
                   const reembolso = f?.reembolso || f?.reembolso_assinatura || null;
 
-                  const hasRefundRunningOrDone =
-                    reembolso && ["PENDENTE", "SUCESSO"].includes(upper(reembolso?.STATUS));
-
-                  // Regras de janela (7 dias):
-                  // Como assinatura_fatura não tem DATA_PAGAMENTO no schema, usamos DATA_CRIACAO como referência.
+                  const hasRefundRunningOrDone = reembolso && ["PENDENTE", "SUCESSO"].includes(upper(reembolso?.STATUS));
                   const isPaid = upper(status) === "PAGO" && !!createdAt;
                   const eligibleWindow = isPaid && within7Days(createdAt);
-
                   const hasRequest = !!solicitacao;
                   const canRequest = eligibleWindow && !hasRefundRunningOrDone && !hasRequest;
 
                   return (
                     <li key={String(stripeInvoiceId || id)} className="histItem">
                       <div className="histTopRow">
-                        <div className="histLeft">
+                        <div>
                           <div className="histTitleRow">
                             <StatusPill status={status} />
                             <span className="histId">Fatura #{id}</span>
                             {solicitacao?.STATUS ? <RequestPill status={solicitacao.STATUS} /> : null}
                           </div>
 
-                          <div className="histMeta">
-                            <span className="histMetaItem">
-                              <IconClock className="histIco" />
-                              <span>
-                                Criada: <b>{formatDateTimeBR(createdAt)}</b>
-                              </span>
-                            </span>
-
-                            <span className="histMetaDot">•</span>
-
-                            <span className="histMetaItem">
-                              <IconReceipt className="histIco" />
-                              <span title={stripeInvoiceId ? String(stripeInvoiceId) : ""}>
-                                Invoice: <b>{shortId(stripeInvoiceId, 10)}</b>
-                              </span>
-                            </span>
-
-                            <span className="histMetaDot">•</span>
-
-                            <span className="histMetaItem">
-                              <IconMoney className="histIco" />
-                              <span>
-                                Valor: <b>{formatBRL(valor)}</b>
-                              </span>
-                            </span>
-                          </div>
-
-                          <div className="histNumbers">
-                            <span className="histNum">
-                              Créditos: <b>{Number.isFinite(creditos) ? creditos : "—"}</b>
-                            </span>
-                            <span className="histNumDot">•</span>
-                            <span className="histNum">
-                              Período:{" "}
-                              <b>
-                                {periodoIni ? formatDateBR(periodoIni) : "—"} → {periodoFim ? formatDateBR(periodoFim) : "—"}
-                              </b>
-                            </span>
-                          </div>
-
-                          {!eligibleWindow && isPaid ? (
-                            <div className="histHint">
-                              Prazo de reembolso: <b>expirado</b> (válido até 7 dias após a criação/pagamento da fatura).
+                          <div className="histEssGrid">
+                            <div className="histEssBox">
+                              <span className="histEssLabel">Valor pago</span>
+                              <span className="histEssValue">{formatBRL(valor)}</span>
                             </div>
-                          ) : null}
+                            <div className="histEssBox">
+                              <span className="histEssLabel">Data</span>
+                              <span className="histEssValue">{createdAt ? formatDateTimeBR(createdAt) : "—"}</span>
+                            </div>
+                          </div>
+
+                          <details className="histDetails">
+                            <summary className="histSummary">Detalhar</summary>
+
+                            <div className="histDetailBox">
+                              <div className="histDetailGrid">
+                                <div>
+                                  <span className="histFieldLabel">Stripe Invoice</span>
+                                  <span className="histFieldValue" title={stripeInvoiceId ? String(stripeInvoiceId) : ""}>
+                                    {shortId(stripeInvoiceId, 14)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="histFieldLabel">Créditos</span>
+                                  <span className="histFieldValue">{Number.isFinite(creditos) ? creditos : "—"}</span>
+                                </div>
+                                <div>
+                                  <span className="histFieldLabel">Período</span>
+                                  <span className="histFieldValue">
+                                    {periodoIni ? formatDateBR(periodoIni) : "—"} → {periodoFim ? formatDateBR(periodoFim) : "—"}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="histFieldLabel">Status</span>
+                                  <span className="histFieldValue">{status || "—"}</span>
+                                </div>
+                                <div>
+                                  <span className="histFieldLabel">Criada em</span>
+                                  <span className="histFieldValue">{formatDateTimeBR(createdAt)}</span>
+                                </div>
+                              </div>
+
+                              <div className="histDivider" />
+
+                              <p className="histMuted">
+                                Solicitação: <b>{solicitacao?.STATUS ? solicitacao.STATUS : "Nenhuma"}</b>
+                                {solicitacao?.DATA_CRIACAO ? ` • ${formatDateTimeBR(solicitacao.DATA_CRIACAO)}` : ""}
+                              </p>
+
+                              {solicitacao?.MOTIVO ? (
+                                <p className="histMuted" style={{ marginTop: 8 }}>
+                                  Motivo: <b>{String(solicitacao.MOTIVO)}</b>
+                                </p>
+                              ) : null}
+
+                              <div className="histDivider" />
+
+                              <p className="histMuted">
+                                Reembolso: <b>{reembolso?.STATUS ? reembolso.STATUS : "Nenhum"}</b>
+                              </p>
+
+                              {reembolso ? (
+                                <div
+                                  style={{
+                                    marginTop: 10,
+                                    padding: 10,
+                                    borderRadius: 16,
+                                    border: "1px solid rgba(255,255,255,0.12)",
+                                    background: "rgba(0,0,0,0.10)",
+                                  }}
+                                >
+                                  <p className="histMuted" style={{ margin: 0 }}>
+                                    Refund: <b>{shortId(reembolso?.STRIPE_REFUND_ID, 12)}</b> • Valor:{" "}
+                                    <b>{formatBRL(reembolso?.VALOR)}</b> • Criado: <b>{formatDateTimeBR(reembolso?.DATA_CRIACAO)}</b>
+                                  </p>
+                                </div>
+                              ) : null}
+                            </div>
+                          </details>
                         </div>
 
                         <div className="histRight">
-                          <div className="histActions">
-                            <button
-                              type="button"
-                              className={`histRefundBtn ${canRequest ? "is-on" : ""}`}
-                              disabled={!canRequest}
-                              onClick={() => openRefundModalAssinatura(f)}
-                              title={
-                                canRequest
-                                  ? "Solicitar reembolso da assinatura"
-                                  : hasRequest
-                                  ? "Já existe solicitação"
-                                  : hasRefundRunningOrDone
-                                  ? "Já existe reembolso"
-                                  : !isPaid
-                                  ? "Fatura não está paga"
-                                  : "Fora do prazo (7 dias)"
-                              }
-                            >
-                              Solicitar reembolso
-                            </button>
-
-                            <details className="histDetails">
-                              <summary className="histSummary">Detalhes</summary>
-
-                              <div className="histDetailBox">
-                                <div className="histDetailGrid">
-                                  <div className="histField">
-                                    <span className="histFieldLabel">Status</span>
-                                    <span className="histFieldValue">{status || "—"}</span>
-                                  </div>
-                                  <div className="histField">
-                                    <span className="histFieldLabel">Créditos</span>
-                                    <span className="histFieldValue">{Number.isFinite(creditos) ? creditos : "—"}</span>
-                                  </div>
-                                  <div className="histField">
-                                    <span className="histFieldLabel">Valor</span>
-                                    <span className="histFieldValue">{formatBRL(valor)}</span>
-                                  </div>
-                                  <div className="histField">
-                                    <span className="histFieldLabel">Stripe Invoice</span>
-                                    <span className="histFieldValue" title={stripeInvoiceId ? String(stripeInvoiceId) : ""}>
-                                      {shortId(stripeInvoiceId, 12)}
-                                    </span>
-                                  </div>
-                                  <div className="histField">
-                                    <span className="histFieldLabel">Período</span>
-                                    <span className="histFieldValue">
-                                      {periodoIni ? formatDateBR(periodoIni) : "—"} →{" "}
-                                      {periodoFim ? formatDateBR(periodoFim) : "—"}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="histSubDivider" />
-
-                                <h4 className="histSubTitle">Solicitação</h4>
-                                {!solicitacao ? (
-                                  <p className="histMuted">Nenhuma solicitação registrada.</p>
-                                ) : (
-                                  <div className="histReqBox">
-                                    <div className="histReqRow">
-                                      <RequestPill status={solicitacao.STATUS} />
-                                      <span className="histMuted">
-                                        Criada em <b>{formatDateTimeBR(solicitacao.DATA_CRIACAO)}</b>
-                                      </span>
-                                    </div>
-                                    {solicitacao.MOTIVO ? <p className="histReqMotivo">{solicitacao.MOTIVO}</p> : null}
-                                  </div>
-                                )}
-
-                                <div className="histSubDivider" />
-
-                                <h4 className="histSubTitle">Reembolso</h4>
-                                {!reembolso ? (
-                                  <p className="histMuted">Nenhum reembolso registrado.</p>
-                                ) : (
-                                  <div className="histReqBox">
-                                    <div className="histReqRow">
-                                      <RefundPill status={reembolso?.STATUS} />
-                                      <span className="histMuted">
-                                        Criado em <b>{formatDateTimeBR(reembolso?.DATA_CRIACAO)}</b>
-                                      </span>
-                                    </div>
-                                    <div className="histRefundMeta" style={{ marginTop: 8 }}>
-                                      <span>
-                                        Refund: <b>{shortId(reembolso?.STRIPE_REFUND_ID, 10)}</b>
-                                      </span>
-                                      <span className="histMetaDot">•</span>
-                                      <span>
-                                        Valor: <b>{formatBRL(reembolso?.VALOR)}</b>
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </details>
-                          </div>
+                          <button
+                            type="button"
+                            className={`histBtn ${canRequest ? "histBtnWarn" : ""}`}
+                            disabled={!canRequest}
+                            onClick={() => openRefundModalAssinatura(f)}
+                            title={
+                              canRequest
+                                ? "Solicitar reembolso da assinatura"
+                                : hasRequest
+                                ? "Já existe solicitação"
+                                : hasRefundRunningOrDone
+                                ? "Já existe reembolso"
+                                : !isPaid
+                                ? "Fatura não está paga"
+                                : "Fora do prazo (7 dias)"
+                            }
+                          >
+                            Solicitar reembolso
+                          </button>
                         </div>
                       </div>
                     </li>
                   );
                 })}
               </ul>
-
-              <div className="histPager">
-                <button className="histGhostBtn" type="button" onClick={() => setPageAssin(1)} disabled={!canPrev}>
-                  « Primeira
-                </button>
-
-                <button
-                  className="histGhostBtn"
-                  type="button"
-                  onClick={() => setPageAssin((p) => Math.max(1, p - 1))}
-                  disabled={!canPrev}
-                >
-                  ‹ Anterior
-                </button>
-
-                <span className="histPagerCenter">
-                  Página <b>{pageAssin}</b> de <b>{totalAssinPages}</b>
-                </span>
-
-                <button
-                  className="histGhostBtn"
-                  type="button"
-                  onClick={() => setPageAssin((p) => Math.min(totalAssinPages, p + 1))}
-                  disabled={!canNext}
-                >
-                  Próxima ›
-                </button>
-
-                <button className="histGhostBtn" type="button" onClick={() => setPageAssin(totalAssinPages)} disabled={!canNext}>
-                  Última »
-                </button>
-              </div>
-
-              <div className="histBottomActions">
-                <button className="histBackBtn" type="button" onClick={() => navigate("/app/planos-creditos")} disabled={loading}>
-                  Voltar
-                </button>
-                <button className="histPrimaryBtn" type="button" onClick={() => loadAssinaturas(pageAssin)} disabled={loading}>
-                  Recarregar
-                </button>
-              </div>
-            </>
+            </div>
           )}
         </div>
       </section>

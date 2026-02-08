@@ -147,7 +147,7 @@ export default function AdminSolicitacoesPage() {
   const [err, setErr] = useState("");
 
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [priorityFilter, setPriorityFilter] = useState("ALL");
+  const [priorityFilter, setPriorityFilter] = useState("ALL"); // ✅ default = Todos
 
   const [items, setItems] = useState([]);
 
@@ -291,6 +291,16 @@ export default function AdminSolicitacoesPage() {
       ctrl.abort();
     };
   }, [endpoints, statusFilter]);
+
+  // ✅ Prioridades existentes nas solicitações atuais (dinâmico)
+  const uniquePriorities = useMemo(() => {
+    const set = new Set();
+    items.forEach((it) => {
+      const p = Number(it?.PRIORIDADE);
+      if (Number.isFinite(p)) set.add(p);
+    });
+    return Array.from(set).sort((a, b) => a - b);
+  }, [items]);
 
   const visibleItems = useMemo(() => {
     let list = items;
@@ -590,13 +600,14 @@ export default function AdminSolicitacoesPage() {
             </div>
 
             <div className="admFilters" aria-label="Filtros">
+              {/* ✅ Dropdown dinâmico: só prioridades existentes em items */}
               <FilterSelect label="Prioridade" value={priorityFilter} onChange={setPriorityFilter}>
                 <option value="ALL">Todas</option>
-                <option value="1">1 (alta)</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5 (baixa)</option>
+                {uniquePriorities.map((p) => (
+                  <option key={String(p)} value={String(p)}>
+                    {p}
+                  </option>
+                ))}
               </FilterSelect>
 
               <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter}>

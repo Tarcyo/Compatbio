@@ -15,6 +15,7 @@ function IconUser(props) {
     </svg>
   );
 }
+
 function IconDoc(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -25,6 +26,7 @@ function IconDoc(props) {
     </svg>
   );
 }
+
 function IconChart(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -35,6 +37,7 @@ function IconChart(props) {
     </svg>
   );
 }
+
 function IconCard(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -45,6 +48,19 @@ function IconCard(props) {
     </svg>
   );
 }
+
+/* ✅ ÍCONE DE HISTÓRICO (relógio + seta) */
+function IconHistory(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M12 5a7 7 0 1 1-6.32 4H3.5a.75.75 0 0 1-.53-1.28l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25A.75.75 0 0 1 8.03 9H6.5a5.5 5.5 0 1 0 1.08-2.3.75.75 0 1 1-1.2-.9A7 7 0 0 1 12 5Zm.75 3.5a.75.75 0 0 0-1.5 0v3.7c0 .25.12.48.33.62l2.4 1.6a.75.75 0 1 0 .84-1.24l-2.07-1.38V8.5Z"
+      />
+    </svg>
+  );
+}
+
 function IconPower(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -99,7 +115,9 @@ export default function Sidebar() {
       { to: "/app/solicitar-analise", label: "Solicitar análise", icon: IconDoc },
       { to: "/app/resultados", label: "Resultados das análises", icon: IconChart },
       { to: "/app/planos", label: "Planos e créditos", icon: IconCard },
-      { to: "/app/confirmar-compra", label: "Planos e créditos", icon: IconCard },
+
+      // ✅ trocado: era IconCard -> agora IconHistory
+      { to: "/app/confirmar-compra", label: "Histórico de Compras", icon: IconHistory },
     ],
     []
   );

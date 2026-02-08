@@ -1,356 +1,489 @@
-/* AdminDashboardPage.css */
+/* AdminDashboardPage.css — CHIQUE (sólido, premium, pílulas, sem glass)
+   ✅ Sem blur/backdrop/glass
+   ✅ Contraste consistente
+   ✅ Botões/tags/pills bem arredondados
+   ✅ Cards/panels sólidos com profundidade
+*/
 
 /* =========================
-   Tema escuro sólido (sem glass)
+   TOKENS (premium dark + accent)
 ========================= */
-
 :root{
-  --bg-0: #14171c;
-  --bg-1: #1b2027;
-  --bg-2: #222a33;
-  --panel: #1f252d;
-  --panel-2: #1a1f26;
-  --border: rgba(255,255,255,0.10);
-  --border-2: rgba(255,255,255,0.08);
-  --text: rgba(241,245,249,0.92);
-  --muted: rgba(241,245,249,0.68);
-  --muted2: rgba(241,245,249,0.58);
-  --shadow: 0 16px 34px rgba(0,0,0,0.38);
-  --shadow-soft: 0 10px 22px rgba(0,0,0,0.26);
+  --accent: rgba(160, 234, 82, 1);
+
+  --bg-0: #222b38;
+  --bg-1: #1c2532;
+  --bg-2: #18202b;
+
+  --panel: #2a3443;
+  --panel-2: #243043;
+
+  --tile: #334055;
+  --tile2: #2f3a4c;
+
+  --btn-0: #3b4961;
+  --btn-1: #313e54;
+
+  --border: rgba(255,255,255,0.14);
+  --border-2: rgba(255,255,255,0.10);
+
+  --text: rgba(255,255,255,0.94);
+  --muted: rgba(255,255,255,0.72);
+  --muted2: rgba(255,255,255,0.62);
+
+  --shadow-lg: 0 30px 90px rgba(0,0,0,0.58);
+  --shadow: 0 16px 44px rgba(0,0,0,0.46);
+  --shadow-soft: 0 12px 28px rgba(0,0,0,0.28);
+
+  --r-xl: 28px;
+  --r-lg: 22px;
+  --r-md: 18px;
+  --r-sm: 14px;
+  --pill: 9999px;
 }
 
-/* Card principal: cinza escuro sólido */
+/* =========================
+   BASE / NITIDEZ
+========================= */
+.adWrap,
+.adWrap *{
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision !important;
+}
+
+/* =========================
+   CARD PRINCIPAL (sólido + premium)
+========================= */
 .adWrap {
-  padding: 16px;
-  background: var(--bg-1);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
+  padding: 18px !important;
+
+  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-xl) !important;
+
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+
+  position: relative !important;
+  overflow: hidden !important;
+
+  /* 🔥 sem glass */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
-/* Scroll da tela (ver todos os gráficos) */
+.adWrap::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:-2px !important;
+  pointer-events:none !important;
+  border-radius: inherit !important;
+  background:
+    radial-gradient(900px 360px at 18% 10%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(900px 420px at 78% 0%, rgba(160,234,82,0.14), rgba(0,0,0,0) 60%) !important;
+  opacity: 0.9 !important;
+}
+
+.adWrap::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+  border-radius: inherit !important;
+  background: linear-gradient(120deg,
+    rgba(255,255,255,0.05) 0%,
+    rgba(255,255,255,0.00) 46%,
+    rgba(255,255,255,0.03) 100%) !important;
+  opacity: 0.55 !important;
+}
+
+.adWrap > *{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* =========================
+   SCROLL DA TELA
+========================= */
 .adScrollPage {
-  max-height: calc(100vh - 140px);
-  overflow: auto;
-  padding-right: 6px;
+  max-height: calc(100vh - 140px) !important;
+  overflow: auto !important;
+  padding-right: 8px !important;
 }
 
-/* Scrollbar do container principal */
-.adScrollPage::-webkit-scrollbar { width: 12px; }
+/* Scrollbar */
+.adScrollPage::-webkit-scrollbar { width: 12px !important; }
 .adScrollPage::-webkit-scrollbar-track {
-  background: #0f1216;
-  border-radius: 999px;
+  background: rgba(0,0,0,0.22) !important;
+  border-radius: 999px !important;
 }
 .adScrollPage::-webkit-scrollbar-thumb {
-  background: #3a4350;
-  border-radius: 999px;
-  border: 3px solid #0f1216;
+  background: rgba(255,255,255,0.16) !important;
+  border-radius: 999px !important;
+  border: 3px solid rgba(0,0,0,0.22) !important;
 }
-.adScrollPage::-webkit-scrollbar-thumb:hover { background: #4c5766; }
+.adScrollPage::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22) !important; }
 
 /* =========================
-   Header
+   HEADER (mais “dashboard premium”)
 ========================= */
 .adHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 12px;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  margin-bottom: 14px !important;
 }
 
-.adHeaderLeft { min-width: 0; }
+.adHeaderLeft { min-width: 0 !important; }
 
 .adTitleRow{
-  display:flex;
-  align-items:center;
-  gap:10px;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
 }
 
 .adTitle {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: -0.02em;
-  color: var(--text);
+  margin: 0 !important;
+  font-size: 28px !important;
+  font-weight: 1000 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  text-shadow: 0 14px 34px rgba(0,0,0,0.40) !important;
 }
 
 .adBadge{
-  display:inline-flex;
-  align-items:center;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: #0f1216;
-  border: 1px solid var(--border-2);
-  color: rgba(241,245,249,0.82);
-  font-size: 12px;
-  font-weight: 850;
+  display:inline-flex !important;
+  align-items:center !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: var(--pill) !important;
+
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
+  border: 1px solid var(--border-2) !important;
+
+  color: rgba(255,255,255,0.86) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08) !important;
 }
 
 .adSubtitle {
-  margin: 8px 0 0;
-  color: var(--muted);
-  line-height: 1.35;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
+  margin: 10px 0 0 !important;
+  color: var(--muted) !important;
+  line-height: 1.35 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  align-items: center !important;
+  font-weight: 850 !important;
 }
 
-.adRange { font-weight: 850; color: rgba(241,245,249,0.86); }
-.adDot { opacity: 0.55; }
+.adRange { font-weight: 950 !important; color: rgba(255,255,255,0.88) !important; }
+.adDot { opacity: 0.55 !important; }
 
 /* =========================
-   KPIs
+   KPIs (pílula + sombra premium)
 ========================= */
 .adKpis {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
-  gap: 10px;
-  align-items: stretch;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(180px, 1fr)) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
 }
 
 .adKpi {
-  background: linear-gradient(180deg, #222a33 0%, #1b2027 100%);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 12px 12px 12px;
-  min-width: 0;
-  box-shadow: var(--shadow-soft);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 24px !important;
+
+  padding: 14px 14px 14px !important;
+  min-width: 0 !important;
+
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
+}
+
+.adKpi:hover{
+  transform: translateY(-1px) !important;
+  filter: brightness(1.03) !important;
+  border-color: rgba(255,255,255,0.18) !important;
 }
 
 .adKpiTop{
-  display:flex;
-  align-items:center;
-  gap:10px;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
 }
 
 .adKpiIcon{
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: #0f1216;
-  border: 1px solid var(--border-2);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 9999px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+
+  box-shadow: 0 14px 34px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10) !important;
 }
 
 .adKpiLabel {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 750;
+  font-size: 12px !important;
+  color: var(--muted) !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
 }
 
 .adKpiValue {
-  margin-top: 10px;
-  font-size: 20px;
-  font-weight: 950;
-  color: #f8fafc;
-  letter-spacing: -0.02em;
+  margin-top: 10px !important;
+  font-size: 22px !important;
+  font-weight: 1000 !important;
+  color: rgba(255,255,255,0.96) !important;
+  letter-spacing: -0.02em !important;
 }
 
-.adKpi--blue { border-color: rgba(0, 120, 255, 0.35); }
-.adKpi--green { border-color: rgba(0, 170, 90, 0.35); }
+.adKpi--blue { border-color: rgba(80, 160, 255, 0.36) !important; }
+.adKpi--green { border-color: rgba(160, 234, 82, 0.34) !important; }
 
 @media (max-width: 1100px) {
-  .adHeader { flex-direction: column; }
-  .adKpis { grid-template-columns: 1fr; width: 100%; }
+  .adHeader { flex-direction: column !important; }
+  .adKpis { grid-template-columns: 1fr !important; width: 100% !important; }
 }
 
 /* =========================
-   Estados
+   ESTADOS
 ========================= */
 .adState {
-  padding: 14px;
-  border-radius: 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  box-shadow: var(--shadow-soft);
+  padding: 14px 16px !important;
+  border-radius: 22px !important;
+
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%) !important;
+  border: 1px solid var(--border) !important;
+
+  color: rgba(255,255,255,0.82) !important;
+  font-weight: 900 !important;
+
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .adState--error {
-  border-color: rgba(255, 0, 0, 0.35);
-  color: rgba(255, 200, 200, 0.95);
+  border-color: rgba(255, 120, 120, 0.30) !important;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(255, 120, 120, 0.14), rgba(255, 120, 120, 0.08)) !important;
+  color: rgba(255, 220, 220, 0.95) !important;
 }
 
 /* =========================
-   Panels
+   PANELS (super arredondados)
 ========================= */
 .adPanel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  overflow: hidden;
-  margin-top: 12px;
-  box-shadow: var(--shadow-soft);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-xl) !important;
+
+  overflow: hidden !important;
+  margin-top: 12px !important;
+
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .adPanelHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 14px 12px;
-  border-bottom: 1px solid var(--border-2);
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+
+  padding: 16px 16px 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.10) !important;
 }
 
 .adPanelTitle {
-  font-size: 14px;
-  font-weight: 950;
-  letter-spacing: -0.01em;
-  color: var(--text);
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text) !important;
 }
 
 .adPanelSub {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--muted2);
-  line-height: 1.35;
+  margin-top: 6px !important;
+  font-size: 12px !important;
+  color: var(--muted2) !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
 }
 
 .adTag {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border-2);
-  background: var(--panel-2);
-  color: rgba(241,245,249,0.82);
-  font-size: 12px;
-  font-weight: 850;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: var(--pill) !important;
+
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
+
+  color: rgba(255,255,255,0.86) !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08) !important;
 }
 
-.adPanelBody { padding: 12px; }
+.adPanelBody { padding: 14px !important; }
 
 /* =========================
-   Chart boxes (sem branco)
+   CHART BOXES (sem branco, premium)
 ========================= */
 .adChartsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
 }
 
 .adChartBox {
-  background: linear-gradient(180deg, #1a1f26 0%, #161a20 100%);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 12px 12px 14px;
-  min-width: 0;
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 24px !important;
+
+  padding: 14px 14px 16px !important;
+  min-width: 0 !important;
+
+  box-shadow: 0 18px 44px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06) !important;
 }
 
 .adChartHead {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 10px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin-bottom: 10px !important;
 }
 
 .adChartTitle {
-  font-weight: 950;
-  font-size: 13px;
-  letter-spacing: -0.01em;
-  color: rgba(241,245,249,0.92);
+  font-weight: 1000 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,0.92) !important;
 }
 
 .adChartHint {
-  font-size: 12px;
-  color: rgba(241,245,249,0.60);
-  line-height: 1.35;
+  font-size: 12px !important;
+  color: rgba(255,255,255,0.66) !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
 }
 
-.adChartCanvas { width: 100%; }
+.adChartCanvas { width: 100% !important; }
 
 /* =========================
-   Rankings grid
+   RANKINGS GRID
 ========================= */
 .adRankGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
 }
 
 @media (max-width: 980px) {
-  .adRankGrid { grid-template-columns: 1fr; }
+  .adRankGrid { grid-template-columns: 1fr !important; }
 }
 
 /* =========================
-   Scrollbars (X e Y)
+   SCROLLBARS (X e Y) — uniformes
 ========================= */
-.adScrollX {
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
+.adScrollX { overflow-x: auto !important; padding-bottom: 10px !important; }
+.adScrollY { overflow-y: auto !important; }
 
-.adScrollY {
-  overflow-y: auto;
-}
-
-/* Scrollbar horizontal */
-.adScrollX::-webkit-scrollbar { height: 12px; }
+.adScrollX::-webkit-scrollbar { height: 12px !important; }
 .adScrollX::-webkit-scrollbar-track {
-  background: #0f1216;
-  border-radius: 999px;
+  background: rgba(0,0,0,0.22) !important;
+  border-radius: 999px !important;
 }
 .adScrollX::-webkit-scrollbar-thumb {
-  background: #3a4350;
-  border-radius: 999px;
-  border: 3px solid #0f1216;
+  background: rgba(255,255,255,0.16) !important;
+  border-radius: 999px !important;
+  border: 3px solid rgba(0,0,0,0.22) !important;
 }
-.adScrollX::-webkit-scrollbar-thumb:hover { background: #4c5766; }
+.adScrollX::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22) !important; }
 
-/* Scrollbar vertical */
-.adScrollY::-webkit-scrollbar { width: 12px; }
+.adScrollY::-webkit-scrollbar { width: 12px !important; }
 .adScrollY::-webkit-scrollbar-track {
-  background: #0f1216;
-  border-radius: 999px;
+  background: rgba(0,0,0,0.22) !important;
+  border-radius: 999px !important;
 }
 .adScrollY::-webkit-scrollbar-thumb {
-  background: #3a4350;
-  border-radius: 999px;
-  border: 3px solid #0f1216;
+  background: rgba(255,255,255,0.16) !important;
+  border-radius: 999px !important;
+  border: 3px solid rgba(0,0,0,0.22) !important;
 }
-.adScrollY::-webkit-scrollbar-thumb:hover { background: #4c5766; }
+.adScrollY::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22) !important; }
 
 /* =========================
-   Tooltip escuro
+   TOOLTIP (mais premium + pílula)
 ========================= */
 .adTooltip {
-  background: #0f1216;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 10px 10px;
-  color: rgba(241,245,249,0.92);
-  box-shadow: 0 18px 30px rgba(0,0,0,0.40);
-  min-width: 180px;
+  background: linear-gradient(180deg, #141b25 0%, #101621 100%) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 22px !important;
+
+  padding: 12px 12px !important;
+  color: rgba(255,255,255,0.92) !important;
+
+  box-shadow: 0 22px 44px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  min-width: 190px !important;
 }
 
 .adTooltipTitle {
-  font-weight: 950;
-  margin-bottom: 8px;
-  color: rgba(241,245,249,0.95);
+  font-weight: 1000 !important;
+  margin-bottom: 8px !important;
+  color: rgba(255,255,255,0.96) !important;
 }
 
 .adTooltipList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
 }
 
 .adTooltipRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 12px;
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
 }
 
-.adTooltipName { opacity: 0.75; }
-.adTooltipValue { font-weight: 900; }
+.adTooltipName { opacity: 0.74 !important; }
+.adTooltipValue { font-weight: 950 !important; }
 
 /* Mobile */
 @media (max-width: 520px) {
-  .adPanelHeader { flex-direction: column; align-items: flex-start; }
+  .adPanelHeader { flex-direction: column !important; align-items: flex-start !important; }
+}
+
+/* =========================
+   ACESSIBILIDADE
+========================= */
+.adWrap button:focus-visible,
+.adWrap [tabindex]:focus-visible {
+  outline: 2px solid rgba(160, 234, 82, 0.38) !important;
+  outline-offset: 2px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adKpi, .adPanel, .adTag, .adBadge {
+    transition: none !important;
+  }
 }

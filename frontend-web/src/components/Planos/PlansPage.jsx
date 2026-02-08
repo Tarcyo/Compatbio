@@ -1,5 +1,6 @@
 // PlansCreditsPage.jsx
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import "../Pages/Pages.css";
 import "./PlansPage.css";
 
@@ -9,6 +10,17 @@ function IconCheckCircle(props) {
       <path
         fill="currentColor"
         d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm-1.15 14.2-3.5-3.5 1.41-1.41 2.09 2.1 5.32-5.32 1.41 1.41-6.73 6.72Z"
+      />
+    </svg>
+  );
+}
+
+function IconAlertCircle(props) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm0 5.6c.6 0 1 .4 1 1v4.9c0 .6-.4 1-1 1s-1-.4-1-1V8.6c0-.6.4-1 1-1Zm0 9.9a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4Z"
       />
     </svg>
   );
@@ -65,6 +77,125 @@ async function postWithFallback({ baseUrl, attempts }) {
   throw lastErr || new Error("Falha ao chamar endpoint (fallback esgotado).");
 }
 
+/**
+ * ✅ Modal bonito + robusto:
+ * - Portal -> document.body (evita vazamento do sidebar por stacking context)
+ * - z-index alto
+ * - body lock (sem scroll)
+ * - ESC para fechar
+ * - clique fora fecha
+ */
+function ConfirmModal({
+  open,
+  title,
+  subtitle,
+  body,
+  confirmLabel = "Confirmar",
+  cancelLabel = "Voltar",
+  onConfirm,
+  onClose,
+  loading = false,
+  variant = "danger", // "danger" | "default"
+}) {
+  const confirmBtnRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    // trava scroll do body
+    document.body.classList.add("modal-open");
+
+    // foco no botão principal
+    const t = setTimeout(() => confirmBtnRef.current?.focus?.(), 20);
+
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        if (!loading) onClose?.();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(t);
+      document.body.classList.remove("modal-open");
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open, onClose, loading]);
+
+  if (!open) return null;
+
+  const node = (
+    <div
+      className="pcModalOverlay pcModalOverlay--blur"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title || "Confirmação"}
+      onMouseDown={(e) => {
+        // fecha ao clicar fora
+        if (!loading && e.target === e.currentTarget) onClose?.();
+      }}
+    >
+      <div className="pcModalPanel pcModalPanel--anim">
+        <div className="pcModalHeader">
+          <div className="pcModalHeaderLeft">
+            <div className={`pcModalIcon ${variant === "danger" ? "is-danger" : ""}`}>
+              <IconAlertCircle className="pcModalIconSvg" />
+            </div>
+
+            <div>
+              <h4 className="pcModalTitle">{title}</h4>
+              {subtitle ? <p className="pcModalSub">{subtitle}</p> : null}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="pcModalClose"
+            onClick={onClose}
+            disabled={loading}
+            aria-label="Fechar"
+            title={loading ? "Aguarde..." : "Fechar"}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="pcModalBody">
+          {typeof body === "string" ? <p className="pcModalText">{body}</p> : body}
+          <div className="pcModalTip">
+            <strong>Dica:</strong> o cancelamento será agendado para o fim do período atual.
+          </div>
+        </div>
+
+        <div className="pcModalFooter">
+          <button
+            type="button"
+            className="pcBtnGhost"
+            onClick={onClose}
+            disabled={loading}
+            title={loading ? "Aguarde..." : "Voltar"}
+          >
+            {cancelLabel}
+          </button>
+
+          <button
+            ref={confirmBtnRef}
+            type="button"
+            className={`pcBtnPrimary ${variant === "danger" ? "pcBtnDanger" : ""}`}
+            onClick={onConfirm}
+            disabled={loading}
+            title={loading ? "Processando..." : "Confirmar"}
+          >
+            {loading ? "Cancelando..." : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return createPortal(node, document.body);
+}
+
 function PlanCard({
   title,
   price,
@@ -119,7 +250,7 @@ function PlanCard({
         className={`planBtn ${variant === "green" ? "is-green" : "is-blue"}`}
         onClick={onCta}
         disabled={!!disabled}
-        title={disabled ? "Este plano já está selecionado ou ação indisponível." : ""}
+        title={disabled ? "Ação indisponível." : ""}
       >
         {ctaLabel}
       </button>
@@ -154,11 +285,7 @@ function TabBar({ value, onChange, items }) {
 }
 
 export default function PlansCreditsPage() {
-  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
-    .toString()
-    .replace(/\/+$/, "");
-
-  const plansSectionRef = useRef(null);
+  const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000").toString().replace(/\/+$/, "");
 
   // plano atual do usuário
   const [assinaturaData, setAssinaturaData] = useState(null);
@@ -191,10 +318,18 @@ export default function PlansCreditsPage() {
   const [subErr, setSubErr] = useState("");
   const [subCheckoutUrl, setSubCheckoutUrl] = useState("");
 
-  // cancelamento assinatura
+  // cancelamento assinatura (admin)
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelErr, setCancelErr] = useState("");
   const [cancelMsg, setCancelMsg] = useState("");
+
+  // ✅ modal de confirmação de cancelamento
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+
+  // sair da assinatura (membro)
+  const [leaveLoading, setLeaveLoading] = useState(false);
+  const [leaveErr, setLeaveErr] = useState("");
+  const [leaveMsg, setLeaveMsg] = useState("");
 
   const reloadPlanoAtual = useCallback(async () => {
     setLoadingPlano(true);
@@ -302,13 +437,20 @@ export default function PlansCreditsPage() {
     };
   }, [reloadPlanoAtual, reloadPlanos]);
 
+  const hasSubscription = !!assinaturaData?.assinatura;
+
+  const isAdminOfSubscription = useMemo(() => {
+    const clienteId = Number(assinaturaData?.cliente?.ID || 0);
+    const adminId = Number(assinaturaData?.assinatura?.ID_CLIENTE_ADMIN_DA_ASSINATURA || 0);
+    return clienteId > 0 && adminId > 0 && clienteId === adminId;
+  }, [assinaturaData]);
+
   // seu plano atual
   const currentPlan = useMemo(() => {
     const assinatura = assinaturaData?.assinatura || null;
     const plano = assinaturaData?.plano || null;
 
-    const assinaturaId =
-      assinatura?.ID ?? assinatura?.id ?? assinatura?.Id ?? assinatura?.ASSINATURA_ID ?? null;
+    const assinaturaId = assinatura?.ID ?? null;
 
     if (!plano || !assinatura) {
       return {
@@ -332,11 +474,14 @@ export default function PlansCreditsPage() {
       ? assinaturaData.clientesVinculados.length
       : 0;
 
+    const donoNome = assinaturaData?.dono?.NOME || assinaturaData?.dono?.EMAIL || "—";
+
     const features = [
       `Status: ${status}`,
-      `Créditos/mês: ${quantMensal ?? "—"}`,
+      `Créditos/mês (admin): ${quantMensal ?? "—"}`,
       `Valor/mês: ${valorMensal == null ? "—" : moneyBR(valorMensal)}`,
       `Usuários na assinatura: ${totalUsuarios}`,
+      `Administrador: ${donoNome}`,
     ];
 
     return {
@@ -349,6 +494,12 @@ export default function PlansCreditsPage() {
       badge: String(status || "").toUpperCase() === "ATIVA" ? "Seu Plano Ativo" : `Status: ${status}`,
     };
   }, [assinaturaData]);
+
+  const statusUpper = String(currentPlan?.status || "").toUpperCase();
+  const hasActiveOrPendingSubscription = hasSubscription && statusUpper !== "CANCELADA";
+
+  const showCancelBtn = hasSubscription && isAdminOfSubscription && statusUpper !== "CANCELADA";
+  const showLeaveBtn = hasSubscription && !isAdminOfSubscription && statusUpper !== "CANCELADA";
 
   // PF/PJ por "enterprise" no nome
   const { pfPlans, pjPlans } = useMemo(() => {
@@ -366,29 +517,35 @@ export default function PlansCreditsPage() {
       const valor = p?.VALOR_MENSAL;
       const price = valor == null ? "—" : moneyBR(valor);
 
-      const features = [
-        `Créditos/mês: ${credito}`,
-        `Valor/mês: ${valor == null ? "—" : moneyBR(valor)}`,
-      ];
+      const features = [`Créditos/mês: ${credito}`, `Valor/mês: ${valor == null ? "—" : moneyBR(valor)}`];
 
       const isEnterprise = typeof nome === "string" && nome.toLowerCase().includes("enterprise");
 
       const id = String(p?.ID);
       const isCurrent = currentPlan?.planId && id === currentPlan.planId;
 
+      // ✅ Se já tem assinatura ativa/pendente, não permite iniciar outra por essa tela
+      const disabledBySub = hasActiveOrPendingSubscription;
+
       return {
         id,
         title: nome,
         price,
         features,
-        cta: isCurrent ? "Plano Atual" : "Escolher Plano",
+        cta: disabledBySub ? "Indisponível" : isCurrent ? "Plano Atual" : "Escolher Plano",
         variant: isEnterprise ? "green" : "blue",
         badge: isEnterprise ? "Para Empresas" : undefined,
-        disabled: isCurrent || subLoading || cancelLoading,
-        hint: isCurrent ? "Você já está neste plano." : "",
+        disabled: disabledBySub || isCurrent || subLoading || cancelLoading || leaveLoading,
+        hint: disabledBySub
+          ? isAdminOfSubscription
+            ? "Você já possui assinatura. Para mudar, cancele e assine novamente."
+            : "Somente o administrador pode gerenciar a assinatura."
+          : isCurrent
+          ? "Você já está neste plano."
+          : "",
       };
     },
-    [currentPlan?.planId, subLoading, cancelLoading]
+    [currentPlan?.planId, subLoading, cancelLoading, leaveLoading, hasActiveOrPendingSubscription, isAdminOfSubscription]
   );
 
   const shownPlans = useMemo(() => {
@@ -396,20 +553,20 @@ export default function PlansCreditsPage() {
     return list.map(mapPlanoToCard);
   }, [tab, pfPlans, pjPlans, mapPlanoToCard]);
 
-  const scrollToPlans = useCallback(() => {
-    const el = plansSectionRef.current;
-    if (el && typeof el.scrollIntoView === "function") {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
-  // assinar plano
+  // assinar plano (somente quando não há assinatura ativa/pendente)
   const handleChoose = useCallback(
     async (planoId) => {
       setSubErr("");
       setSubCheckoutUrl("");
       setCancelErr("");
       setCancelMsg("");
+      setLeaveErr("");
+      setLeaveMsg("");
+
+      if (hasActiveOrPendingSubscription) {
+        setSubErr("Você já possui uma assinatura em andamento/ativa. Finalize ou cancele antes de iniciar outra.");
+        return;
+      }
 
       const pid = Number(planoId);
       if (!Number.isFinite(pid) || pid <= 0) {
@@ -442,28 +599,28 @@ export default function PlansCreditsPage() {
         setSubLoading(false);
       }
     },
-    [API_BASE]
+    [API_BASE, hasActiveOrPendingSubscription]
   );
 
-  // cancelar assinatura
-  const handleCancelSubscription = useCallback(async () => {
+  // ✅ executa o cancelamento (chamado pelo modal)
+  const doCancelSubscription = useCallback(async () => {
     setCancelErr("");
     setCancelMsg("");
     setSubErr("");
     setSubCheckoutUrl("");
-
-    const assinaturaId = currentPlan?.assinaturaId ? Number(currentPlan.assinaturaId) : null;
+    setLeaveErr("");
+    setLeaveMsg("");
 
     if (!assinaturaData?.assinatura) {
       setCancelErr("Nenhuma assinatura encontrada para cancelar.");
+      setCancelModalOpen(false);
       return;
     }
-
-    const ok = window.confirm(
-      "Tem certeza que deseja cancelar sua assinatura?\n\n" +
-        "Se você confirmar, o cancelamento será solicitado (normalmente para o fim do período atual)."
-    );
-    if (!ok) return;
+    if (!isAdminOfSubscription) {
+      setCancelErr("Apenas o administrador da assinatura pode cancelar.");
+      setCancelModalOpen(false);
+      return;
+    }
 
     try {
       setCancelLoading(true);
@@ -473,6 +630,7 @@ export default function PlansCreditsPage() {
         { path: "/api/assinatura/cancelar", body: { atPeriodEnd: true } },
       ];
 
+      const assinaturaId = currentPlan?.assinaturaId ? Number(currentPlan.assinaturaId) : null;
       if (assinaturaId && Number.isFinite(assinaturaId) && assinaturaId > 0) {
         attempts.push(
           { path: "/api/assinaturas/cancelar", body: { assinaturaId, atPeriodEnd: true } },
@@ -485,9 +643,9 @@ export default function PlansCreditsPage() {
       const { data } = await postWithFallback({ baseUrl: API_BASE, attempts });
 
       const cancelAtPeriodEnd = !!data?.cancelAtPeriodEnd;
-      setCancelMsg(
-        cancelAtPeriodEnd ? "Cancelamento agendado para o fim do período atual." : "Cancelamento solicitado."
-      );
+      setCancelMsg(cancelAtPeriodEnd ? "Cancelamento agendado para o fim do período atual." : "Cancelamento solicitado.");
+
+      setCancelModalOpen(false);
 
       await reloadPlanoAtual();
       await reloadPlanos();
@@ -496,7 +654,71 @@ export default function PlansCreditsPage() {
     } finally {
       setCancelLoading(false);
     }
-  }, [API_BASE, assinaturaData, currentPlan?.assinaturaId, reloadPlanoAtual, reloadPlanos]);
+  }, [API_BASE, assinaturaData, currentPlan?.assinaturaId, reloadPlanoAtual, reloadPlanos, isAdminOfSubscription]);
+
+  // ✅ abre o modal (em vez de window.confirm)
+  const handleCancelSubscription = useCallback(() => {
+    setCancelErr("");
+    setCancelMsg("");
+    setSubErr("");
+    setSubCheckoutUrl("");
+    setLeaveErr("");
+    setLeaveMsg("");
+
+    if (!assinaturaData?.assinatura) {
+      setCancelErr("Nenhuma assinatura encontrada para cancelar.");
+      return;
+    }
+    if (!isAdminOfSubscription) {
+      setCancelErr("Apenas o administrador da assinatura pode cancelar.");
+      return;
+    }
+
+    setCancelModalOpen(true);
+  }, [assinaturaData, isAdminOfSubscription]);
+
+  // sair da assinatura (SÓ MEMBRO NÃO-ADMIN)
+  const handleLeaveSubscription = useCallback(async () => {
+    setLeaveErr("");
+    setLeaveMsg("");
+    setCancelErr("");
+    setCancelMsg("");
+    setSubErr("");
+    setSubCheckoutUrl("");
+
+    if (!assinaturaData?.assinatura) {
+      setLeaveErr("Nenhuma assinatura encontrada.");
+      return;
+    }
+    if (isAdminOfSubscription) {
+      setLeaveErr("O administrador não pode sair. Para encerrar, cancele a assinatura.");
+      return;
+    }
+
+    const ok = window.confirm("Deseja sair da assinatura? Você perderá o acesso ao plano compartilhado.");
+    if (!ok) return;
+
+    try {
+      setLeaveLoading(true);
+
+      const { data } = await postWithFallback({
+        baseUrl: API_BASE,
+        attempts: [
+          { path: "/api/assinatura/sair", body: {} },
+          { path: "/api/assinatura/sair-da-assinatura", body: {} },
+          { path: "/api/assinatura/leave", body: {} },
+        ],
+      });
+
+      setLeaveMsg(String(data?.message || "Você saiu da assinatura."));
+      await reloadPlanoAtual();
+      await reloadPlanos();
+    } catch (e) {
+      setLeaveErr(e?.message || "Erro ao sair da assinatura.");
+    } finally {
+      setLeaveLoading(false);
+    }
+  }, [API_BASE, assinaturaData, reloadPlanoAtual, reloadPlanos, isAdminOfSubscription]);
 
   // compra de créditos avulsos
   const handleBuyCredits = useCallback(async () => {
@@ -547,13 +769,43 @@ export default function PlansCreditsPage() {
     return `${moneyBR(pricePerCredit)} por crédito`;
   }, [loadingPrice, errPrice, pricePerCredit]);
 
-  const hasSubscription = !!assinaturaData?.assinatura;
-  const statusUpper = String(currentPlan?.status || "").toUpperCase();
-  const showCancelBtn = hasSubscription && statusUpper !== "CANCELADA";
+  const modalCancelTitle = useMemo(() => {
+    const name = currentPlan?.name && currentPlan.name !== "—" ? currentPlan.name : "sua assinatura";
+    return `Cancelar ${name}?`;
+  }, [currentPlan?.name]);
 
   return (
     <div className="pg-wrap plansPage">
-      {/* ✅ removido: <div className="plansBg" /> */}
+      {/* ✅ Modal confirmando cancelamento */}
+      <ConfirmModal
+        open={cancelModalOpen}
+        title={modalCancelTitle}
+        subtitle="Confirmação de cancelamento"
+        loading={cancelLoading}
+        confirmLabel="Sim, cancelar"
+        cancelLabel="Não, voltar"
+        variant="danger"
+        onClose={() => setCancelModalOpen(false)}
+        onConfirm={doCancelSubscription}
+        body={
+          <div>
+            <p className="pcModalText" style={{ marginBottom: 10 }}>
+              Você está prestes a cancelar a assinatura compartilhada.
+            </p>
+
+            <div className="pcModalBullets">
+              <div className="pcModalBullet">
+                <IconCheckCircle className="pcModalBulletIco" />
+                <span>O acesso continua até o fim do período atual.</span>
+              </div>
+              <div className="pcModalBullet">
+                <IconCheckCircle className="pcModalBulletIco" />
+                <span>Os usuários vinculados podem perder o acesso depois disso.</span>
+              </div>
+            </div>
+          </div>
+        }
+      />
 
       <section className="plansCard">
         <header className="plansCardHeader">
@@ -601,29 +853,42 @@ export default function PlansCreditsPage() {
                     {cancelErr}
                   </p>
                 ) : null}
+
+                {leaveMsg ? (
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(190,255,140,0.98)" }}>
+                    {leaveMsg}
+                  </p>
+                ) : null}
+                {leaveErr ? (
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
+                    {leaveErr}
+                  </p>
+                ) : null}
               </div>
 
               <div className="currentPlanRight" style={{ gap: 10, display: "flex", flexWrap: "wrap" }}>
-                <button
-                  type="button"
-                  className="chooseBtn is-blue"
-                  onClick={scrollToPlans}
-                  disabled={subLoading || cancelLoading}
-                  title="Ver planos disponíveis"
-                >
-                  {subLoading ? "Aguarde..." : "Escolher / Trocar Plano"}
-                </button>
-
                 {showCancelBtn ? (
                   <button
                     type="button"
-                    className="chooseBtn is-blue"
+                    className="chooseBtn is-danger"
                     onClick={handleCancelSubscription}
-                    disabled={cancelLoading || subLoading}
+                    disabled={cancelLoading || subLoading || leaveLoading}
                     title={cancelLoading ? "Cancelando..." : "Cancelar assinatura"}
-                    style={{ filter: "brightness(0.95)" }}
                   >
                     {cancelLoading ? "Cancelando..." : "Cancelar Assinatura"}
+                  </button>
+                ) : null}
+
+                {showLeaveBtn ? (
+                  <button
+                    type="button"
+                    className="chooseBtn is-blue"
+                    onClick={handleLeaveSubscription}
+                    disabled={leaveLoading || subLoading || cancelLoading}
+                    title={leaveLoading ? "Saindo..." : "Sair da assinatura"}
+                    style={{ filter: "brightness(0.95)" }}
+                  >
+                    {leaveLoading ? "Saindo..." : "Sair da assinatura"}
                   </button>
                 ) : null}
               </div>
@@ -632,9 +897,7 @@ export default function PlansCreditsPage() {
 
           <div className="plansDivider" />
 
-          <h3 className="plansSectionTitle" ref={plansSectionRef}>
-            Planos do Sistema
-          </h3>
+          <h3 className="plansSectionTitle">Planos do Sistema</h3>
 
           <TabBar
             value={tab}
@@ -677,12 +940,7 @@ export default function PlansCreditsPage() {
               Nenhum plano encontrado para esta categoria.
             </p>
           ) : (
-            <div
-              id={`plans-panel-${tab}`}
-              role="tabpanel"
-              aria-labelledby={`plans-tab-${tab}`}
-              className="plansScrollArea"
-            >
+            <div id={`plans-panel-${tab}`} role="tabpanel" aria-labelledby={`plans-tab-${tab}`} className="plansScrollArea">
               <div className="plansGrid">
                 {shownPlans.map((p) => (
                   <PlanCard
@@ -722,7 +980,7 @@ export default function PlansCreditsPage() {
               type="button"
               className="buyBtn is-green"
               onClick={handleBuyCredits}
-              disabled={buyLoading || loadingPrice || !!errPrice || !pricePerCredit || subLoading || cancelLoading}
+              disabled={buyLoading || loadingPrice || !!errPrice || !pricePerCredit || subLoading || cancelLoading || leaveLoading}
               title={buyLoading ? "Abrindo checkout..." : loadingPrice ? "Carregando preço..." : errPrice ? errPrice : ""}
             >
               <IconCheckCircle className="buyBtnIco" />

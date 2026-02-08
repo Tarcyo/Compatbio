@@ -1,8 +1,14 @@
 /* =========================
-   AdminEmpresasPage.css
-   "Glass premium" elegante
+   AdminEmpresasPage.css (COMPLETO) — SOLID (Plans palette) + PÍLULAS + CONTRASTE
+   ✅ Remove glassmorphism (sem blur, sem alpha feio)
+   ✅ Mesma cor em: card principal + cards da grid + modal
+   ✅ Contraste forte / premium
+   ✅ Tudo mais arredondado/pílula
 ========================= */
 
+/* =========================
+   BASE / LAYOUT
+========================= */
 .analysisPage{
   width: 100%;
   display: grid;
@@ -11,48 +17,69 @@
   padding: 0;
 }
 
-/* Card base (mesma vibe do admin/produtos) */
+/* =========================
+   CARD PRINCIPAL (SÓLIDO + CONTRASTE)
+========================= */
 .aeCard{
-  --surface-0: rgba(22, 30, 40, 0.72);
-  --surface-1: rgba(22, 30, 40, 0.72);
+  /* ✅ tokens (Plans) */
+  --accent: rgba(160,234,82,1);
 
-  --border-0: rgba(255,255,255,0.16);
+  --bg-0: #2a3443;
+  --bg-1: #222b38;
+
+  --panel: #39465b;
+  --panel2: #334156;
+
+  --tile: #344256;
+  --tile2: #2f3c50;
+
+  --btn-0: #3b4961;
+  --btn-1: #313e54;
+
+  --stroke-0: rgba(255,255,255,0.14);
+  --stroke-1: rgba(255,255,255,0.18);
+
   --text-0: rgba(255,255,255,0.96);
-  --text-1: rgba(255,255,255,0.78);
+  --text-1: rgba(255,255,255,0.84);
+  --text-2: rgba(255,255,255,0.68);
 
-  --shadow-lg: 0 34px 90px rgba(0,0,0,0.42);
+  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
+  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
+
+  --r-xl: 28px;
+  --r-lg: 22px;
+  --r-md: 18px;
+  --r-pill: 9999px;
 
   width: min(1100px, 100%);
   min-height: 660px;
 
   padding: 40px 44px 38px;
-  border-radius: 16px;
+  border-radius: var(--r-xl);
 
-  background: linear-gradient(180deg, var(--surface-0) 0%, var(--surface-1) 100%);
-  border: 1px solid var(--border-0);
+  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--stroke-0);
 
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.10);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.08);
 
   color: var(--text-0);
   position: relative;
   overflow: hidden;
 }
 
+/* brilho sutil (SÓ dentro do card) */
 .aeCard::before{
   content:"";
   position:absolute; inset:-2px;
   pointer-events:none;
   border-radius:inherit;
-  background: radial-gradient(
-    820px 300px at 22% 18%,
-    rgba(255,255,255,0.13) 0%,
-    rgba(255,255,255,0.06) 26%,
-    rgba(255,255,255,0.00) 56%
-  );
-  opacity: .85;
+  background:
+    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
+    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%);
+  opacity: .88;
 }
 .aeCard::after{
   content:"";
@@ -61,15 +88,17 @@
   border-radius:inherit;
   background: linear-gradient(
     120deg,
-    rgba(255,255,255,0.06) 0%,
+    rgba(255,255,255,0.05) 0%,
     rgba(255,255,255,0.00) 44%,
-    rgba(255,255,255,0.04) 100%
+    rgba(255,255,255,0.03) 100%
   );
-  opacity: .5;
+  opacity: .50;
 }
 .aeCard > *{ position:relative; z-index:1; }
 
-/* Header */
+/* =========================
+   HEADER
+========================= */
 .aeHeader{
   display:flex;
   align-items:flex-start;
@@ -78,6 +107,8 @@
   margin:0 0 18px;
   padding-bottom:14px;
   border-bottom:1px solid rgba(255,255,255,0.12);
+
+  flex-wrap: wrap; /* robusto */
 }
 .aeTitle{
   margin:0;
@@ -88,34 +119,46 @@
 }
 .aeSubtitle{
   margin:10px 0 0;
-  color: rgba(255,255,255,0.74);
+  color: var(--text-2);
   font-weight: 760;
   line-height: 1.35;
   max-width: 560px;
 }
 
-/* Add button */
+/* =========================
+   ADD BUTTON — PÍLULA
+========================= */
 .aeAddBtn{
   height: 52px;
-  padding: 0 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.22);
-  background: linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%);
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+
+  border: 1px solid rgba(255,255,255,0.18);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%);
+
   color: rgba(255,255,255,0.98);
   font-weight: 1000;
   letter-spacing: .2px;
+
   cursor:pointer;
   display:flex;
   align-items:center;
   gap:10px;
+
   box-shadow: 0 14px 30px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18);
   white-space: nowrap;
+
+  transition: transform 180ms ease, filter 180ms ease;
 }
 .aeAddBtn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
 .aeAddBtn:active{ transform: translateY(0); }
 .aeAddIcon{ width:18px; height:18px; }
 
-/* Toolbar */
+/* =========================
+   TOOLBAR
+========================= */
 .aeToolbar{
   display:flex;
   align-items:center;
@@ -125,44 +168,54 @@
   flex-wrap: wrap;
 }
 
+/* search pill sólido */
 .aeSearch{
   flex: 1;
   min-width: min(520px, 100%);
   height: 52px;
-  border-radius: 14px;
+  border-radius: var(--r-pill);
+
   display:grid;
   grid-template-columns: 52px 1fr;
   align-items:center;
 
-  background: rgba(0,0,0,0.18);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
   border: 1px solid rgba(255,255,255,0.16);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.16);
-  transition: border-color 160ms ease, background 160ms ease;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 14px 34px rgba(0,0,0,0.16);
+
+  transition: border-color 160ms ease, filter 160ms ease, transform 160ms ease;
 }
 .aeSearch:hover{
   border-color: rgba(255,255,255,0.20);
-  background: rgba(0,0,0,0.22);
+  filter: brightness(1.03);
+  transform: translateY(-1px);
 }
 .aeSearch:focus-within{
-  border-color: rgba(180,255,120,0.42);
+  border-color: rgba(160,234,82,0.30);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.07),
-    0 0 0 4px rgba(180,255,120,0.12),
-    0 14px 34px rgba(0,0,0,0.18);
+    0 0 0 4px rgba(160,234,82,0.10),
+    0 18px 48px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+  transform: translateY(-1px);
 }
+
 .aeSearchIcon{
   display:grid;
   place-items:center;
   color: rgba(255,255,255,0.82);
 }
 .aeSearchIcon svg{ width:20px; height:20px; opacity:.95; }
+
 .aeSearchInput{
   height:100%;
   width:100%;
   border:0;
   outline:none;
   background: transparent;
-  padding: 0 14px 0 0;
+  padding: 0 16px 0 0;
   color: rgba(255,255,255,0.95);
   font-size: 16px;
   font-weight: 850;
@@ -172,6 +225,7 @@
   font-weight: 700;
 }
 
+/* stats sólidos (mesma paleta do card) */
 .aeStats{
   display:flex;
   align-items:center;
@@ -180,11 +234,14 @@
 .aeStat{
   display:grid;
   gap:4px;
+
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: 18px;
+
   border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.16);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.14);
+
   min-width: 140px;
 }
 .aeStat strong{
@@ -199,7 +256,9 @@
   text-transform: uppercase;
 }
 
-/* Body */
+/* =========================
+   BODY / STATES
+========================= */
 .aeBody{ margin-top: 10px; }
 .aeState{
   padding: 18px 14px;
@@ -208,7 +267,9 @@
 }
 .aeState.is-error{ color: rgba(255,120,120,0.95); }
 
-/* Grid */
+/* =========================
+   GRID
+========================= */
 .aeGrid{
   list-style:none;
   margin:0;
@@ -218,29 +279,49 @@
   gap: 14px;
 }
 
-/* Card item */
+/* =========================
+   ITEM CARD — SÓLIDO + PREMIUM
+========================= */
 .aeItem{
-  border-radius: 16px;
-  background: rgba(0,0,0,0.20);
+  border-radius: var(--r-lg);
+
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%);
   border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 14px 34px rgba(0,0,0,0.18);
+
   padding: 16px;
+
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease;
 }
+.aeItem:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  border-color: rgba(255,255,255,0.18);
+}
+
 .aeItemTop{
   display:flex;
   align-items:flex-start;
   gap: 14px;
 }
 
-/* Logo */
+/* =========================
+   LOGO — arredondado/premium
+========================= */
 .aeLogo{
   width: 58px;
   height: 58px;
-  border-radius: 16px;
+  border-radius: 18px;
+
   border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.18);
+
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   overflow:hidden;
+
   flex: 0 0 auto;
   display:grid;
   place-items:center;
@@ -258,7 +339,9 @@
   text-shadow: 0 10px 22px rgba(0,0,0,0.35);
 }
 
-/* Main text */
+/* =========================
+   TEXT
+========================= */
 .aeItemMain{
   flex:1;
   min-width: 0;
@@ -275,34 +358,34 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* pills (mais “capsule”) */
 .aePill{
   display:inline-flex;
   align-items:center;
   gap: 8px;
-  padding: 6px 10px;
+
+  padding: 7px 12px;
   border-radius: 999px;
+
   border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.88);
+  background: rgba(0,0,0,0.16);
+
+  color: rgba(255,255,255,0.90);
   font-size: 12px;
   font-weight: 950;
   letter-spacing: .06em;
 }
+
 .aePill.is-green{
   border-color: rgba(160,234,82,0.30);
-  background: rgba(160,234,82,0.10);
+  background: rgba(160,234,82,0.12);
   color: rgba(190,255,140,0.98);
 }
-.aePillK{
-  opacity: .82;
-  text-transform: uppercase;
-}
-.aePillV{
-  letter-spacing: 0;
-  text-transform: none;
-}
+.aePillK{ opacity: .82; text-transform: uppercase; }
+.aePillV{ letter-spacing: 0; text-transform: none; }
 
-/* Link/hint */
+/* link/hint */
 .aeItemLink{
   margin-top: 10px;
   display:flex;
@@ -331,37 +414,52 @@
   font-size: 13px;
 }
 
-/* Actions */
+/* =========================
+   ACTIONS — pílula
+========================= */
 .aeItemActions{
   display:flex;
   gap: 10px;
   align-items:flex-start;
   flex: 0 0 auto;
 }
+
 .aeIconBtn{
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
+  width: 42px;
+  height: 42px;
+
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%);
+
   cursor:pointer;
   display:grid;
   place-items:center;
+
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: filter 160ms ease, transform 160ms ease;
 }
-.aeIconBtn:hover{ filter: brightness(1.06); }
+.aeIconBtn:hover{ filter: brightness(1.06); transform: translateY(-1px); }
+.aeIconBtn:active{ transform: translateY(0); }
+
 .aeIconBtn.is-danger{
-  border-color: rgba(255,120,120,0.22);
-  background: rgba(255,120,120,0.08);
+  border-color: rgba(255,120,120,0.26);
+  background: rgba(255,120,120,0.12);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06);
 }
+
 .aeIcon{
   width: 18px;
   height: 18px;
-  color: rgba(255,255,255,0.88);
+  color: rgba(255,255,255,0.90);
 }
 
-/* Form */
+/* =========================
+   FORM
+========================= */
 .aeForm{ display:grid; gap: 14px; }
 .aeRow{ display:grid; gap: 8px; }
+
 .aeLabel{
   color: rgba(255,255,255,0.82);
   font-weight: 950;
@@ -369,21 +467,32 @@
   letter-spacing: 0.10em;
   text-transform: uppercase;
 }
+
+/* input sólido + pílula */
 .aeInput{
   width:100%;
-  height: 50px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.08);
+  height: 52px;
+  border-radius: 9999px;
+
+  border: 1px solid rgba(255,255,255,0.16);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+
   color: rgba(255,255,255,0.94);
-  padding: 0 12px;
+  padding: 0 16px;
+
   outline:none;
   font-weight: 820;
+
+  box-shadow: 0 16px 38px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .aeInput:focus{
-  border-color: rgba(180,255,120,0.52);
-  box-shadow: 0 0 0 4px rgba(180,255,120,0.14);
+  border-color: rgba(160,234,82,0.30);
+  box-shadow:
+    0 0 0 4px rgba(160,234,82,0.10),
+    0 18px 48px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.10);
 }
+
 .aeHelp{
   color: rgba(255,255,255,0.68);
   font-weight: 780;
@@ -398,7 +507,9 @@
   gap: 12px;
 }
 
-/* Preview */
+/* =========================
+   PREVIEW
+========================= */
 .aePreview{
   margin-top: 4px;
   border-top: 1px solid rgba(255,255,255,0.10);
@@ -412,15 +523,18 @@
   color: rgba(255,255,255,0.74);
   margin-bottom: 10px;
 }
+
 .aePreviewCard{
   display:flex;
   align-items:center;
   gap: 12px;
+
   padding: 12px;
-  border-radius: 14px;
+  border-radius: 18px;
+
   border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.14);
 }
 .aePreviewInfo{ display:grid; gap: 4px; min-width:0; }
 .aePreviewName{
@@ -432,7 +546,9 @@
   color: rgba(255,255,255,0.74);
 }
 
-/* Delete modal text */
+/* =========================
+   DELETE MODAL TEXT
+========================= */
 .aeDeleteBox{ display:grid; gap: 10px; }
 .aeDeleteText{
   margin:0;
@@ -448,74 +564,115 @@
 }
 .aeDangerBtn{
   background: linear-gradient(180deg, rgba(255,120,120,0.96) 0%, rgba(190,40,40,0.92) 100%) !important;
+  border-color: rgba(255,120,120,0.26) !important;
 }
 
-/* Modal (reusável) */
+/* =========================
+   MODAL (reusável) — MESMA COR DO CARD + SEM GLASS
+========================= */
 .cbModalOverlay{
   position: fixed; inset: 0; z-index: 9999;
   display: grid; place-items: center;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.70);
   padding: 18px;
+
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
+
 .cbModalPanel{
   width: min(640px, 100%);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(22,30,40,0.88) 0%, rgba(18,24,34,0.86) 100%);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 34px 90px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08);
+  border-radius: 26px;
+
+  /* ✅ mesma paleta do card */
+  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+  border: 1px solid var(--stroke-0);
+
+  box-shadow: 0 34px 90px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08);
   overflow: hidden;
+
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
+
 .cbModalHeader{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   padding: 16px 18px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
 }
+
 .cbModalTitle{
   margin:0;
   color: rgba(255,255,255,0.95);
   font-size: 18px;
   font-weight: 950;
 }
+
+/* close — pílula */
 .cbModalClose{
-  width: 38px; height: 38px; border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
+  width: 42px; height: 42px;
+  border-radius: 9999px;
+
+  border: 1px solid rgba(255,255,255,0.16);
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%);
   color: rgba(255,255,255,0.90);
+
   font-size: 22px;
   font-weight: 900;
   cursor:pointer;
+
   display:grid; place-items:center;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+
+  transition: transform 160ms ease, filter 160ms ease;
 }
-.cbModalClose:disabled{ opacity: .6; cursor:not-allowed; }
+.cbModalClose:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+.cbModalClose:disabled{ opacity: .6; cursor:not-allowed; transform:none; filter:none; }
+
 .cbModalBody{ padding: 18px 18px 6px; }
+
 .cbModalFooter{
   display:flex; justify-content:flex-end; gap:10px;
   padding: 14px 18px 18px;
-  border-top: 1px solid rgba(255,255,255,0.10);
+  border-top: 1px solid rgba(255,255,255,0.12);
 }
 
+/* botões — pílula */
 .cbBtnPrimary, .cbBtnGhost{
-  height: 44px; padding: 0 16px; border-radius: 12px;
+  height: 46px; padding: 0 18px;
+  border-radius: 9999px;
   font-weight: 950; cursor: pointer; user-select:none;
-  border: 1px solid rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.16);
+  transition: transform 160ms ease, filter 160ms ease;
 }
+
 .cbBtnPrimary{
-  border: 1px solid rgba(255,255,255,0.22);
-  background: linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%);
+  border: 1px solid rgba(255,255,255,0.18);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%);
   color: rgba(255,255,255,0.98);
   box-shadow: 0 14px 30px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18);
 }
+
 .cbBtnGhost{
-  background: rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%);
   color: rgba(255,255,255,0.92);
-}
-.cbBtnPrimary:disabled, .cbBtnGhost:disabled{
-  opacity: .6; cursor:not-allowed;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
-/* Responsivo */
+.cbBtnPrimary:hover, .cbBtnGhost:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.cbBtnPrimary:disabled, .cbBtnGhost:disabled{
+  opacity: .6; cursor:not-allowed; transform:none; filter:none;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
 @media (max-width: 980px){
   .aeCard{ padding: 30px; width: min(980px, 100%); }
   .aeGrid{ grid-template-columns: 1fr; }

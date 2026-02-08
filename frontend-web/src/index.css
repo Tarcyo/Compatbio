@@ -1,4 +1,4 @@
-/* GlobalFontStrict.css — usa APENAS a fonte do arquivo, sem fallback */
+/* GlobalFontStrict.css — força a fonte em TUDO, sobrescrevendo qualquer regra */
 
 /* 1) Carrega a fonte (TTF) */
 @font-face {
@@ -7,15 +7,11 @@
   font-weight: 100 900;
   font-style: normal;
 
-  /* ✅ Para “garantir” que não apareça fallback:
-     - block: texto fica invisível até a fonte carregar (evita trocar pra outra fonte)
-     - swap: pode mostrar fallback antes (você NÃO quer isso)
-  */
+  /* evita fallback piscando (texto fica invisível até carregar) */
   font-display: block;
 }
 
-/* (Opcional) Se você tiver um arquivo itálico separado, ative também.
-   Isso evita itálico “falso”. */
+/* (Opcional) itálico real (se existir arquivo) */
 /*
 @font-face {
   font-family: "MinhaFonte";
@@ -26,34 +22,42 @@
 }
 */
 
-/* 2) Define que o site inteiro usa somente essa fonte */
 :root {
   --app-font: "MinhaFonte";
 }
 
-/* 3) Aplica no documento inteiro */
+/* 2) Base do documento */
 html,
 body {
   height: 100%;
   margin: 0;
 
   font-family: var(--app-font) !important;
-
-  /* ✅ impede o browser de “inventar” bold/italic (não usa outra fonte,
-     mas evita síntese visual). Se sua fonte NÃO tiver bold/italic reais,
-     o texto vai ficar sempre “normal”. */
-  font-synthesis: none;
+  font-synthesis: none !important;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* 4) Força em absolutamente tudo */
+/* 3) Força fonte em tudo (inclusive pseudo) */
 *,
 *::before,
 *::after {
   font-family: var(--app-font) !important;
-  font-synthesis: none;
+  font-synthesis: none !important;
 }
 
-/* 5) Form controls (garantia extra) */
+/* 4) Casos que normalmente escapam (monospace etc.) */
+pre,
+code,
+kbd,
+samp,
+tt {
+  font-family: var(--app-font) !important;
+  font-synthesis: none !important;
+}
+
+/* 5) Form controls (browser adora setar fonte própria) */
 button,
 input,
 textarea,
@@ -61,15 +65,32 @@ select,
 option,
 label {
   font-family: var(--app-font) !important;
-  font-synthesis: none;
+  font-synthesis: none !important;
 }
 
+/* 6) Placeholder */
 ::placeholder {
   font-family: var(--app-font) !important;
-  font-synthesis: none;
+  font-synthesis: none !important;
 }
 
-svg text {
+/* 7) Texto dentro de SVG */
+svg text,
+text {
   font-family: var(--app-font) !important;
-  font-synthesis: none;
+  font-synthesis: none !important;
+}
+
+/* 8) ULTRA: neutraliza shorthand "font:" de libs/componentes
+   (muita lib usa: font: 14px/1.4 system-ui; e isso pisa no font-family)
+*/
+* {
+  font: inherit !important;
+}
+
+/* 9) Reaplica font-family depois do "font: inherit" (garantia dupla) */
+html,
+body,
+#root {
+  font-family: var(--app-font) !important;
 }
