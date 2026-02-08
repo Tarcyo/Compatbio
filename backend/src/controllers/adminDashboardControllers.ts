@@ -2,7 +2,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 
-const LOG_OK_STATUSES = ["CONCLUIDO", "CONCLUÍDO", "SUCESSO", "PAGO"] as const;
+const LOG_OK_STATUSES = ["CONCLUIDO", "CONCLUÍDO", "SUCESSO", "PAGO","REEMBOLSADO","REEMBOLSO_MANUAL"] as const;
 
 function clampInt(v: unknown, def: number, min: number, max: number) {
   const n = Number(v);
@@ -130,16 +130,13 @@ export async function adminDashboard(req: Request, res: Response) {
     const logs = await prisma.log_transacao.findMany({
       where: {
         AND: [
-          { DATA_TRANSACAO: { gte: start, lt: end } },
           { STATUS: { in: LOG_OK_STATUSES as unknown as string[] } },
-          { VALOR: { gt: 0 } as any },
         ],
       },
       select: {
         DATA_TRANSACAO: true,
         VALOR: true,
       },
-      take: 200000,
     });
 
     for (const l of logs) {

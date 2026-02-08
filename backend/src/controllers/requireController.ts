@@ -5,6 +5,14 @@ import { produto_TIPO } from "@prisma/client";
 const COST_PER_REQUEST = 1; // 1 crédito por solicitação
 const STATUS_PENDENTE = "PENDENTE";
 
+// ajuste aqui se seus status "ativos" forem outros
+const ACTIVE_SUB_STATUSES = ["ATIVA", "ATIVO", "ACTIVE", "TRIALING", "EM_TESTE", "EM TESTE"] as const;
+
+/* ========= helpers ========= */
+function upper(v: unknown) {
+  return String(v ?? "").toUpperCase();
+}
+
 function toPositiveInt(v: any): number | null {
   const n = Number(v);
   if (!Number.isFinite(n)) return null;
@@ -19,6 +27,11 @@ function toPageInt(v: any, def: number) {
   return Math.floor(n);
 }
 
+function isAssinaturaAtiva(status: unknown) {
+  const s = upper(status);
+  return ACTIVE_SUB_STATUSES.includes(s as any);
+}
+
 /**
  * POST /api/solicitacoes/analise
  * Body: { idProdutoQuimico, idProdutoBiologico, descricao? }
@@ -29,6 +42,7 @@ function toPageInt(v: any, def: number) {
  * - se COMPRA_NO_SISTEMA=false, só permite E_PARA_DEMO=true
  * - precisa ter SALDO >= 1
  * - debita 1 crédito e cria solicitação em transação
+ * - ✅ PRIORIDADE = PRIORIDADE do plano da assinatura ATIVA do cliente, senão 0
  */
 export async function criarSolicitacaoAnalise(req: Request, res: Response) {
   const email = req.auth?.email;
@@ -36,8 +50,7 @@ export async function criarSolicitacaoAnalise(req: Request, res: Response) {
 
   const idProdutoQuimico = toPositiveInt(req.body?.idProdutoQuimico);
   const idProdutoBiologico = toPositiveInt(req.body?.idProdutoBiologico);
-  const descricao =
-    typeof req.body?.descricao === "string" ? req.body.descricao.trim() : undefined;
+  const descricao = typeof req.body?.descricao === "string" ? req.body.descricao.trim() : undefined;
 
   if (!idProdutoQuimico || !idProdutoBiologico) {
     return res.status(400).json({
@@ -45,12 +58,29 @@ export async function criarSolicitacaoAnalise(req: Request, res: Response) {
     });
   }
 
-  // 1) Cliente logado
+  // 1) Cliente logado (+ assinatura atual + prioridade do plano)
   const cliente = await prisma.cliente.findUnique({
     where: { EMAIL: email },
-    select: { ID: true, COMPRA_NO_SISTEMA: true },
+    select: {
+      ID: true,
+      COMPRA_NO_SISTEMA: true,
+      // relação 1:1 do cliente com a assinatura atual (ID_ASSINATURA)
+      assinatura_cliente_ID_ASSINATURAToassinatura: {
+        select: {
+          STATUS: true,
+          plano: { select: { PRIORIDADE: true } },
+        },
+      },
+    },
   });
   if (!cliente) return res.status(404).json({ error: "Cliente não encontrado" });
+
+  // ✅ prioridade do plano da assinatura ativa; se não tiver, 0
+  const assinaturaAtual = cliente.assinatura_cliente_ID_ASSINATURAToassinatura;
+  const prioridadeDoPlano =
+    assinaturaAtual && isAssinaturaAtiva(assinaturaAtual.STATUS)
+      ? Number(assinaturaAtual.plano?.PRIORIDADE ?? 0) || 0
+      : 0;
 
   // 2) Produtos
   const produtos = await prisma.produto.findMany({
@@ -80,13 +110,12 @@ export async function criarSolicitacaoAnalise(req: Request, res: Response) {
   if (!cliente.COMPRA_NO_SISTEMA) {
     if (!prodQuimico.E_PARA_DEMO || !prodBiologico.E_PARA_DEMO) {
       return res.status(403).json({
-        error:
-          "Conta sem compra no sistema: somente produtos de demonstração (E_PARA_DEMO=true) são permitidos.",
+        error: "Conta sem compra no sistema: somente produtos de demonstração (E_PARA_DEMO=true) são permitidos.",
       });
     }
   }
 
-  // 5) Créditos (atômico)
+  // 5) Créditos (atômico) + cria solicitação com prioridade
   try {
     const result = await prisma.$transaction(async (tx) => {
       // debita 1 crédito (condicional)
@@ -108,6 +137,9 @@ export async function criarSolicitacaoAnalise(req: Request, res: Response) {
           DESCRICAO: descricao || null,
           DATA_RESPOSTA: null,
           ID_ADMIN_QUE_RESPONDEU_A_SOLICITACAO: null,
+
+          // ✅ AQUI: prioridade do plano (ou 0)
+          PRIORIDADE: prioridadeDoPlano,
         },
         include: {
           produto_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto: {
@@ -203,7 +235,6 @@ export async function listarMinhasSolicitacoes(req: Request, res: Response) {
 }
 
 /**
- * ✅ NOVO
  * POST /api/solicitacoes/analise/reembolsar
  * Body: { id }   // id da solicitacao_analise
  *
@@ -231,7 +262,6 @@ export async function reembolsarSolicitacaoPendente(req: Request, res: Response)
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // delete condicional evita race + garante regra "somente PENDENTE"
       const del = await tx.solicitacao_analise.deleteMany({
         where: {
           ID: id,
@@ -241,7 +271,6 @@ export async function reembolsarSolicitacaoPendente(req: Request, res: Response)
       });
 
       if (del.count === 0) {
-        // pode ser: não existe, não é do usuário, ou já não está PENDENTE
         return { ok: false as const, reason: "NOT_ALLOWED" as const };
       }
 
@@ -265,8 +294,7 @@ export async function reembolsarSolicitacaoPendente(req: Request, res: Response)
 
     if (!result.ok) {
       return res.status(409).json({
-        error:
-          "Só é possível reembolsar quando a solicitação estiver PENDENTE e pertencer ao usuário logado.",
+        error: "Só é possível reembolsar quando a solicitação estiver PENDENTE e pertencer ao usuário logado.",
       });
     }
 

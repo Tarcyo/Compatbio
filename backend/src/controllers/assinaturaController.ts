@@ -10,7 +10,6 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
   if (!email) return res.status(401).json({ error: "Não autenticado" });
 
   try {
-    // 1) pega cliente logado (precisamos do ID_ASSINATURA)
     const cliente = await prisma.cliente.findUnique({
       where: { EMAIL: email },
       select: {
@@ -23,7 +22,6 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
 
     if (!cliente) return res.status(404).json({ error: "Cliente não encontrado" });
 
-    // ✅ se não tiver assinatura vinculada: retorna vazio
     if (!cliente.ID_ASSINATURA) {
       return res.json({
         cliente,
@@ -34,20 +32,24 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
       });
     }
 
-    // 2) busca a assinatura com plano + dono (cliente admin)
     const assinatura = await prisma.assinatura.findUnique({
       where: { ID: cliente.ID_ASSINATURA },
       include: {
         plano: true,
         cliente_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente: {
-          select: { ID: true, EMAIL: true, NOME: true, SALDO: true, COMPRA_NO_SISTEMA: true, ID_EMPRESA: true },
+          select: {
+            ID: true,
+            EMAIL: true,
+            NOME: true,
+            SALDO: true,
+            COMPRA_NO_SISTEMA: true,
+            ID_EMPRESA: true,
+          },
         },
       },
     });
 
-    // cliente aponta pra assinatura que não existe (dados inconsistentes)
     if (!assinatura) {
-      // ✅ auto-heal: remove o vínculo quebrado do cliente
       await prisma.cliente.updateMany({
         where: { ID: cliente.ID, ID_ASSINATURA: cliente.ID_ASSINATURA },
         data: { ID_ASSINATURA: null },
@@ -62,9 +64,7 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
       });
     }
 
-    // ✅ IMPORTANTE: se a assinatura estiver CANCELADA, NÃO deve aparecer pra ninguém
     if (upper(assinatura.STATUS) === "CANCELADA") {
-      // ✅ auto-heal forte: desvincula TODOS os clientes dessa assinatura
       await prisma.cliente.updateMany({
         where: { ID_ASSINATURA: assinatura.ID },
         data: { ID_ASSINATURA: null },
@@ -79,7 +79,6 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
       });
     }
 
-    // 3) busca TODOS os clientes vinculados a essa assinatura (ID_ASSINATURA = assinatura.ID)
     const clientesVinculados = await prisma.cliente.findMany({
       where: { ID_ASSINATURA: assinatura.ID },
       orderBy: { ID: "asc" },
@@ -95,7 +94,7 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
     });
 
     return res.json({
-      cliente, // o cliente logado
+      cliente,
       assinatura: {
         ID: assinatura.ID,
         NOME: assinatura.NOME,
@@ -105,7 +104,6 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
         ID_CLIENTE_ADMIN_DA_ASSINATURA: assinatura.ID_CLIENTE_ADMIN_DA_ASSINATURA,
         ID_VINCULO_STRIPE: assinatura.ID_VINCULO_STRIPE,
 
-        // (opcional, mas útil no front; não quebra)
         STRIPE_SUBSCRIPTION_ID: assinatura.STRIPE_SUBSCRIPTION_ID,
         STRIPE_CHECKOUT_SESSION_ID: assinatura.STRIPE_CHECKOUT_SESSION_ID,
         CANCEL_AT_PERIOD_END: assinatura.CANCEL_AT_PERIOD_END,
@@ -113,13 +111,15 @@ export async function getAssinaturaAtual(req: Request, res: Response) {
         PERIODO_ATUAL_FIM: assinatura.PERIODO_ATUAL_FIM,
         DATA_CANCELAMENTO: assinatura.DATA_CANCELAMENTO,
       },
-      plano: assinatura.plano, // objeto completo do plano
-      dono: assinatura.cliente_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente, // cliente admin
-      clientesVinculados, // lista completa
+      plano: assinatura.plano,
+      dono: assinatura.cliente_assinatura_ID_CLIENTE_ADMIN_DA_ASSINATURATocliente,
+      clientesVinculados,
     });
   } catch (e: any) {
     console.error(e);
-    return res.status(500).json({ error: e?.message || "Erro ao buscar assinatura atual." });
+    return res
+      .status(500)
+      .json({ error: e?.message || "Erro ao buscar assinatura atual." });
   }
 }
 
@@ -136,7 +136,6 @@ function toPositiveMoney(v: any): number | null {
   const raw = String(v).trim().replace(",", ".");
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) return null;
-  // arredonda para 2 casas
   const rounded = Math.round(n * 100) / 100;
   if (rounded <= 0) return null;
   return rounded;
@@ -151,7 +150,7 @@ async function getClienteLogadoOr401(req: Request, res: Response) {
 
   const cliente = await prisma.cliente.findUnique({
     where: { ID: clienteId },
-    select: { ID: true, EMAIL: true, NOME: true, SALDO: true },
+    select: { ID: true, EMAIL: true, NOME: true, SALDO: true, ID_ASSINATURA: true },
   });
 
   if (!cliente) {
@@ -163,10 +162,15 @@ async function getClienteLogadoOr401(req: Request, res: Response) {
 }
 
 async function getAssinaturaAdministradaOr403(clienteId: number, res: Response) {
-  // ✅ não deixa administrar assinatura CANCELADA
   const assinatura = await prisma.assinatura.findFirst({
     where: { ID_CLIENTE_ADMIN_DA_ASSINATURA: clienteId, STATUS: { not: "CANCELADA" } },
-    select: { ID: true, ID_CLIENTE_ADMIN_DA_ASSINATURA: true, STATUS: true, ID_PLANO: true },
+    select: {
+      ID: true,
+      ID_CLIENTE_ADMIN_DA_ASSINATURA: true,
+      STATUS: true,
+      ID_PLANO: true,
+      plano: { select: { MAX_USUARIOS_DEPENDENTES: true } },
+    },
   });
 
   if (!assinatura) {
@@ -178,11 +182,63 @@ async function getAssinaturaAdministradaOr403(clienteId: number, res: Response) 
 }
 
 /**
- * POST /api/assinatura/vincular-cliente
- * Body: { idCliente? , emailCliente? }
+ * POST /api/assinatura/sair
  * Regra:
- * - solicitante precisa ser admin de uma assinatura
- * - alvo precisa existir e NÃO pode ter ID_ASSINATURA (ou seja, ainda não vinculado)
+ * - precisa estar autenticado
+ * - se for ADMIN da assinatura -> não pode sair (deve cancelar)
+ * - se for membro -> desvincula (ID_ASSINATURA = null)
+ */
+export async function sairDaAssinatura(req: Request, res: Response) {
+  try {
+    const cliente = await getClienteLogadoOr401(req, res);
+    if (!cliente) return;
+
+    if (!cliente.ID_ASSINATURA) {
+      return res.status(400).json({ error: "Você não está vinculado a nenhuma assinatura." });
+    }
+
+    const assinaturaId = cliente.ID_ASSINATURA;
+
+    const assinatura = await prisma.assinatura.findUnique({
+      where: { ID: assinaturaId },
+      select: { ID: true, ID_CLIENTE_ADMIN_DA_ASSINATURA: true, STATUS: true },
+    });
+
+    // vínculo quebrado: limpa e retorna ok
+    if (!assinatura) {
+      await prisma.cliente.updateMany({
+        where: { ID: cliente.ID, ID_ASSINATURA: assinaturaId },
+        data: { ID_ASSINATURA: null },
+      });
+      return res.json({ ok: true, message: "Você saiu da assinatura." });
+    }
+
+    // admin não pode sair
+    if (assinatura.ID_CLIENTE_ADMIN_DA_ASSINATURA === cliente.ID) {
+      return res.status(400).json({
+        error:
+          "O administrador não pode sair da assinatura. Para encerrar, cancele a assinatura.",
+      });
+    }
+
+    const updated = await prisma.cliente.updateMany({
+      where: { ID: cliente.ID, ID_ASSINATURA: assinatura.ID },
+      data: { ID_ASSINATURA: null },
+    });
+
+    if (updated.count === 0) {
+      return res.status(409).json({ error: "Não foi possível sair (estado mudou)." });
+    }
+
+    return res.json({ ok: true, assinaturaId: assinatura.ID, message: "Você saiu da assinatura." });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Erro ao sair da assinatura." });
+  }
+}
+
+/**
+ * POST /api/assinatura/vincular-cliente
  */
 export async function vincularClienteNaMinhaAssinatura(req: Request, res: Response) {
   try {
@@ -193,7 +249,8 @@ export async function vincularClienteNaMinhaAssinatura(req: Request, res: Respon
     if (!assinatura) return;
 
     const idCliente = toPositiveInt(req.body?.idCliente);
-    const emailCliente = typeof req.body?.emailCliente === "string" ? req.body.emailCliente.trim() : "";
+    const emailCliente =
+      typeof req.body?.emailCliente === "string" ? req.body.emailCliente.trim() : "";
 
     if (!idCliente && !emailCliente) {
       return res.status(400).json({ error: "Informe idCliente ou emailCliente." });
@@ -208,7 +265,6 @@ export async function vincularClienteNaMinhaAssinatura(req: Request, res: Respon
       return res.status(404).json({ error: "Cliente alvo não encontrado." });
     }
 
-    // não vincula se já estiver em alguma assinatura
     if (alvo.ID_ASSINATURA) {
       return res.status(409).json({
         error: "Este cliente já está vinculado a uma assinatura.",
@@ -217,7 +273,15 @@ export async function vincularClienteNaMinhaAssinatura(req: Request, res: Respon
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      // garante condição "ainda não vinculado"
+      // ✅ limite de usuários do plano (inclui o admin)
+      const max = assinatura?.plano?.MAX_USUARIOS_DEPENDENTES ?? null;
+      if (typeof max === "number" && max > 0) {
+        const atuais = await tx.cliente.count({ where: { ID_ASSINATURA: assinatura.ID } });
+        if (atuais >= max) {
+          return { ok: false as const, reason: "LIMIT_REACHED" as const, atuais, max };
+        }
+      }
+
       const updated = await tx.cliente.updateMany({
         where: { ID: alvo.ID, ID_ASSINATURA: null },
         data: { ID_ASSINATURA: assinatura.ID },
@@ -236,6 +300,14 @@ export async function vincularClienteNaMinhaAssinatura(req: Request, res: Respon
     });
 
     if (!result.ok) {
+      if (result.reason === "LIMIT_REACHED") {
+        return res.status(409).json({
+          error: `Limite de usuários do plano atingido (${result.atuais} de ${result.max}).`,
+          atuais: result.atuais,
+          max: result.max,
+        });
+      }
+
       return res.status(409).json({ error: "Este cliente já foi vinculado por outra operação." });
     }
 
@@ -252,11 +324,6 @@ export async function vincularClienteNaMinhaAssinatura(req: Request, res: Respon
 
 /**
  * POST /api/assinatura/remover-cliente
- * Body: { idCliente? , emailCliente? }
- * Regra:
- * - solicitante precisa ser admin de uma assinatura
- * - alvo precisa estar vinculado NA MESMA assinatura
- * - não permite remover o próprio admin (para evitar assinatura "órfã")
  */
 export async function removerClienteDaMinhaAssinatura(req: Request, res: Response) {
   try {
@@ -267,7 +334,8 @@ export async function removerClienteDaMinhaAssinatura(req: Request, res: Respons
     if (!assinatura) return;
 
     const idCliente = toPositiveInt(req.body?.idCliente);
-    const emailCliente = typeof req.body?.emailCliente === "string" ? req.body.emailCliente.trim() : "";
+    const emailCliente =
+      typeof req.body?.emailCliente === "string" ? req.body.emailCliente.trim() : "";
 
     if (!idCliente && !emailCliente) {
       return res.status(400).json({ error: "Informe idCliente ou emailCliente." });
@@ -314,11 +382,6 @@ export async function removerClienteDaMinhaAssinatura(req: Request, res: Respons
 
 /**
  * POST /api/assinatura/transferir-creditos
- * Body: { idClienteDestino? , emailClienteDestino? , valor }
- * Regra:
- * - solicitante precisa ser admin de uma assinatura
- * - destino precisa estar vinculado à assinatura do admin
- * - debita SALDO do admin e credita no destino (atômico)
  */
 export async function transferirCreditosParaVinculado(req: Request, res: Response) {
   try {
@@ -335,7 +398,9 @@ export async function transferirCreditosParaVinculado(req: Request, res: Respons
 
     const idClienteDestino = toPositiveInt(req.body?.idClienteDestino);
     const emailClienteDestino =
-      typeof req.body?.emailClienteDestino === "string" ? req.body.emailClienteDestino.trim() : "";
+      typeof req.body?.emailClienteDestino === "string"
+        ? req.body.emailClienteDestino.trim()
+        : "";
 
     if (!idClienteDestino && !emailClienteDestino) {
       return res.status(400).json({ error: "Informe idClienteDestino ou emailClienteDestino." });
@@ -359,7 +424,6 @@ export async function transferirCreditosParaVinculado(req: Request, res: Respons
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      // 1) debita do admin (condicional)
       const debit = await tx.cliente.updateMany({
         where: { ID: adminCliente.ID, SALDO: { gte: valor } },
         data: { SALDO: { decrement: valor } },
@@ -369,14 +433,12 @@ export async function transferirCreditosParaVinculado(req: Request, res: Respons
         return { ok: false as const, reason: "NO_CREDITS" as const };
       }
 
-      // 2) credita no destino (garantindo que ainda está vinculado)
       const credit = await tx.cliente.updateMany({
         where: { ID: destino.ID, ID_ASSINATURA: assinatura.ID },
         data: { SALDO: { increment: valor } },
       });
 
       if (credit.count === 0) {
-        // força rollback
         throw new Error("DESTINO_NAO_VINCULADO");
       }
 

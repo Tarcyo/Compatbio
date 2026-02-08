@@ -120,6 +120,9 @@ model plano {
   // valor mensal do plano
   VALOR_MENSAL Decimal @default(0.00) @db.Decimal(10, 2)
 
+  // ✅ limite de usuários vinculados na assinatura (inclui o admin)
+  MAX_USUARIOS_DEPENDENTES Int @default(9999) @db.UnsignedInt
+
   assinatura assinatura[]
 
   @@index([PRIORIDADE], map: "IX_PLANO_PRIORIDADE")
