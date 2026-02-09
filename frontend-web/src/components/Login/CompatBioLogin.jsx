@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "./CompatBioLogin.css";
 
 import background from "../../assets/background.png";
@@ -23,7 +24,11 @@ export default function CompatBioLogin({ onGoogleClick }) {
   }, [AUTH_URL, isLoading, onGoogleClick]);
 
   return (
-    <main className="cb-page" style={{ backgroundImage: `url(${background})` }}>
+    <main
+      className="cb-page"
+      style={{ backgroundImage: `url(${background})` }}
+      aria-label="CompatBio - Login"
+    >
       <section className="cb-card" role="dialog" aria-label="Login CompatBio">
         <img className="cb-logo" src={logo} alt="CompatBio" />
         <div className="cb-divider" />
@@ -43,21 +48,21 @@ export default function CompatBioLogin({ onGoogleClick }) {
 
         <p className="cb-legal">
           Ao continuar, você concorda com nossos{" "}
-          <a className="cb-link" href="#" onClick={(e) => e.preventDefault()}>
+          <Link className="cb-link" to="/termos" target="_blank" rel="noopener noreferrer">
             Termos de Serviço
-          </a>{" "}
+          </Link>{" "}
           e{" "}
-          <a className="cb-link" href="#" onClick={(e) => e.preventDefault()}>
+          <Link className="cb-link" to="/privacidade" target="_blank" rel="noopener noreferrer">
             Política de Privacidade
-          </a>
+          </Link>
           .
         </p>
 
         <p className="cb-help">
           Precisa de ajuda? Fale com o{" "}
-          <a className="cb-link cb-link-strong" href="#" onClick={(e) => e.preventDefault()}>
+          <Link className="cb-link cb-link-strong" to="/suporte" target="_blank" rel="noopener noreferrer">
             Suporte
-          </a>
+          </Link>
           .
         </p>
       </section>

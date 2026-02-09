@@ -21,10 +21,16 @@ import AdminSolicitacoesPage from "./components/AdminPages/AdminSolicitacaoPage"
 import AdminEmpresasPage from "./components/AdminPages/AdminEmpresaPage";
 import AdminPlanosPage from "./components/AdminPages/AdminPlanosPage";
 import AdminProdutosPage from "./components/AdminPages/AdminProdutosPage";
+import AdminRefundRequestsPage from "./components/AdminPages/adminReembolso";
 
 import { useAuth } from "./auth/AuthContext";
 import { useAdminAuth } from "./auth/AdminAuthContext";
-import AdminRefundRequestsPage from "./components/AdminPages/adminReembolso";
+
+import TermsOfService from "./components/TermsOfService/TermsOfService";
+import PrivacyPolicy from "./components/PrivacyPolitic/PrivacyPoliticy";
+import SupportPage from "./components/suportPage/SuportPage";
+
+// ✅ NOVO: Suporte
 
 function LoginRoute() {
   const { isAuthenticated, authReady } = useAuth();
@@ -56,6 +62,11 @@ export default function App() {
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/loginAdmin" element={<LoginAdminRoute />} />
 
+        {/* ✅ Termos, Privacidade e Suporte devem ser públicos */}
+        <Route path="/termos" element={<TermsOfService />} />
+        <Route path="/privacidade" element={<PrivacyPolicy />} />
+        <Route path="/suporte" element={<SupportPage />} />
+
         {/* ADMIN (PROTEGIDO POR ADMIN AUTH) */}
         <Route element={<RequireAdminAuth />}>
           <Route path="/admin" element={<AdminDashboardLayout />}>
@@ -66,7 +77,6 @@ export default function App() {
             <Route path="planos" element={<AdminPlanosPage />} />
             <Route path="produtos" element={<AdminProdutosPage />} />
             <Route path="reembolso" element={<AdminRefundRequestsPage />} />
-
           </Route>
 
           {/* qualquer rota errada em /admin cai no dashboard */}
@@ -85,7 +95,6 @@ export default function App() {
             <Route path="detalhes-analise" element={<AnalysisDetailsPage />} />
             <Route path="planos" element={<PlansCreditsPage />} />
             <Route path="confirmar-compra" element={<CheckoutConfirmPage />} />
-
           </Route>
         </Route>
 
