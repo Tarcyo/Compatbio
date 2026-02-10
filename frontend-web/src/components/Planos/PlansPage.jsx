@@ -78,11 +78,11 @@ async function postWithFallback({ baseUrl, attempts }) {
 }
 
 /**
- * ✅ Modal bonito + robusto:
- * - Portal -> document.body (evita vazamento do sidebar por stacking context)
+ * ✅ Modal robusto:
+ * - Portal -> document.body
  * - z-index alto
- * - body lock (sem scroll)
- * - ESC para fechar
+ * - body lock
+ * - ESC fecha
  * - clique fora fecha
  */
 function ConfirmModal({
@@ -102,10 +102,7 @@ function ConfirmModal({
   useEffect(() => {
     if (!open) return;
 
-    // trava scroll do body
     document.body.classList.add("modal-open");
-
-    // foco no botão principal
     const t = setTimeout(() => confirmBtnRef.current?.focus?.(), 20);
 
     function onKeyDown(e) {
@@ -131,7 +128,6 @@ function ConfirmModal({
       aria-modal="true"
       aria-label={title || "Confirmação"}
       onMouseDown={(e) => {
-        // fecha ao clicar fora
         if (!loading && e.target === e.currentTarget) onClose?.();
       }}
     >
@@ -287,46 +283,36 @@ function TabBar({ value, onChange, items }) {
 export default function PlansCreditsPage() {
   const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000").toString().replace(/\/+$/, "");
 
-  // plano atual do usuário
   const [assinaturaData, setAssinaturaData] = useState(null);
   const [loadingPlano, setLoadingPlano] = useState(true);
   const [errPlano, setErrPlano] = useState("");
 
-  // planos do sistema
   const [planos, setPlanos] = useState([]);
   const [loadingPlanos, setLoadingPlanos] = useState(true);
   const [errPlanos, setErrPlanos] = useState("");
 
-  // preço do crédito
   const [pricePerCredit, setPricePerCredit] = useState(null);
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [errPrice, setErrPrice] = useState("");
 
-  // tab PF/PJ
   const [tab, setTab] = useState("pf");
 
-  // compra avulsa
   const [credits, setCredits] = useState(10);
 
-  // checkout créditos
   const [buyLoading, setBuyLoading] = useState(false);
   const [buyErr, setBuyErr] = useState("");
   const [checkoutUrl, setCheckoutUrl] = useState("");
 
-  // checkout assinatura
   const [subLoading, setSubLoading] = useState(false);
   const [subErr, setSubErr] = useState("");
   const [subCheckoutUrl, setSubCheckoutUrl] = useState("");
 
-  // cancelamento assinatura (admin)
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelErr, setCancelErr] = useState("");
   const [cancelMsg, setCancelMsg] = useState("");
 
-  // ✅ modal de confirmação de cancelamento
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
-  // sair da assinatura (membro)
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [leaveErr, setLeaveErr] = useState("");
   const [leaveMsg, setLeaveMsg] = useState("");
@@ -375,7 +361,6 @@ export default function PlansCreditsPage() {
     }
   }, [API_BASE]);
 
-  // busca preço do crédito
   useEffect(() => {
     let alive = true;
 
@@ -409,7 +394,6 @@ export default function PlansCreditsPage() {
     };
   }, [API_BASE]);
 
-  // carrega plano atual e planos
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -421,7 +405,6 @@ export default function PlansCreditsPage() {
     };
   }, [reloadPlanoAtual, reloadPlanos]);
 
-  // quando voltar do Stripe, atualiza
   useEffect(() => {
     function onVis() {
       if (document.visibilityState === "visible") {
@@ -445,7 +428,6 @@ export default function PlansCreditsPage() {
     return clienteId > 0 && adminId > 0 && clienteId === adminId;
   }, [assinaturaData]);
 
-  // seu plano atual
   const currentPlan = useMemo(() => {
     const assinatura = assinaturaData?.assinatura || null;
     const plano = assinaturaData?.plano || null;
@@ -501,7 +483,6 @@ export default function PlansCreditsPage() {
   const showCancelBtn = hasSubscription && isAdminOfSubscription && statusUpper !== "CANCELADA";
   const showLeaveBtn = hasSubscription && !isAdminOfSubscription && statusUpper !== "CANCELADA";
 
-  // PF/PJ por "enterprise" no nome
   const { pfPlans, pjPlans } = useMemo(() => {
     const isEnterprise = (name) => typeof name === "string" && name.toLowerCase().includes("enterprise");
     const pj = planos.filter((p) => isEnterprise(p?.NOME));
@@ -509,7 +490,6 @@ export default function PlansCreditsPage() {
     return { pfPlans: pf, pjPlans: pj };
   }, [planos]);
 
-  // mapeia plano -> card
   const mapPlanoToCard = useCallback(
     (p) => {
       const nome = p?.NOME || "Plano";
@@ -524,7 +504,6 @@ export default function PlansCreditsPage() {
       const id = String(p?.ID);
       const isCurrent = currentPlan?.planId && id === currentPlan.planId;
 
-      // ✅ Se já tem assinatura ativa/pendente, não permite iniciar outra por essa tela
       const disabledBySub = hasActiveOrPendingSubscription;
 
       return {
@@ -553,7 +532,6 @@ export default function PlansCreditsPage() {
     return list.map(mapPlanoToCard);
   }, [tab, pfPlans, pjPlans, mapPlanoToCard]);
 
-  // assinar plano (somente quando não há assinatura ativa/pendente)
   const handleChoose = useCallback(
     async (planoId) => {
       setSubErr("");
@@ -602,7 +580,6 @@ export default function PlansCreditsPage() {
     [API_BASE, hasActiveOrPendingSubscription]
   );
 
-  // ✅ executa o cancelamento (chamado pelo modal)
   const doCancelSubscription = useCallback(async () => {
     setCancelErr("");
     setCancelMsg("");
@@ -656,7 +633,6 @@ export default function PlansCreditsPage() {
     }
   }, [API_BASE, assinaturaData, currentPlan?.assinaturaId, reloadPlanoAtual, reloadPlanos, isAdminOfSubscription]);
 
-  // ✅ abre o modal (em vez de window.confirm)
   const handleCancelSubscription = useCallback(() => {
     setCancelErr("");
     setCancelMsg("");
@@ -677,7 +653,6 @@ export default function PlansCreditsPage() {
     setCancelModalOpen(true);
   }, [assinaturaData, isAdminOfSubscription]);
 
-  // sair da assinatura (SÓ MEMBRO NÃO-ADMIN)
   const handleLeaveSubscription = useCallback(async () => {
     setLeaveErr("");
     setLeaveMsg("");
@@ -720,7 +695,6 @@ export default function PlansCreditsPage() {
     }
   }, [API_BASE, assinaturaData, reloadPlanoAtual, reloadPlanos, isAdminOfSubscription]);
 
-  // compra de créditos avulsos
   const handleBuyCredits = useCallback(async () => {
     setBuyErr("");
     setCheckoutUrl("");
@@ -776,7 +750,6 @@ export default function PlansCreditsPage() {
 
   return (
     <div className="pg-wrap plansPage">
-      {/* ✅ Modal confirmando cancelamento */}
       <ConfirmModal
         open={cancelModalOpen}
         title={modalCancelTitle}
@@ -820,7 +793,7 @@ export default function PlansCreditsPage() {
               Carregando plano atual...
             </p>
           ) : errPlano ? (
-            <p className="creditsHint" style={{ marginTop: 6, color: "rgba(255,140,140,0.92)" }}>
+            <p className="creditsHint" style={{ marginTop: 6, color: "rgba(198,44,34,0.95)" }}>
               {errPlano}
             </p>
           ) : (
@@ -844,23 +817,23 @@ export default function PlansCreditsPage() {
                 </ul>
 
                 {cancelMsg ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(190,255,140,0.98)" }}>
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(94,133,66,0.98)" }}>
                     {cancelMsg}
                   </p>
                 ) : null}
                 {cancelErr ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
                     {cancelErr}
                   </p>
                 ) : null}
 
                 {leaveMsg ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(190,255,140,0.98)" }}>
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(94,133,66,0.98)" }}>
                     {leaveMsg}
                   </p>
                 ) : null}
                 {leaveErr ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
                     {leaveErr}
                   </p>
                 ) : null}
@@ -886,7 +859,7 @@ export default function PlansCreditsPage() {
                     onClick={handleLeaveSubscription}
                     disabled={leaveLoading || subLoading || cancelLoading}
                     title={leaveLoading ? "Saindo..." : "Sair da assinatura"}
-                    style={{ filter: "brightness(0.95)" }}
+                    style={{ filter: "brightness(0.98)" }}
                   >
                     {leaveLoading ? "Saindo..." : "Sair da assinatura"}
                   </button>
@@ -909,7 +882,7 @@ export default function PlansCreditsPage() {
           />
 
           {subErr ? (
-            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
+            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
               {subErr}
             </p>
           ) : null}
@@ -920,7 +893,7 @@ export default function PlansCreditsPage() {
                 href={subCheckoutUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                style={{ color: "rgba(190,255,140,0.98)", fontWeight: 900 }}
+                className="plansLink"
               >
                 Clique aqui para continuar a assinatura no Stripe
               </a>
@@ -932,7 +905,7 @@ export default function PlansCreditsPage() {
               Carregando planos...
             </p>
           ) : errPlanos ? (
-            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
+            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
               {errPlanos}
             </p>
           ) : shownPlans.length === 0 ? (
@@ -991,7 +964,7 @@ export default function PlansCreditsPage() {
           <small className="creditsHint">{creditPriceText}</small>
 
           {buyErr ? (
-            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(255,140,140,0.92)" }}>
+            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
               {buyErr}
             </p>
           ) : null}
@@ -1002,7 +975,7 @@ export default function PlansCreditsPage() {
                 href={checkoutUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                style={{ color: "rgba(190,255,140,0.98)", fontWeight: 900 }}
+                className="plansLink"
               >
                 Clique aqui para continuar o pagamento no Stripe
               </a>

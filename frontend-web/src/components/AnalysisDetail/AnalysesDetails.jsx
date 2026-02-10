@@ -45,24 +45,20 @@ function normalizeStatus(s) {
 function statusMeta(status) {
   const s = normalizeStatus(status);
 
-  // ✅ compatível (verde)
   if (s.includes("compat") && !s.includes("incompat")) {
     return { label: "Compatível", badgeCls: "detailsBadgeOk", iconCls: "is-ok", kind: "ok" };
   }
 
-  // ✅ incompatível (vermelho)
   if (s.includes("incompat")) {
     return { label: "Incompatível", badgeCls: "detailsBadgeBad", iconCls: "is-bad", kind: "bad" };
   }
 
-  // ✅ amarelo: em análise / pendente / parcial
   if (s.includes("anal") || s.includes("pend") || s.includes("parc")) {
     if (s.includes("pend")) return { label: "Pendente", badgeCls: "detailsBadgeWarn", iconCls: "is-warn", kind: "warn" };
     if (s.includes("parc")) return { label: "Parcial", badgeCls: "detailsBadgeWarn", iconCls: "is-warn", kind: "warn" };
     return { label: "Em Análise", badgeCls: "detailsBadgeWarn", iconCls: "is-warn", kind: "warn" };
   }
 
-  // fallback
   return { label: status ? String(status) : "Em Análise", badgeCls: "detailsBadgeWarn", iconCls: "is-warn", kind: "warn" };
 }
 
@@ -81,7 +77,6 @@ export default function AnalysisDetailsPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ pega a solicitação enviada pelo Result.jsx
   const solicitacao = location.state?.solicitacao || null;
 
   useEffect(() => {
@@ -94,15 +89,13 @@ export default function AnalysisDetailsPage() {
 
   const chemical = useMemo(() => {
     return (
-      solicitacao?.produto_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto?.NOME ||
-      "—"
+      solicitacao?.produto_solicitacao_analise_ID_PRODUTO_QUIMICOToproduto?.NOME || "—"
     );
   }, [solicitacao]);
 
   const biological = useMemo(() => {
     return (
-      solicitacao?.produto_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto?.NOME ||
-      "—"
+      solicitacao?.produto_solicitacao_analise_ID_PRODUTO_BIOLOGICOToproduto?.NOME || "—"
     );
   }, [solicitacao]);
 
@@ -143,12 +136,12 @@ export default function AnalysisDetailsPage() {
 
   const handleBack = () => navigate(-1);
 
-  // ✅ escolhe o ícone correto
-  const StatusIcon = meta.kind === "ok" ? IconCheckCircle : meta.kind === "bad" ? IconXCircle : IconClock;
+  const StatusIcon =
+    meta.kind === "ok" ? IconCheckCircle : meta.kind === "bad" ? IconXCircle : IconClock;
 
   if (!solicitacao) {
     return (
-      <div className="pg-wrap">
+      <div className="pg-wrap detailsPage">
         <div className="analysisDetailsPage">
           <section
             ref={cardRef}
@@ -184,7 +177,7 @@ export default function AnalysisDetailsPage() {
   }
 
   return (
-    <div className="pg-wrap">
+    <div className="pg-wrap detailsPage">
       <div className="analysisDetailsPage">
         <section
           ref={cardRef}
@@ -215,9 +208,7 @@ export default function AnalysisDetailsPage() {
                 </div>
               </div>
 
-              <div className="detailsArrow" aria-hidden="true">
-                →
-              </div>
+              <div className="detailsArrow" aria-hidden="true">→</div>
 
               <div className="detailsMid">
                 <span className={`detailsBadge ${meta.badgeCls}`}>{meta.label}</span>
@@ -233,7 +224,6 @@ export default function AnalysisDetailsPage() {
 
             <div className="detailsBody">
               <div className="detailsStatusRow">
-                {/* ✅ AGORA a cor do ícone acompanha o status */}
                 <span className={`detailsStatusIcon ${meta.iconCls}`} aria-hidden="true">
                   <StatusIcon />
                 </span>

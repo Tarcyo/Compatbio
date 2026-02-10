@@ -1,13 +1,11 @@
-/* AnalysesDetail.css — COMPLETO (Plans palette + SEM “card preto em volta” + tudo em pílula)
-   ✅ Remove overlay retangular do container (NÃO cria “card” por trás)
-   ✅ Remove glass/blur herdado (.pg-card)
-   ✅ Card principal sólido
-   ✅ Tudo mais arredondado/pílula (topbar, badges, botões)
+/* AnalysesDetail.css — FINAL (paleta igual telas anteriores: card branco + glow verde)
+   ✅ Sem escurecer a tela
+   ✅ Sem “quadro”/sheet no fundo
+   ✅ Card sólido, grande, levemente à esquerda (desktop)
+   ✅ Topbar em pílula + badges com gradiente
+   ✅ Remove qualquer glass/blur herdado do Pages.css
 */
 
-/* =========================
-   BASE / NITIDEZ
-========================= */
 .analysisDetailsPage,
 .analysisDetailsPage * {
   box-sizing: border-box !important;
@@ -16,56 +14,57 @@
   text-rendering: geometricPrecision !important;
 }
 
-.analysisDetailsPage {
+/* =========================
+   WRAPPER DA PÁGINA (sem quadro / sem overlay)
+========================= */
+.pg-wrap.detailsPage {
   width: 100% !important;
-  display: grid !important;
-  justify-items: start !important;
-  align-items: start !important;
-  gap: 12px !important;
+  max-width: none !important;
+  margin: 0 !important;
+
+  padding: 28px 22px 34px !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
+  min-height: 100dvh !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
 
   position: relative !important;
   isolation: isolate !important;
 
-  /* ✅ tokens (Plans) */
-  --accent: rgba(160, 234, 82, 1);
-
-  --bg-0: #2a3443;
-  --bg-1: #222b38;
-
-  --panel: #39465b;
-  --panel2: #334156;
-
-  --tile: #344256;
-  --tile2: #2f3c50;
-
-  --btn-0: #3b4961;
-  --btn-1: #313e54;
-
-  --stroke-0: rgba(255, 255, 255, 0.14);
-  --stroke-1: rgba(255, 255, 255, 0.18);
-
-  --text-0: rgba(255, 255, 255, 0.96);
-  --text-1: rgba(255, 255, 255, 0.84);
-  --text-2: rgba(255, 255, 255, 0.68);
-
-  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
-  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
+  opacity: 1 !important;
+  filter: none !important;
 }
 
-/* =========================
-   🔥 REMOVE O “CARD PRETO EM VOLTA” (overlay do container)
-   (isso aqui era o retângulo escuro no fundo)
-========================= */
-.analysisDetailsPage::before,
-.analysisDetailsPage::after {
+.pg-wrap.detailsPage::before,
+.pg-wrap.detailsPage::after {
   content: none !important;
   display: none !important;
 }
 
 /* =========================
-   🔥 KILL GLASS (caso venha do Pages.css / .pg-card)
+   LAYOUT
 ========================= */
-.pg-wrap .pg-card.detailsCard,
+.analysisDetailsPage {
+  width: 100% !important;
+  display: grid !important;
+  justify-items: center !important;
+  align-items: start !important;
+
+  position: relative !important;
+  isolation: isolate !important;
+}
+
+/* =========================
+   KILL GLASS DO Pages.css (pg-card)
+========================= */
+.pg-wrap.detailsPage .pg-card.detailsCard,
 .pg-card.detailsCard,
 .detailsCard {
   -webkit-backdrop-filter: none !important;
@@ -75,42 +74,32 @@
   mix-blend-mode: normal !important;
 }
 
-/* se o Pages.css colocar pseudo overlays no .pg-card, mata */
-.pg-wrap .pg-card.detailsCard::before,
-.pg-wrap .pg-card.detailsCard::after,
-.pg-card.detailsCard::before,
-.pg-card.detailsCard::after {
-  /* a gente usa ::before/::after no card — então não removo aqui;
-     removo apenas se você estiver usando os pseudos do Pages.
-     Para garantir, os nossos abaixo vêm com seletores mais específicos. */
-}
-
 /* =========================
-   CARD PRINCIPAL (SÓLIDO + MAIS ARREDONDADO)
+   CARD PRINCIPAL (branco + glow)
 ========================= */
-.detailsCard {
-  --r-xl: 30px;
-  --r-pill: 9999px;
+.analysisDetailsPage .detailsCard {
+  width: min(980px, 100%) !important; /* ✅ consistente com telas anteriores */
+  height: auto !important;
+  min-height: unset !important;
 
-  width: min(1240px, 100%) !important;
-  min-height: 620px !important;
+  padding: 28px 30px 22px !important;
+  border-radius: 26px !important;
 
-  padding: 52px 56px 48px !important;
-  border-radius: var(--r-xl) !important;
+  background: #ffffff !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
 
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  background-color: var(--bg-0) !important;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.14) !important;
 
-  border: 1px solid var(--stroke-0) !important;
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-
-  overflow: hidden !important;
   position: relative !important;
+  overflow: visible !important; /* nada corta */
+  isolation: isolate !important;
 
-  color: var(--text-0) !important;
+  /* ✅ leve deslocamento à esquerda (desktop) */
+  transform: translateX(-60px) !important;
 }
 
-/* brilho sutil (SÓ dentro do card principal) */
+/* brilho interno sutil, apenas no card */
 .analysisDetailsPage .detailsCard::before {
   content: "" !important;
   position: absolute !important;
@@ -118,27 +107,12 @@
   pointer-events: none !important;
   border-radius: inherit !important;
   background:
-    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%) !important;
-  opacity: 0.88 !important;
+    radial-gradient(900px 300px at 18% 10%, rgba(255,255,255,0.65), rgba(255,255,255,0) 55%),
+    radial-gradient(720px 280px at 78% 0%, rgba(160,234,82,0.16), rgba(255,255,255,0) 58%) !important;
+  opacity: 0.60 !important;
 }
 
-.analysisDetailsPage .detailsCard::after {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  pointer-events: none !important;
-  border-radius: inherit !important;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.00) 44%,
-    rgba(255, 255, 255, 0.03) 100%
-  ) !important;
-  opacity: 0.50 !important;
-}
-
-.detailsCard > * {
+.analysisDetailsPage .detailsCard > * {
   position: relative !important;
   z-index: 1 !important;
 }
@@ -148,14 +122,14 @@
 ========================= */
 .detailsCardHeader {
   display: flex !important;
-  align-items: flex-start !important;
+  align-items: center !important;
   justify-content: space-between !important;
-  gap: 18px !important;
+  gap: 16px !important;
 
-  margin: 0 0 28px !important;
-  padding-bottom: 18px !important;
+  margin: 0 0 18px !important;
+  padding: 4px 6px 14px !important;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 .detailsHeaderLeft {
@@ -166,102 +140,83 @@
 
 .detailsCardTitle {
   margin: 0 !important;
-  font-size: clamp(30px, 3.6vw, 42px) !important;
+  font-size: clamp(32px, 3.2vw, 44px) !important;
   font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
-  line-height: 1.08 !important;
-  color: var(--text-0) !important;
-  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.40) !important;
+  line-height: 1.05 !important;
+  color: rgba(31, 41, 55, 0.92) !important;
 }
 
 .detailsMeta {
-  color: rgba(255, 255, 255, 0.74) !important;
-  font-size: 15.5px !important;
+  color: rgba(107, 114, 128, 0.95) !important;
+  font-size: 14.5px !important;
   font-weight: 800 !important;
-  text-shadow: 0 12px 24px rgba(0, 0, 0, 0.22) !important;
 }
 
-/* =========================
-   BOTÃO (Header) — PÍLULA
-========================= */
+/* botão do header */
 .detailsMiniBtn {
   height: 48px !important;
   padding: 0 20px !important;
   border-radius: 9999px !important;
 
-  border: 1px solid var(--stroke-1) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: rgba(55, 65, 81, 0.92) !important;
 
-  color: rgba(255, 255, 255, 0.94) !important;
-  font-size: 14.5px !important;
   font-weight: 950 !important;
-  letter-spacing: 0.2px !important;
-
   cursor: pointer !important;
-  user-select: none !important;
 
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
-
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
   transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
 .detailsMiniBtn:hover {
   transform: translateY(-1px) !important;
-  filter: brightness(1.05) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-}
-
-.detailsMiniBtn:active {
-  transform: translateY(0) !important;
-}
-
-.detailsCardBody {
-  display: block !important;
+  filter: brightness(1.02) !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
 }
 
 /* =========================
-   TOPBAR (Produtos + Status) — PÍLULA GRANDE
+   TOP (pílula com produtos + badge)
 ========================= */
+.detailsCardBody {
+  padding: 16px 6px 0 !important;
+}
+
 .detailsTop {
   width: 100% !important;
   display: grid !important;
   grid-template-columns: 1.25fr auto auto 1.25fr !important;
   align-items: center !important;
-  gap: 18px !important;
+  gap: 14px !important;
 
-  padding: 20px 22px !important;
+  padding: 16px 16px !important;
   border-radius: 9999px !important;
 
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 20px 50px rgba(0, 0, 0, 0.18) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.22) !important;
 }
 
 .detailsBlock {
   display: grid !important;
-  gap: 8px !important;
+  gap: 6px !important;
   min-width: 0 !important;
-  padding: 6px 8px !important;
+  padding: 6px 10px !important;
 }
 
 .detailsLabel {
-  color: rgba(255, 255, 255, 0.78) !important;
-  font-size: 15.5px !important;
+  font-size: 13px !important;
   font-weight: 950 !important;
-  letter-spacing: 0.2px !important;
-  text-shadow: 0 12px 24px rgba(0, 0, 0, 0.25) !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: rgba(107, 114, 128, 0.95) !important;
 }
 
 .detailsValue {
-  color: rgba(255, 255, 255, 0.94) !important;
-  font-size: 18px !important;
-  font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  color: rgba(31, 41, 55, 0.92) !important;
 
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -269,11 +224,10 @@
 }
 
 .detailsArrow {
-  color: rgba(255, 255, 255, 0.76) !important;
-  font-size: 28px !important;
+  color: rgba(107, 114, 128, 0.92) !important;
+  font-size: 26px !important;
   font-weight: 1000 !important;
-  transform: translateY(2px) !important;
-  text-shadow: 0 14px 30px rgba(0, 0, 0, 0.35) !important;
+  transform: translateY(1px) !important;
 }
 
 .detailsMid {
@@ -282,7 +236,7 @@
 }
 
 /* =========================
-   BADGE — PÍLULA + CONTRASTE GARANTIDO
+   BADGE (pílula com gradiente)
 ========================= */
 .detailsBadge {
   height: 40px !important;
@@ -293,96 +247,87 @@
   align-items: center !important;
   justify-content: center !important;
 
-  font-size: 16px !important;
+  font-size: 14px !important;
   font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.20) !important;
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 14px 28px rgba(0, 0, 0, 0.18) !important;
-
-  color: rgba(255, 255, 255, 0.98) !important;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.45) !important;
+  color: rgba(255,255,255,0.98) !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.35) !important;
   user-select: none !important;
 }
 
 .detailsBadgeOk {
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(150, 232, 78, 0.98) 0%, rgba(78, 150, 18, 0.96) 100%) !important;
+  border-color: rgba(94, 133, 66, 0.28) !important;
+  background: linear-gradient(180deg, rgba(160, 234, 82, 0.98) 0%, rgba(76, 148, 18, 0.96) 100%) !important;
 }
 
 .detailsBadgeBad {
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(255, 118, 104, 0.96) 0%, rgba(198, 44, 34, 0.94) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.28) !important;
+  background: linear-gradient(180deg, rgba(255, 120, 120, 0.96) 0%, rgba(198, 44, 34, 0.94) 100%) !important;
 }
 
 .detailsBadgeWarn {
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.46) 0%, rgba(0,0,0,0.00) 62%),
-    linear-gradient(180deg, rgba(255, 214, 84, 0.96) 0%, rgba(206, 162, 18, 0.94) 100%) !important;
+  border-color: rgba(202, 138, 4, 0.28) !important;
+  background: linear-gradient(180deg, rgba(255, 214, 84, 0.96) 0%, rgba(206, 162, 18, 0.94) 100%) !important;
 }
 
 /* =========================
-   CORPO DO TEXTO
+   CORPO
 ========================= */
 .detailsBody {
-  padding: 22px 10px 8px !important;
+  padding: 18px 10px 6px !important;
 }
 
 .detailsStatusRow {
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
-  margin-top: 10px !important;
+  margin-top: 12px !important;
 }
 
+/* Ícone do status (colorido) */
 .detailsStatusIcon {
   width: 30px !important;
   height: 30px !important;
   display: grid !important;
   place-items: center !important;
-
-  color: rgba(170, 255, 120, 0.95) !important;
-  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.28)) !important;
+  filter: drop-shadow(0 14px 26px rgba(15, 23, 42, 0.12)) !important;
 }
-
-.detailsStatusIcon.is-ok { color: rgba(170, 255, 120, 0.95) !important; }
-.detailsStatusIcon.is-bad { color: rgba(255, 140, 140, 0.95) !important; }
-.detailsStatusIcon.is-warn { color: rgba(255, 220, 100, 0.95) !important; }
 
 .detailsStatusIcon svg {
   width: 28px !important;
   height: 28px !important;
 }
 
+.detailsStatusIcon.is-ok { color: #5e8542 !important; }
+.detailsStatusIcon.is-bad { color: rgba(198, 44, 34, 0.94) !important; }
+.detailsStatusIcon.is-warn { color: rgba(206, 162, 18, 0.94) !important; }
+
 .detailsStatusTitle {
   margin: 0 !important;
-  font-size: 28px !important;
+  font-size: 26px !important;
   font-weight: 1000 !important;
-  color: rgba(255, 255, 255, 0.94) !important;
-  text-shadow: 0 14px 30px rgba(0, 0, 0, 0.32) !important;
+  color: rgba(31, 41, 55, 0.92) !important;
 }
 
 .detailsText {
   margin: 14px 0 0 !important;
-  color: rgba(255, 255, 255, 0.86) !important;
-  font-size: 17px !important;
-  font-weight: 700 !important;
+  color: rgba(55, 65, 81, 0.90) !important;
+  font-size: 16px !important;
+  font-weight: 750 !important;
   line-height: 1.65 !important;
-  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.22) !important;
 }
 
 .detailsText strong {
-  color: rgba(255, 255, 255, 0.96) !important;
+  color: rgba(31, 41, 55, 0.92) !important;
   font-weight: 950 !important;
 }
 
 /* =========================
-   CTA — PÍLULA + CONTRASTE GARANTIDO
+   CTA (botão principal verde)
 ========================= */
 .detailsActions {
   display: grid !important;
@@ -391,36 +336,28 @@
 }
 
 .detailsBackBtn {
-  height: 62px !important;
+  height: 66px !important;
   min-width: 420px !important;
   padding: 0 34px !important;
-
   border-radius: 9999px !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.00) 55%),
-    linear-gradient(180deg, rgba(160, 234, 82, 0.98) 0%, rgba(76, 148, 18, 0.96) 100%) !important;
+  border: 1px solid rgba(94, 133, 66, 0.35) !important;
+  background: linear-gradient(180deg, rgba(160, 234, 82, 0.98) 0%, rgba(76, 148, 18, 0.96) 100%) !important;
 
   color: rgba(255, 255, 255, 0.98) !important;
   font-size: 20px !important;
   font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
 
   cursor: pointer !important;
   user-select: none !important;
 
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
   transition: transform 180ms ease, filter 180ms ease !important;
 }
 
 .detailsBackBtn:hover {
   transform: translateY(-1px) !important;
-  filter: brightness(1.03) !important;
+  filter: brightness(1.02) !important;
 }
 
 .detailsBackBtn:active {
@@ -430,11 +367,10 @@
 /* =========================
    RESPONSIVO
 ========================= */
-@media (max-width: 1100px) {
-  .detailsCard {
-    padding: 40px !important;
-    width: min(1100px, 100%) !important;
-    min-height: auto !important;
+@media (max-width: 980px) {
+  .analysisDetailsPage .detailsCard {
+    transform: none !important;
+    width: min(920px, 100%) !important;
   }
 }
 
@@ -454,7 +390,7 @@
     grid-template-columns: 1fr !important;
     gap: 12px !important;
     text-align: left !important;
-    border-radius: 26px !important; /* ainda bem arredondado no mobile */
+    border-radius: 26px !important;
   }
 
   .detailsArrow {
@@ -477,7 +413,7 @@
 ========================= */
 .detailsMiniBtn:focus-visible,
 .detailsBackBtn:focus-visible {
-  outline: 2px solid rgba(160, 234, 82, 0.38) !important;
+  outline: 2px solid rgba(94, 133, 66, 0.45) !important;
   outline-offset: 2px !important;
 }
 

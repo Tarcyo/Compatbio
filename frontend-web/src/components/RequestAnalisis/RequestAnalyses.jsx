@@ -52,7 +52,7 @@ function IconAlert(props) {
   );
 }
 
-/** ✅ Modal com disableClose opcional */
+/** ✅ Modal com disableClose opcional (mantém a lógica original) */
 function Modal({ open, title, children, footer, onClose, disableClose = false }) {
   const panelRef = useRef(null);
 
@@ -142,11 +142,12 @@ function SearchableDropdown({
   const abortRef = useRef(null);
   const debounceRef = useRef(null);
 
-  // ✅ IMPORTANTE: só atualiza o texto quando o VALUE mudar
+  // ✅ só atualiza o texto quando o VALUE mudar
   useEffect(() => {
     setQuery(value ? getLabelRef.current(value) : "");
   }, [value]);
 
+  // clique fora fecha
   useEffect(() => {
     function onDocClick(e) {
       if (!rootRef.current) return;
@@ -156,7 +157,7 @@ function SearchableDropdown({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  // ✅ cleanup (evita setState após unmount)
+  // cleanup
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -229,7 +230,10 @@ function SearchableDropdown({
   };
 
   return (
-    <div className="requestGroup" ref={rootRef}>
+    <div
+      className={`requestGroup ${open ? "is-dropdown-open" : ""}`}
+      ref={rootRef}
+    >
       <h2 className="requestTitle">{label}</h2>
 
       <div className={`requestSearch requestDropdown ${open ? "is-open" : ""}`}>
@@ -260,6 +264,17 @@ function SearchableDropdown({
         ) : null}
       </div>
 
+      {/* ✅ Backdrop real (não usa ::before → sem conflito) */}
+      {open ? (
+        <button
+          type="button"
+          className="requestDropdownBackdrop"
+          aria-label="Fechar lista"
+          tabIndex={-1}
+          onMouseDown={() => setOpen(false)}
+        />
+      ) : null}
+
       {open ? (
         <div className="requestDropdownPanel" role="listbox" aria-label={`${label} opções`}>
           {loading ? (
@@ -272,7 +287,11 @@ function SearchableDropdown({
             <ul className="requestDropdownList">
               {items.map((p) => (
                 <li key={getKeyRef.current(p)} className="requestDropdownItem">
-                  <button type="button" className="requestDropdownBtn" onClick={() => selectItem(p)}>
+                  <button
+                    type="button"
+                    className="requestDropdownBtn"
+                    onClick={() => selectItem(p)}
+                  >
                     <span className="requestDropdownName">{getLabelRef.current(p)}</span>
                     {p?.E_PARA_DEMO ? <span className="requestDropdownTag">demo</span> : null}
                   </button>
@@ -298,7 +317,7 @@ export default function RequestAnalysisPage() {
   const [loadingCredits, setLoadingCredits] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ✅ modal principal (confirmação análise / feedback)
+  // modal principal
   const [modal, setModal] = useState({
     open: false,
     mode: "confirm", // confirm | success | no_credits | error
@@ -306,7 +325,7 @@ export default function RequestAnalysisPage() {
     message: "",
   });
 
-  // ✅ modal de solicitação de produto
+  // modal solicitar produto
   const [prodModalOpen, setProdModalOpen] = useState(false);
   const [prodTipo, setProdTipo] = useState("QU_MICO"); // QU_MICO | BIOL_GICO
   const [prodNome, setProdNome] = useState("");
@@ -378,7 +397,7 @@ export default function RequestAnalysisPage() {
         open: true,
         mode: "no_credits",
         title: "Créditos insuficientes",
-        message: `Você não possui créditos suficientes para solicitar uma análise.`,
+        message: "Você não possui créditos suficientes para solicitar uma análise.",
       });
       return;
     }
@@ -453,7 +472,6 @@ export default function RequestAnalysisPage() {
     }
   };
 
-  // ✅ abre modal de solicitar produto (cliente)
   const openProductRequest = () => {
     setProdErr("");
     setProdTipo("QU_MICO");
@@ -466,7 +484,6 @@ export default function RequestAnalysisPage() {
     setProdModalOpen(false);
   };
 
-  // ✅ chama sua rota do backend
   const submitProductRequest = async () => {
     const nome = prodNome.trim();
     if (!nome) {
@@ -545,7 +562,7 @@ export default function RequestAnalysisPage() {
   })();
 
   return (
-    <div className="pg-wrap">
+    <div className="pg-wrap requestPage">
       <div className="analysisPage">
         <form ref={cardRef} className="pg-card requestCard" onSubmit={submit}>
           <header className="requestCardHeader">
@@ -605,7 +622,7 @@ export default function RequestAnalysisPage() {
         </form>
       </div>
 
-      {/* ✅ Modal principal (análise) */}
+      {/* Modal principal */}
       <Modal
         open={modal.open}
         title={modal.title}
@@ -619,7 +636,7 @@ export default function RequestAnalysisPage() {
         </div>
       </Modal>
 
-      {/* ✅ Modal de Solicitar Produto (cliente) */}
+      {/* Modal de Solicitar Produto */}
       <Modal
         open={prodModalOpen}
         title="Solicitar inclusão de produto"
@@ -645,7 +662,7 @@ export default function RequestAnalysisPage() {
           <div className="apModalRow">
             <label className="apModalLabel">Tipo</label>
 
-            <div className="requestSearch" style={{ gridTemplateColumns: "54px 1fr" }}>
+            <div className="requestSearch is-select" style={{ gridTemplateColumns: "54px 1fr" }}>
               <span className="requestSearchIco" aria-hidden="true">
                 <IconSearch />
               </span>

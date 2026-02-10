@@ -1,31 +1,30 @@
-/* DashboardLayout.css — COMPLETO (Plans palette + SEM glass + contraste + pílulas)
-   ✅ Background fullscreen sem faixa branca
-   ✅ Sidebar e modal com a MESMA cor dos cards (Plans)
-   ✅ Remove glassmorphism (sem blur / sem transparência)
-   ✅ Aumenta contraste (strokes + sombras)
-   ✅ Tudo mais arredondado/pílula
+/* DashboardLayout.css — LIGHT (sem overlay / sem glass)
+   ✅ Sidebar/Modal sólidos (branco) + sombras suaves
+   ✅ Verde como accent
+   ✅ Sidebar bem alinhada (pill sem offset torto)
+   ✅ Layout levemente mais pra esquerda
 */
 
-/* =========================
-   BASE / ANTI FAIXA BRANCA
-========================= */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
   margin: 0;
 }
 
 body {
-  background: #000;
-  overflow: hidden;
-  color: #fff;
-  color-scheme: dark;
+  background: #ffffff;
+  overflow: hidden; /* scroll fica dentro do .ds-main */
+  color: rgba(31, 41, 55, 0.92);
+  color-scheme: light;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* =========================
@@ -36,7 +35,15 @@ body {
   min-height: 100vh;
   width: 100%;
 
-  background-image: var(--ds-bg);
+  /* ✅ mesmo “tom” do Profile (névoa verde embaixo + base clara)
+     ✅ + imagem do fundo por baixo via var(--ds-bg)
+  */
+  background:
+    radial-gradient(1100px 520px at 12% 108%, rgba(160, 234, 82, 0.22), rgba(255, 255, 255, 0) 60%),
+    radial-gradient(1000px 520px at 88% 108%, rgba(160, 234, 82, 0.12), rgba(255, 255, 255, 0) 62%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%),
+    var(--ds-bg);
+
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -45,46 +52,28 @@ body {
   place-items: stretch;
   position: relative;
 
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* ✅ tokens (Plans) no escopo da página */
-  --accent: rgba(160, 234, 82, 1);
+  /* tokens (pode manter os seus) */
+  --green: #5e8542;
 
-  --bg-0: #2a3443;
-  --bg-1: #222b38;
+  --text: rgba(31, 41, 55, 0.92);
+  --muted: rgba(107, 114, 128, 0.95);
 
-  --panel: #39465b;
-  --panel2: #334156;
+  --stroke: rgba(15, 23, 42, 0.10);
+  --stroke-soft: rgba(15, 23, 42, 0.07);
 
-  --tile: #344256;
-  --tile2: #2f3c50;
-
-  --btn-0: #3b4961;
-  --btn-1: #313e54;
-
-  --stroke-0: rgba(255, 255, 255, 0.14);
-  --stroke-1: rgba(255, 255, 255, 0.18);
-
-  --text-0: rgba(255, 255, 255, 0.96);
-  --text-1: rgba(255, 255, 255, 0.84);
-  --text-2: rgba(255, 255, 255, 0.68);
-
-  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
-  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
+  /* ✅ tokens glass */
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(15, 23, 42, 0.06);
+  --glass-shadow: 0 18px 52px rgba(15, 23, 42, 0.08);
 }
 
-/* overlay leve (SEM virar “card preto”) */
+/* ✅ overlay desligado */
 .ds-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-
-  background:
-    radial-gradient(1100px 540px at 18% 10%, rgba(160, 234, 82, 0.10), rgba(0,0,0,0) 58%),
-    radial-gradient(900px 520px at 82% 12%, rgba(255,255,255,0.05), rgba(0,0,0,0) 55%),
-    linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.26));
+  display: none !important;
+  content: none !important;
+  background: none !important;
 }
 
 /* =========================
@@ -99,44 +88,53 @@ body {
   height: 100%;
   min-height: 0;
 
-  padding: 24px;
-  gap: 20px;
+  /* mais para a esquerda */
+  padding: 18px 22px 22px 10px;
 
+  gap: 18px;
   align-items: start;
 }
 
 /* =========================
    MAIN
 ========================= */
-.ds-main {
-  padding: 28px 34px;
-  overflow: auto;
-  min-height: 0;
 
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.26) transparent;
+.ds-main::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
-
-/* WebKit - main */
-.ds-main::-webkit-scrollbar { width: 12px; height: 12px; }
-.ds-main::-webkit-scrollbar-track { background: transparent; }
-.ds-main::-webkit-scrollbar-corner { background: transparent; }
+.ds-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ds-main::-webkit-scrollbar-corner {
+  background: transparent;
+}
 .ds-main::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.22);
+  background-color: rgba(15, 23, 42, 0.18);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: padding-box;
 }
-.ds-main::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.34); }
-.ds-main::-webkit-scrollbar-thumb:active { background-color: rgba(255, 255, 255, 0.42); }
+.ds-main::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(15, 23, 42, 0.26);
+}
+.ds-main::-webkit-scrollbar-thumb:active {
+  background-color: rgba(15, 23, 42, 0.32);
+}
 
 .ds-routeAnim {
   animation: ds-fadeIn 220ms ease-out;
 }
 
 @keyframes ds-fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =========================
@@ -144,21 +142,30 @@ body {
 ========================= */
 html {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
 }
-html::-webkit-scrollbar { width: 12px; height: 12px; }
-html::-webkit-scrollbar-track { background: transparent; }
-html::-webkit-scrollbar-corner { background: transparent; }
+html::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-corner {
+  background: transparent;
+}
 html::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.20);
+  background-color: rgba(15, 23, 42, 0.16);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: padding-box;
 }
-html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32); }
+html::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(15, 23, 42, 0.24);
+}
 
 /* ============================================================
-   SIDEBAR — SÓLIDA (Plans) + CONTRASTE + PÍLULAS
+   SIDEBAR — LIGHT SÓLIDA (SEM blur)
 ============================================================ */
 
 /* =========================
@@ -166,52 +173,46 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 ========================= */
 .sb {
   width: 100%;
-  height: 90dvh;
-  max-height: 90dvh;
+  height: calc(100dvh - 40px);
+  max-height: calc(100dvh - 40px);
   min-height: 0;
 
   position: relative;
   display: flex;
   flex-direction: column;
 
-  padding: 22px 18px;
-  border-radius: 32px; /* mais arredondado */
+  padding: 18px 16px;
+  border-radius: var(--r-xl);
 
-  /* ✅ MESMA COR DOS CARDS (Plans) */
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
-  border: 1px solid var(--stroke-0);
+  background: var(--card);
+  border: 1px solid var(--stroke-soft);
+  box-shadow: var(--shadow-md);
 
-  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.08);
-
-  /* ✅ remove glassmorphism */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 
   overflow: hidden;
+
+    background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-/* brilho interno sutil (premium) */
-.sb::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%);
-  opacity: 0.85;
-}
-
-.sb > * {
-  position: relative;
-  z-index: 1;
+/* remove brilhos antigos */
+.sb::before,
+.sb::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
 }
 
 .sb-top {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   min-height: 0;
   flex: 1 1 auto;
 }
@@ -220,68 +221,82 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px 14px;
+  padding: 10px 6px 10px;
 }
 
 .sb-logo {
   width: 100%;
-  max-width: 260px;
+  max-width: 240px;
   height: auto;
   display: block;
-  filter: drop-shadow(0 12px 26px rgba(0,0,0,.30));
+  filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.10));
 }
 
 /* =========================
-   NAV + PILL
+   NAV
 ========================= */
 .sb-nav {
+  --nav-pad: 10px;
+
   position: relative;
 
   display: flex;
   flex-direction: column;
   gap: 12px;
 
-  padding: 8px 6px;
+  padding: var(--nav-pad);
 
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
 }
 
-/* scrollbar sb-nav */
-.sb-nav {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+.sb-nav::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
-.sb-nav::-webkit-scrollbar { width: 12px; height: 12px; }
-.sb-nav::-webkit-scrollbar-track { background: transparent; }
-.sb-nav::-webkit-scrollbar-corner { background: transparent; }
+.sb-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sb-nav::-webkit-scrollbar-corner {
+  background: transparent;
+}
 .sb-nav::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.20);
+  background-color: rgba(15, 23, 42, 0.16);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: padding-box;
 }
-.sb-nav::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32); }
+.sb-nav::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(15, 23, 42, 0.24);
+}
 
-/* pill ativa mais arredondada */
+/* =========================
+   ACTIVE PILL (SEM offset torto)
+   ✅ top: 0 (sem “top:8px”)
+   ✅ left/right alinhados ao padding do nav
+========================= */
 .sb-activePill {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  top: 8px;
+  top: 0;
+  left: var(--nav-pad);
+  right: var(--nav-pad);
 
-  border-radius: 9999px; /* ✅ pílula */
+  border-radius: 9999px;
   pointer-events: none;
   opacity: 0;
 
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(132, 205, 62, 0.96) 0%, rgba(92, 162, 34, 0.94) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(160, 234, 82, 0.98) 0%,
+    rgba(94, 133, 66, 0.98) 100%
+  );
 
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255,255,255,0.20);
+  border: 1px solid rgba(94, 133, 66, 0.25);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.16);
 
   transition:
     transform 520ms cubic-bezier(.18, 1.15, .22, 1),
@@ -291,34 +306,42 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   will-change: transform, height;
   z-index: 0;
 }
-.sb-activePill.is-show { opacity: 1; }
+
+.sb-activePill.is-show {
+  opacity: 1;
+}
 
 /* =========================
-   ITENS (MAIORES + PÍLULA)
+   ITENS — alinhamento perfeito (sem “torto”)
 ========================= */
+/* ✅ mais contraste dos botões vs card branco */
 .sb-item {
   position: relative;
   z-index: 1;
 
-  height: 66px;
-  border-radius: 9999px; /* ✅ pílula */
+  height: 64px;
+  width: 100%;
+  border-radius: 9999px;
 
-  display: grid;
-  grid-template-columns: 52px 1fr;
+  display: flex;
   align-items: center;
+  gap: 14px;
 
-  padding: 0 16px;
+  padding: 0 18px;
   text-decoration: none;
 
-  color: rgba(255, 255, 255, 0.84);
+  color: rgba(55, 65, 81, 0.92);
 
-  /* ✅ mais contraste (sólido) */
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  /* fundo mais “alto” que o card */
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
 
+  /* borda mais visível */
+  border: 1px solid rgba(15, 23, 42, 0.16);
+
+  /* sombra um pouco mais forte */
   box-shadow:
-    0 14px 34px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+    0 14px 26px rgba(15, 23, 42, 0.12),
+    0 2px 0 rgba(255, 255, 255, 0.9) inset;
 
   overflow: hidden;
   transition:
@@ -328,15 +351,17 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
     filter 220ms ease;
 }
 
+
+
 .sb-item::before {
   content: "";
   position: absolute;
   inset: -40px -60px -40px -60px;
   background: radial-gradient(
     circle at 20% 30%,
-    rgba(255,255,255,0.18) 0%,
-    rgba(255,255,255,0.08) 35%,
-    rgba(255,255,255,0.00) 60%
+    rgba(15, 23, 42, 0.10) 0%,
+    rgba(15, 23, 42, 0.05) 35%,
+    rgba(15, 23, 42, 0.00) 60%
   );
   transform: translateX(-18%) rotate(-8deg);
   opacity: 0;
@@ -345,103 +370,126 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 
 .sb-item:hover {
   transform: translateY(-1px);
-  color: rgba(255, 255, 255, 0.96);
-  border-color: rgba(255, 255, 255, 0.18);
-  filter: brightness(1.05);
+  border-color: rgba(15, 23, 42, 0.22);
+  filter: brightness(1.02);
 }
+
 
 .sb-item:hover::before {
   opacity: 1;
   transform: translateX(10%) rotate(-8deg);
 }
 
+/* ✅ quando ativo: texto/ícone BRANCOS em cima do verde */
 .sb-item.is-active {
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(132, 205, 62, 0.96) 0%, rgba(92, 162, 34, 0.94) 100%) !important;
-
-  border-color: rgba(180, 255, 120, 0.32) !important;
-
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 
   color: rgba(255, 255, 255, 0.98) !important;
 }
 
-.sb-itemIcon { display: grid; place-items: center; }
+.sb-itemIcon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+}
 
 .sb-icon {
   width: 26px;
   height: 26px;
-  opacity: 0.94;
-  transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1);
+  opacity: 0.92;
+  transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1), opacity 220ms ease;
 }
 
 .sb-itemLabel {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 850;
   letter-spacing: 0.2px;
+  line-height: 1;
+  flex: 1 1 auto;
+
+  /* evita quebrar/tortar */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1);
 }
 
-.sb-item.is-active .sb-icon { transform: translateX(2px) scale(1.06); }
-.sb-item.is-active .sb-itemLabel { transform: translateX(2px); }
+.sb-item.is-active .sb-icon {
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+.sb-item.is-active .sb-itemLabel {
+  color: rgba(255, 255, 255, 0.98) !important;
+}
 
 /* =========================
-   LOGOUT (Sair) — PÍLULA + CONTRASTE
+   LOGOUT (Sair) — texto centralizado de verdade
 ========================= */
 .sb-bottom {
   margin-top: auto;
-  padding-top: 20px;
-  padding-bottom: 12px;
-
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.00) 0%,
-    rgba(0, 0, 0, 0.18) 35%,
-    rgba(0, 0, 0, 0.28) 100%
-  );
+  padding-top: 16px;
+  padding-bottom: 10px;
 }
 
+/* ✅ logout com mais contraste */
 .sb-logout {
+  position: relative;
   width: 100%;
-  height: 66px;
-  border-radius: 9999px; /* ✅ pílula */
+  height: 64px;
+  border-radius: 9999px;
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-  color: rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+  color: rgba(55, 65, 81, 0.92);
 
-  display: grid;
-  grid-template-columns: 52px 1fr;
+  display: flex;
   align-items: center;
-  padding: 0 16px;
+  justify-content: center;
 
   cursor: pointer;
+
+  box-shadow:
+    0 14px 26px rgba(15, 23, 42, 0.12),
+    0 2px 0 rgba(255, 255, 255, 0.9) inset;
+
   transition:
     transform 200ms cubic-bezier(.2,.8,.2,1),
     filter 200ms ease,
     border-color 200ms ease;
 }
 
-.sb-logout:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-}
 
-.sb-logout:active { transform: translateY(0px); }
+
+
+.sb-logout:hover {
+  border-color: rgba(15, 23, 42, 0.22);
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+.sb-logout:active {
+  transform: translateY(0px);
+}
 
 .sb-logoutIcon {
+  position: absolute;
+  left: 18px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
-  color: rgba(255, 120, 120, 0.95);
+  color: rgba(239, 68, 68, 0.95);
 }
 
-.sb-iconPower { display: none !important; }
+.sb-iconPower {
+  display: none !important;
+}
 
-/* ícone novo (mask) */
+/* ícone via mask */
 .sb-logoutIcon::before {
   content: "";
   width: 26px;
@@ -461,13 +509,14 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 }
 
 .sb-logoutLabel {
-  font-size: 20px;
-  font-weight: 1000;
+  font-size: 18px;
+  font-weight: 950;
   letter-spacing: 0.2px;
+  line-height: 1;
 }
 
 /* ============================================================
-   MODAL (LOGOUT) — MESMA COR DOS CARDS + SEM GLASS + CONTRASTE
+   MODAL LOGOUT — LIGHT (sólido)
 ============================================================ */
 .sb-modalOverlay {
   position: fixed;
@@ -478,13 +527,10 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   place-items: center;
 
   padding: 18px;
+  background: rgba(15, 23, 42, 0.55);
 
-  /* ✅ overlay mais forte (contraste) */
-  background: rgba(0, 0, 0, 0.72);
-
-  /* ✅ remove glassmorphism */
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 
   animation: sb-fadeIn 160ms ease-out;
 }
@@ -493,37 +539,23 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   width: min(620px, 92vw);
   border-radius: 26px;
 
-  /* ✅ MESMA COR DOS CARDS (Plans) */
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
 
-  box-shadow:
-    0 40px 110px rgba(0, 0, 0, 0.70),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
-
+  box-shadow: 0 40px 110px rgba(15, 23, 42, 0.22);
   overflow: hidden;
+
   transform-origin: center;
-
   animation: sb-popIn 200ms cubic-bezier(.2,.9,.2,1);
+
   position: relative;
 }
 
-/* brilho sutil no modal (igual card) */
-.sb-modal::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    radial-gradient(900px 320px at 18% 10%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.10), rgba(0,0,0,0) 58%);
-  opacity: 0.80;
-}
-
-.sb-modal > * {
-  position: relative;
-  z-index: 1;
+.sb-modal::before,
+.sb-modal::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
 }
 
 .sb-modalHeader {
@@ -533,7 +565,7 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   align-items: start;
   padding: 22px 22px 12px;
 
-  border-bottom: 1px solid rgba(255,255,255,0.10);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .sb-modalIcon {
@@ -544,32 +576,34 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   display: grid;
   place-items: center;
 
-  background: rgba(255, 90, 90, 0.14);
-  border: 1px solid rgba(255, 90, 90, 0.26);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  box-shadow: var(--shadow-sm);
 }
 
 .sb-modalIconSvg {
   width: 28px;
   height: 28px;
-  color: rgba(255, 110, 110, 0.95);
+  color: rgba(239, 68, 68, 0.95);
 }
 
-.sb-modalTitles { padding-top: 2px; }
+.sb-modalTitles {
+  padding-top: 2px;
+}
 
 .sb-modalTitle {
   margin: 0;
   font-size: 20px;
-  font-weight: 1000;
+  font-weight: 950;
   letter-spacing: 0.2px;
-  color: rgba(255, 255, 255, 0.96);
+  color: rgba(31, 41, 55, 0.92);
 }
 
 .sb-modalDesc {
   margin: 8px 0 0;
   font-size: 15.5px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(55, 65, 81, 0.78);
 }
 
 .sb-modalActions {
@@ -578,18 +612,17 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   justify-content: flex-end;
   padding: 16px 22px 22px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(0, 0, 0, 0.12);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.03);
 }
 
-/* botões do modal — pílula + sólido */
 .sb-btn {
   height: 54px;
   padding: 0 18px;
-  border-radius: 9999px; /* ✅ pílula */
+  border-radius: 9999px;
 
   font-size: 15px;
-  font-weight: 1000;
+  font-weight: 950;
   letter-spacing: 0.2px;
 
   cursor: pointer;
@@ -597,31 +630,44 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
   user-select: none;
 }
 
-.sb-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-.sb-btn:active { transform: translateY(0px); }
+.sb-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.sb-btn:active {
+  transform: translateY(0px);
+}
 
 .sb-btnGhost {
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%);
-  color: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, #ffffff 0%, var(--card-2) 100%);
+  color: rgba(55, 65, 81, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: var(--shadow-sm);
 }
-.sb-btnGhost:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.sb-btnGhost:hover {
+  filter: brightness(1.02);
+  transform: translateY(-1px);
+}
 
 .sb-btnDanger {
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(255, 90, 90, 0.96) 0%, rgba(210, 52, 52, 0.94) 100%);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.96) 0%, rgba(185, 28, 28, 0.96) 100%);
   color: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(255, 120, 120, 0.28);
-  box-shadow:
-    0 16px 34px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.26);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
 }
-.sb-btnDanger:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.sb-btnDanger:hover {
+  filter: brightness(1.02);
+  transform: translateY(-1px);
+}
 
-@keyframes sb-fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes sb-popIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes sb-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sb-popIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 /* =========================
    REDUZ MOVIMENTO
@@ -648,7 +694,7 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 .sb-item:focus-visible,
 .sb-logout:focus-visible,
 .sb-btn:focus-visible {
-  outline: 2px solid rgba(160, 234, 82, 0.38);
+  outline: 2px solid rgba(94, 133, 66, 0.45);
   outline-offset: 2px;
 }
 
@@ -658,83 +704,27 @@ html::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32
 @media (max-width: 980px) {
   .ds-shell {
     grid-template-columns: 320px 1fr;
-    padding: 16px;
+    padding: 14px 14px 16px 10px;
     gap: 14px;
   }
 
-  .ds-main { padding: 20px; }
+/* ✅ remove o “quadrado branco” de trás */
 
-  .sb-logo { max-width: 76px; }
+
+  .sb-logo {
+    max-width: 76px;
+  }
+
+  .sb-itemLabel {
+    display: none;
+  }
 
   .sb-item {
-    grid-template-columns: 1fr;
-    justify-items: center;
+    justify-content: center;
     padding: 0;
-    height: 62px;
   }
 
-  .sb-itemLabel { display: none; }
-
-  .sb-logout {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    padding: 0;
-    height: 62px;
+  .sb-logoutLabel {
+    display: none;
   }
-
-  .sb-logoutLabel { display: none; }
-
-  .sb-activePill {
-    left: 10px;
-    right: 10px;
-  }
-}
-/* =========================================
-   SIDEBAR ACTIVE — FUNDO BRANCO + TEXTO PRETO
-========================================= */
-.sb-item.is-active {
-  background: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.55) !important;
-
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
-
-  color: rgba(0, 0, 0, 0.92) !important;
-}
-
-/* garante que label e ícone fiquem pretos também */
-.sb-item.is-active .sb-itemLabel,
-.sb-item.is-active .sb-itemIcon,
-.sb-item.is-active .sb-icon {
-  color: rgba(0, 0, 0, 0.92) !important;
-}
-
-/* ícone SVG herdando cor certinho */
-.sb-item.is-active .sb-icon {
-  opacity: 1 !important;
-  transform: translateX(2px) scale(1.06);
-}
-
-/* opcional: reduz o brilho “hover” quando ativo */
-.sb-item.is-active::before {
-  opacity: 0 !important;
-}
-/* =========================================
-   ACTIVE PILL (ANIMAÇÃO) — BRANCA (não verde)
-========================================= */
-.sb-activePill {
-  /* pílula branca com leve profundidade */
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(236, 241, 248, 0.96) 100%
-  ) !important;
-
-  /* borda sutil + sombra mais “premium” */
-  border: 1px solid rgba(255, 255, 255, 0.55) !important;
-
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80) !important;
 }

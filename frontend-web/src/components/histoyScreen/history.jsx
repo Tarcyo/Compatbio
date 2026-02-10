@@ -1,4 +1,6 @@
+// CreditsHistoryPage.jsx
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "../Pages/Pages.css";
 import "./history.css";
@@ -88,10 +90,7 @@ function IconRefund(props) {
 function IconCheck(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M9.2 16.6 4.9 12.3l1.4-1.4 2.9 2.9 8-8 1.4 1.4-9.4 9.4Z"
-      />
+      <path fill="currentColor" d="M9.2 16.6 4.9 12.3l1.4-1.4 2.9 2.9 8-8 1.4 1.4-9.4 9.4Z" />
     </svg>
   );
 }
@@ -114,31 +113,30 @@ function RefundModal({
   useEffect(() => {
     if (!open) return;
 
-    const t = setTimeout(() => textareaRef.current?.focus?.(), 0);
+    document.body.classList.add("modal-open");
+
+    const t = setTimeout(() => textareaRef.current?.focus?.(), 20);
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose?.();
     };
-    window.addEventListener("keydown", onKeyDown);
-
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
 
     return () => {
       clearTimeout(t);
-      window.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prevOverflow;
+      document.body.classList.remove("modal-open");
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [open, onClose]);
 
   if (!open) return null;
 
-  return (
+  const node = (
     <div
       className="refundOverlay"
       role="presentation"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose?.();
+        if (e.target === e.currentTarget && !submitting) onClose?.();
       }}
     >
       <div className="refundModal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title">
@@ -165,7 +163,7 @@ function RefundModal({
             onClick={onClose}
             aria-label="Fechar"
             disabled={submitting}
-            title="Fechar"
+            title={submitting ? "Aguarde..." : "Fechar"}
           >
             <IconX className="refundCloseIco" />
           </button>
@@ -238,6 +236,8 @@ function RefundModal({
       </div>
     </div>
   );
+
+  return createPortal(node, document.body);
 }
 
 /* ========= page ========= */
@@ -350,7 +350,6 @@ export default function CreditsHistoryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // reload ao paginar em cada aba (a pagina ainda existe, só não tem rodapé UI)
   useEffect(() => {
     if (tab === "CREDITO") loadCredits(pageCredits);
   }, [tab, loadCredits, pageCredits]);
@@ -682,18 +681,10 @@ export default function CreditsHistoryPage() {
                                 </p>
 
                                 {reembolsos.length ? (
-                                  <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+                                  <div className="histRefundList">
                                     {reembolsos.map((r) => (
-                                      <div
-                                        key={String(r?.ID ?? Math.random())}
-                                        style={{
-                                          padding: 10,
-                                          borderRadius: 16,
-                                          border: "1px solid rgba(255,255,255,0.12)",
-                                          background: "rgba(0,0,0,0.10)",
-                                        }}
-                                      >
-                                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                                      <div key={String(r?.ID ?? Math.random())} className="histRefundCard">
+                                        <div className="histRefundRow">
                                           <span className="histStatus is-neutral">{r?.STATUS || "—"}</span>
                                           <span className="histMuted">
                                             Refund: <b>{shortId(r?.STRIPE_REFUND_ID, 10)}</b>
@@ -850,15 +841,7 @@ export default function CreditsHistoryPage() {
                               </p>
 
                               {reembolso ? (
-                                <div
-                                  style={{
-                                    marginTop: 10,
-                                    padding: 10,
-                                    borderRadius: 16,
-                                    border: "1px solid rgba(255,255,255,0.12)",
-                                    background: "rgba(0,0,0,0.10)",
-                                  }}
-                                >
+                                <div className="histRefundCard" style={{ marginTop: 10 }}>
                                   <p className="histMuted" style={{ margin: 0 }}>
                                     Refund: <b>{shortId(reembolso?.STRIPE_REFUND_ID, 12)}</b> • Valor:{" "}
                                     <b>{formatBRL(reembolso?.VALOR)}</b> • Criado: <b>{formatDateTimeBR(reembolso?.DATA_CRIACAO)}</b>

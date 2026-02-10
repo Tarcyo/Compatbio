@@ -1,7 +1,9 @@
-/* RequestAnalysis.css — COMPLETO (Plans palette + FIX DROPDOWN)
-   ✅ Paleta do PlansPage (cards/panels/botões/inputs)
-   ✅ Mantém: sem glassmorphism, pílulas, modal pílula
-   ✅ FIX dropdown: painel cobre tudo e fica acima dos outros grupos
+/* RequestAnalysis.css — GLASS (igual Profile) + SCALE 150% (responsivo)
+   ✅ Fundo transparente (sem “quadrado branco” atrás)
+   ✅ Card principal com glass IGUAL ao Profile (0.72 + blur(10px))
+   ✅ Dropdown não escurece nada (backdrop transparente)
+   ✅ Modal no mesmo estilo
+   ✅ Escala 1.5 no desktop, reduz em telas menores p/ não quebrar
 */
 
 /* =========================
@@ -15,119 +17,161 @@
   text-rendering: geometricPrecision !important;
 }
 
-.requestPage {
+/* =========================
+   TOKENS (1 fonte de verdade)
+   + escala (desktop 1.5)
+========================= */
+.pg-wrap.requestPage {
+  /* escala geral */
+  --ra-scale: 1.5;
+
+  /* superfícies */
+  --ra-surface-0: #ffffff;
+  --ra-surface-1: #f2f4f7;
+
+  /* bordas/sombras (IGUAL vibe Profile) */
+  --ra-border: rgba(15, 23, 42, 0.12);
+  --ra-border-soft: rgba(15, 23, 42, 0.10);
+
+  /* sombra do card (similar ao Profile) */
+  --ra-shadow-card: 0 calc(18px * var(--ra-scale)) calc(52px * var(--ra-scale)) rgba(15, 23, 42, 0.08);
+  --ra-shadow-md: 0 calc(14px * var(--ra-scale)) calc(34px * var(--ra-scale)) rgba(15, 23, 42, 0.10);
+
+  /* texto */
+  --ra-text-0: rgba(31, 41, 55, 0.92);
+  --ra-text-1: rgba(55, 65, 81, 0.92);
+  --ra-muted: rgba(107, 114, 128, 0.95);
+
+  /* acento */
+  --ra-green: #5e8542;
+  --ra-green-2: rgba(160, 234, 82, 0.98);
+  --ra-green-3: rgba(76, 148, 18, 0.96);
+
+  /* raios */
+  --ra-r-xl: calc(26px * var(--ra-scale));
+  --ra-r-lg: calc(18px * var(--ra-scale));
+  --ra-r-pill: 9999px;
+
+  /* tamanhos (tudo escalado) */
+  --ra-page-pad-x: calc(22px * var(--ra-scale));
+  --ra-page-pad-y: calc(28px * var(--ra-scale));
+
+  --ra-card-pad-x: calc(18px * var(--ra-scale));
+  --ra-card-pad-y: calc(18px * var(--ra-scale));
+
+  --ra-card-inner-pad-x: calc(18px * var(--ra-scale));
+  --ra-card-inner-pad-y: calc(18px * var(--ra-scale));
+
+  --ra-gap-8: calc(8px * var(--ra-scale));
+  --ra-gap-10: calc(10px * var(--ra-scale));
+  --ra-gap-12: calc(12px * var(--ra-scale));
+  --ra-gap-14: calc(14px * var(--ra-scale));
+  --ra-gap-16: calc(16px * var(--ra-scale));
+  --ra-gap-18: calc(18px * var(--ra-scale));
+
+  --ra-h-input: calc(58px * var(--ra-scale));
+  --ra-h-clear: calc(42px * var(--ra-scale));
+  --ra-h-cta: calc(66px * var(--ra-scale));
+  --ra-h-help: calc(56px * var(--ra-scale));
+
+  --ra-fs-title: calc(42px * var(--ra-scale));
+  --ra-fs-label: calc(19px * var(--ra-scale));
+  --ra-fs-input: calc(16px * var(--ra-scale));
+  --ra-fs-btn: calc(22px * var(--ra-scale));
+  --ra-fs-kpi: calc(38px * var(--ra-scale));
+  --ra-fs-small: calc(12px * var(--ra-scale));
+
+  /* brilho interno sutil (opcional e leve) */
+  --ra-glow: radial-gradient(900px 300px at 18% 10%, rgba(255,255,255,0.60), rgba(255,255,255,0) 55%),
+             radial-gradient(720px 280px at 78% 0%, rgba(160,234,82,0.14), rgba(255,255,255,0) 58%);
+}
+
+/* =========================
+   WRAPPER — SEM QUADRO BRANCO (TRANSPARENTE)
+========================= */
+.pg-wrap.requestPage {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+
+  padding: var(--ra-page-pad-y) var(--ra-page-pad-x) calc(34px * var(--ra-scale)) !important;
+
+  /* ✅ deixa o fundo do Dashboard aparecer */
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
   position: relative !important;
-  isolation: isolate !important;
   min-height: 100dvh !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+
+  isolation: isolate !important;
 }
 
-/* overlay do fundo (mesma vibe do Perfil/Plans) */
-.requestPage::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 0 !important;
-  pointer-events: none !important;
-  background:
-    radial-gradient(1100px 540px at 18% 10%, rgba(160, 234, 82, 0.12), rgba(0,0,0,0) 58%),
-    radial-gradient(900px 520px at 82% 12%, rgba(255,255,255,0.06), rgba(0,0,0,0) 55%),
-    linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.40) 100%) !important;
-}
-
-/* grão sutil */
+.pg-wrap.requestPage::before,
+.pg-wrap.requestPage::after,
+.requestPage::before,
 .requestPage::after {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 0 !important;
-  pointer-events: none !important;
-  opacity: 0.055 !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E") !important;
-  mix-blend-mode: overlay !important;
+  content: none !important;
+  display: none !important;
 }
 
-.requestPage > * {
-  position: relative !important;
-  z-index: 1 !important;
+/* garante que nada pinte fundo */
+.requestPage,
+.requestPage .analysisPage {
+  background: transparent !important;
 }
 
 /* =========================
    LAYOUT
 ========================= */
-.analysisPage {
-  width: 100%;
-  display: grid;
-  justify-items: start;
-  align-items: start;
+.requestPage .analysisPage {
+  width: 100% !important;
+  display: grid !important;
+  justify-items: center !important;
+  align-items: start !important;
   padding: 0 !important;
 }
 
 /* =========================
-   CARD PRINCIPAL (SÓLIDO) — Plans palette
+   CARD PRINCIPAL — GLASS IGUAL PROFILE
 ========================= */
-.requestCard {
-  /* ✅ tokens do PlansPage */
-  --accent: rgba(160, 234, 82, 1);
+.requestPage .requestCard {
+  width: min(1120px, 100%) !important;
+  height: auto !important;
 
-  --bg-0: #2a3443;
-  --bg-1: #222b38;
+  border-radius: calc(22px * var(--ra-scale)) !important;
+  padding: calc(18px * var(--ra-scale)) !important;
 
-  --panel: #303b4c;
-  --panel2: #2b3646;
+  /* ✅ igual ao Profile */
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: var(--ra-shadow-card) !important;
 
-  --tile: #334055;
-  --tile2: #2f3a4c;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 
-  --btn-0: #3b4961;
-  --btn-1: #313e54;
-
-  --stroke-0: rgba(255, 255, 255, 0.14);
-  --stroke-1: rgba(255, 255, 255, 0.16);
-
-  --text-0: rgba(255, 255, 255, 0.96);
-  --text-1: rgba(255, 255, 255, 0.84);
-  --text-2: rgba(255, 255, 255, 0.68);
-
-  --shadow-lg: 0 30px 90px rgba(0,0,0,0.55);
-  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
-
-  --r-xl: 26px;
-
-  width: min(1120px, 100%);
-  min-height: 660px;
-
-  padding: 34px 34px 28px;
-  border-radius: var(--r-xl);
-
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  border: 1px solid var(--stroke-0) !important;
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-
-  color: var(--text-0) !important;
   position: relative !important;
-
-  /* ✅ essencial pro dropdown “subir” e não vazar atrás */
+  overflow: hidden !important;
   isolation: isolate !important;
-
-  overflow: visible !important; /* ✅ não corta dropdown */
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
-.requestCard::before {
+/* brilho interno bem sutil (não muda “a cara”, só dá acabamento) */
+.requestPage .requestCard::before {
   content: "" !important;
   position: absolute !important;
   inset: -2px !important;
   pointer-events: none !important;
   border-radius: inherit !important;
-  background:
-    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%) !important;
-  opacity: 0.85 !important;
+  background: var(--ra-glow) !important;
+  opacity: 0.55 !important;
 }
 
-/* deixa header/body acima do brilho */
-.requestCard > * {
+.requestPage .requestCard > * {
   position: relative !important;
   z-index: 1 !important;
 }
@@ -135,39 +179,40 @@
 /* =========================
    HEADER
 ========================= */
-.requestCardHeader {
+.requestPage .requestCardHeader {
   display: flex !important;
-  align-items: flex-start !important;
+  align-items: center !important;
   justify-content: space-between !important;
-  gap: 16px !important;
+  gap: var(--ra-gap-16) !important;
 
-  margin: 0 0 18px !important;
-  padding-bottom: 14px !important;
+  margin: 0 0 var(--ra-gap-18) !important;
+  padding: calc(6px * var(--ra-scale)) calc(8px * var(--ra-scale)) calc(14px * var(--ra-scale)) !important;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.07) !important;
 }
 
-.requestCardTitle {
+.requestPage .requestCardTitle {
   margin: 0 !important;
-  font-size: clamp(24px, 2.8vw, 30px) !important;
-  font-weight: 950 !important;
+  font-size: clamp(calc(34px * var(--ra-scale)), 3.2vw, calc(48px * var(--ra-scale))) !important;
+  font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
-  line-height: 1.1 !important;
-  color: rgba(255, 255, 255, 0.96) !important;
+  line-height: 1.05 !important;
+  color: var(--ra-text-0) !important;
 }
 
-.requestCardBody {
+.requestPage .requestCardBody {
   display: block !important;
+  padding: var(--ra-card-inner-pad-y) calc(8px * var(--ra-scale)) calc(6px * var(--ra-scale)) !important;
 }
 
 /* =========================
-   CRÉDITOS (SÓLIDO) — alinhado com Plans/Profile
+   CRÉDITOS (KPI)
 ========================= */
-.requestCreditsCard {
-  width: min(360px, 100%) !important;
-  min-height: 86px !important;
-  padding: 16px 16px !important;
-  border-radius: 22px !important;
+.requestPage .requestCreditsCard {
+  width: min(calc(360px * var(--ra-scale)), 100%) !important;
+  min-height: calc(94px * var(--ra-scale)) !important;
+  padding: calc(16px * var(--ra-scale)) calc(18px * var(--ra-scale)) !important;
+  border-radius: calc(16px * var(--ra-scale)) !important;
 
   display: flex !important;
   align-items: center !important;
@@ -176,431 +221,436 @@
   overflow: hidden !important;
 
   background:
-    radial-gradient(420px 200px at 18% 40%, rgba(160, 234, 82, 0.22), rgba(0,0,0,0) 65%),
-    linear-gradient(135deg, #222b38 0%, #1f2733 55%, #1a2530 100%) !important;
+    radial-gradient(420px 240px at 25% 55%, rgba(160, 234, 82, 0.20), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.65) 0%, rgba(245,248,242,0.65) 100%) !important;
 
-  border: 1px solid rgba(160, 234, 82, 0.30) !important;
-  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.56) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: var(--ra-shadow-md) !important;
+
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 }
 
-.requestCreditsRow {
+.requestPage .requestCreditsRow {
   width: 100% !important;
   display: grid !important;
-  gap: 10px !important;
+  gap: var(--ra-gap-8) !important;
 }
 
-.requestCreditsLabelInline {
-  font-size: 12px !important;
+.requestPage .requestCreditsLabelInline {
+  font-size: calc(12px * var(--ra-scale)) !important;
   font-weight: 950 !important;
   letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
-  color: rgba(255, 255, 255, 0.78) !important;
+  color: var(--ra-muted) !important;
 }
 
-.requestCreditsStat {
+.requestPage .requestCreditsStat {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: var(--ra-gap-10) !important;
 }
 
-.requestCreditsIcon {
-  width: 22px !important;
-  height: 22px !important;
-  color: rgba(160, 234, 82, 0.98) !important;
+.requestPage .requestCreditsIcon {
+  width: calc(22px * var(--ra-scale)) !important;
+  height: calc(22px * var(--ra-scale)) !important;
+  color: var(--ra-green) !important;
 }
 
-.requestCreditsValue {
-  font-size: 34px !important;
+.requestPage .requestCreditsValue {
+  font-size: clamp(calc(30px * var(--ra-scale)), 2.4vw, var(--ra-fs-kpi)) !important;
   font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
-  color: rgba(210, 255, 180, 0.98) !important;
+  color: var(--ra-green) !important;
 }
 
 /* =========================
    GRUPOS / TÍTULOS
 ========================= */
-.requestGroup {
-  margin-bottom: 20px !important;
+.requestPage .requestGroup {
+  margin-bottom: var(--ra-gap-18) !important;
   position: relative !important;
   z-index: auto !important;
 }
 
-.requestTitle {
-  margin: 0 0 12px !important;
-  font-size: 20px !important;
+.requestPage .requestTitle {
+  margin: 0 0 var(--ra-gap-12) !important;
+  font-size: var(--ra-fs-label) !important;
   font-weight: 950 !important;
-  color: rgba(255, 255, 255, 0.92) !important;
+  color: var(--ra-text-0) !important;
 }
 
-/* ✅ Se o browser suportar :has, eleva o grupo inteiro quando dropdown abre */
-.requestGroup:has(.requestSearch.requestDropdown.is-open) {
-  z-index: 40000 !important;
+/* eleva quando dropdown abre */
+.requestPage .requestGroup.is-dropdown-open {
+  z-index: 52000 !important;
 }
 
 /* =========================
-   INPUTS (SÓLIDOS + PÍLULA) — Plans
+   INPUTS (pílula clara)
 ========================= */
-.requestSearch {
-  height: 56px !important;
-  border-radius: 9999px !important;
+.requestPage .requestSearch {
+  height: var(--ra-h-input) !important;
+  border-radius: var(--ra-r-pill) !important;
 
   display: grid !important;
-  grid-template-columns: 54px 1fr !important;
+  grid-template-columns: calc(54px * var(--ra-scale)) 1fr !important;
   align-items: center !important;
 
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-  border: 1px solid var(--stroke-1) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  box-shadow: 0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.08) !important;
 
-  box-shadow:
-    0 16px 42px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.06) !important;
-
-  transition: border-color 160ms ease, filter 160ms ease, transform 160ms ease, box-shadow 160ms ease !important;
+  transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease, border-color 160ms ease !important;
 }
 
-.requestSearch:hover {
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  filter: brightness(1.04) !important;
+.requestPage .requestSearch:hover {
   transform: translateY(-1px) !important;
+  filter: brightness(1.01) !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
 }
 
-/* (mantém acento verde nos inputs em geral) */
-.requestSearch:focus-within {
-  border-color: rgba(160, 234, 82, 0.35) !important;
+.requestPage .requestSearch:focus-within {
+  border-color: rgba(94, 133, 66, 0.35) !important;
   box-shadow:
-    0 0 0 4px rgba(160, 234, 82, 0.10),
-    0 18px 52px rgba(0,0,0,0.24),
-    inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  transform: translateY(-1px) !important;
+    0 0 0 calc(4px * var(--ra-scale)) rgba(160, 234, 82, 0.18),
+    0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.10) !important;
+  filter: none !important;
 }
 
-.requestSearchIco {
+.requestPage .requestSearchIco {
   display: grid !important;
   place-items: center !important;
-  color: rgba(255, 255, 255, 0.84) !important;
+  color: var(--ra-muted) !important;
 }
 
-.requestSearchIco svg {
-  width: 20px !important;
-  height: 20px !important;
+.requestPage .requestSearchIco svg {
+  width: calc(20px * var(--ra-scale)) !important;
+  height: calc(20px * var(--ra-scale)) !important;
   opacity: 0.95 !important;
 }
 
-.requestInput {
+.requestPage .requestInput {
   height: 100% !important;
   width: 100% !important;
   border: 0 !important;
   outline: none !important;
   background: transparent !important;
-  padding: 0 16px 0 0 !important;
+  padding: 0 calc(16px * var(--ra-scale)) 0 0 !important;
 
-  color: rgba(255, 255, 255, 0.94) !important;
-  font-size: 16px !important;
+  color: var(--ra-text-0) !important;
+  font-size: var(--ra-fs-input) !important;
   font-weight: 850 !important;
   min-width: 0 !important;
 }
 
-.requestInput::placeholder {
-  color: rgba(255, 255, 255, 0.62) !important;
+.requestPage .requestInput::placeholder {
+  color: rgba(107, 114, 128, 0.92) !important;
   font-weight: 650 !important;
 }
 
 /* =========================
-   DROPDOWN (base)
+   DROPDOWN (NÃO ESCURECE NADA)
 ========================= */
-.requestDropdown {
+.requestPage .requestDropdown {
   position: relative !important;
 }
 
 /* input + clear */
-.requestSearch.requestDropdown {
-  grid-template-columns: 54px 1fr auto !important;
+.requestPage .requestSearch.requestDropdown {
+  grid-template-columns: calc(54px * var(--ra-scale)) 1fr auto !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* divisor do ícone */
+.requestPage .requestSearch.requestDropdown .requestSearchIco {
+  position: relative !important;
+}
+.requestPage .requestSearch.requestDropdown .requestSearchIco::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 1px !important;
+  height: calc(26px * var(--ra-scale)) !important;
+  background: rgba(15, 23, 42, 0.10) !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
 }
 
 /* botão limpar */
-.requestDropdownClear {
-  width: 42px !important;
-  height: 42px !important;
-  margin-right: 10px !important;
-  border-radius: 9999px !important;
+.requestPage .requestDropdownClear {
+  width: var(--ra-h-clear) !important;
+  height: var(--ra-h-clear) !important;
+  margin-right: calc(10px * var(--ra-scale)) !important;
+  border-radius: var(--ra-r-pill) !important;
 
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
 
-  color: rgba(255, 255, 255, 0.92) !important;
-  font-size: 22px !important;
+  color: var(--ra-text-1) !important;
+  font-size: calc(22px * var(--ra-scale)) !important;
   font-weight: 950 !important;
 
   cursor: pointer !important;
   display: grid !important;
   place-items: center !important;
 
-  box-shadow: 0 12px 28px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-
+  box-shadow: 0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.08) !important;
   transition: transform 160ms ease, filter 160ms ease !important;
 }
 
-.requestDropdownClear:hover {
+.requestPage .requestDropdownClear:hover {
   transform: translateY(-1px) !important;
-  filter: brightness(1.06) !important;
+  filter: brightness(1.01) !important;
 }
-
-.requestDropdownClear:active {
+.requestPage .requestDropdownClear:active {
   transform: translateY(0) !important;
 }
 
-/* =========================
-   DROPDOWN — PRINCIPAL (tampa tudo)
-========================= */
-
-/* barra do dropdown sobe */
-.requestSearch.requestDropdown.is-open {
+/* aberto: sobe, mas sem overlay */
+.requestPage .requestSearch.requestDropdown.is-open {
   position: relative !important;
   z-index: 45000 !important;
+  filter: none !important;
 }
 
-/* overlay escurece tudo atrás */
-.requestSearch.requestDropdown.is-open::before {
-  content: "" !important;
+/* mata qualquer overlay antigo baseado em ::before */
+.requestPage .requestSearch.requestDropdown.is-open::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Backdrop real transparente (do JSX) */
+.requestPage .requestDropdownBackdrop {
   position: fixed !important;
   inset: 0 !important;
   z-index: 44000 !important;
-  background: rgba(0, 0, 0, 0.74) !important;
-  pointer-events: none !important;
+
+  background: transparent !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  cursor: default !important;
 }
 
-/* painel do dropdown acima do overlay e acima de tudo dentro do card */
-.requestDropdownPanel {
+/* =========================
+   DROPDOWN PANEL — GLASS
+========================= */
+.requestPage .requestDropdownPanel {
   position: absolute !important;
   left: 0 !important;
   right: 0 !important;
-  top: calc(100% + 10px) !important;
+  top: calc(100% + calc(10px * var(--ra-scale))) !important;
 
   z-index: 46000 !important;
 
-  border-radius: 18px !important;
+  border-radius: calc(18px * var(--ra-scale)) !important;
   overflow: hidden !important;
 
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  box-shadow: var(--ra-shadow-md) !important;
 
-  box-shadow:
-    0 40px 110px rgba(0, 0, 0, 0.88),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+
+  position: absolute !important;
 }
 
-/* garante que TUDO dentro do dropdown fique no topo */
-.requestSearch.requestDropdown.is-open * {
+.requestPage .requestDropdownPanel::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -2px !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  background: var(--ra-glow) !important;
+  opacity: 0.50 !important;
+}
+
+.requestPage .requestDropdownState {
   position: relative !important;
-  z-index: 47000 !important;
+  z-index: 1 !important;
+  padding: calc(14px * var(--ra-scale)) !important;
+  color: var(--ra-muted) !important;
+  font-weight: 850 !important;
+  font-size: calc(14px * var(--ra-scale)) !important;
 }
 
-.requestDropdownState {
-  padding: 14px 14px !important;
-  color: rgba(255, 255, 255, 0.78) !important;
-  font-weight: 800 !important;
+.requestPage .requestDropdownState.is-error {
+  color: rgba(239, 68, 68, 0.95) !important;
 }
 
-.requestDropdownState.is-error {
-  color: rgba(255, 150, 150, 0.96) !important;
-}
+.requestPage .requestDropdownList {
+  position: relative !important;
+  z-index: 1 !important;
 
-/* lista */
-.requestDropdownList {
   list-style: none !important;
   margin: 0 !important;
-  padding: 10px !important;
-  max-height: 320px !important;
+  padding: calc(10px * var(--ra-scale)) !important;
+
+  max-height: calc(320px * var(--ra-scale)) !important;
   overflow: auto !important;
 }
 
-.requestDropdownList::-webkit-scrollbar {
-  width: 10px !important;
+.requestPage .requestDropdownList::-webkit-scrollbar {
+  width: calc(10px * var(--ra-scale)) !important;
 }
-.requestDropdownList::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18) !important;
+.requestPage .requestDropdownList::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.14) !important;
   border-radius: 999px !important;
-  border: 2px solid rgba(0,0,0,0.18) !important;
+  border: 2px solid rgba(255,255,255,0.65) !important;
 }
-.requestDropdownList::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.10) !important;
+.requestPage .requestDropdownList::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.06) !important;
   border-radius: 999px !important;
 }
 
-/* itens */
-.requestDropdownBtn {
+.requestPage .requestDropdownBtn {
   width: 100% !important;
   text-align: left !important;
   border: 0 !important;
   cursor: pointer !important;
 
-  padding: 12px 12px !important;
-  border-radius: 14px !important;
+  padding: calc(12px * var(--ra-scale)) calc(12px * var(--ra-scale)) !important;
+  border-radius: calc(14px * var(--ra-scale)) !important;
 
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
 
-  color: rgba(255, 255, 255, 0.96) !important;
+  color: var(--ra-text-0) !important;
 
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 12px !important;
+  gap: var(--ra-gap-12) !important;
 
+  box-shadow: 0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.08) !important;
   transition: transform 140ms ease, filter 140ms ease !important;
 }
 
-.requestDropdownBtn:hover {
+.requestPage .requestDropdownBtn:hover {
   transform: translateY(-1px) !important;
-  filter: brightness(1.06) !important;
+  filter: brightness(1.01) !important;
 }
 
-.requestDropdownName {
-  font-size: 15px !important;
+.requestPage .requestDropdownName {
+  font-size: calc(15px * var(--ra-scale)) !important;
   font-weight: 900 !important;
   letter-spacing: 0.2px !important;
 }
 
-.requestDropdownTag {
-  border-radius: 9999px !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
+.requestPage .requestDropdownTag {
+  border-radius: var(--ra-r-pill) !important;
+  padding: calc(6px * var(--ra-scale)) calc(10px * var(--ra-scale)) !important;
+  font-size: calc(12px * var(--ra-scale)) !important;
   font-weight: 950 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
 
-  color: rgba(210, 255, 180, 0.98) !important;
-  border: 1px solid rgba(160, 234, 82, 0.28) !important;
-  background: rgba(160, 234, 82, 0.10) !important;
-}
-
-/* =========================
-   SELECT (no modal) — PÍLULA
-========================= */
-select.requestInput {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-
-  cursor: pointer !important;
-  padding-right: 52px !important;
-}
-
-.requestSearch.is-select {
-  position: relative !important;
-  border-radius: 9999px !important;
-}
-
-.requestSearch.is-select::after {
-  content: "" !important;
-  position: absolute !important;
-  right: 18px !important;
-  top: 50% !important;
-  width: 10px !important;
-  height: 10px !important;
-  border-right: 3px solid rgba(255, 255, 255, 0.90) !important;
-  border-bottom: 3px solid rgba(255, 255, 255, 0.90) !important;
-  transform: translateY(-55%) rotate(45deg) !important;
-  pointer-events: none !important;
-  opacity: 0.95 !important;
-}
-
-select.requestInput option {
-  background: rgb(20, 26, 36) !important;
-  color: rgba(255, 255, 255, 0.96) !important;
-  font-weight: 800 !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  background: var(--ra-green) !important;
+  border: 1px solid rgba(94, 133, 66, 0.35) !important;
 }
 
 /* =========================
    “NÃO ENCONTROU...”
 ========================= */
-.requestHelpRow {
+.requestPage .requestHelpRow {
   display: grid !important;
   place-items: center !important;
-  margin: 18px 0 22px !important;
+  margin: var(--ra-gap-18) 0 var(--ra-gap-18) !important;
 }
 
-.requestHelpBtn {
-  width: min(780px, 100%) !important;
-  border-radius: 9999px !important;
+.requestPage .requestHelpBtn {
+  width: min(100%, calc(820px * var(--ra-scale))) !important;
+  border-radius: var(--ra-r-pill) !important;
 
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
 
-  padding: 14px 16px !important;
+  padding: calc(14px * var(--ra-scale)) calc(16px * var(--ra-scale)) !important;
 
   display: inline-flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 14px !important;
+  gap: var(--ra-gap-14) !important;
 
   cursor: pointer !important;
   user-select: none !important;
 
-  color: rgba(255, 255, 255, 0.96) !important;
-  font-size: 16px !important;
-  font-weight: 900 !important;
+  color: var(--ra-text-1) !important;
+  font-size: calc(16px * var(--ra-scale)) !important;
+  font-weight: 950 !important;
 
-  box-shadow: 0 14px 34px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  box-shadow: 0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.08) !important;
   transition: transform 160ms ease, filter 160ms ease !important;
 }
 
-.requestHelpBtn:hover {
+.requestPage .requestHelpBtn:hover {
   transform: translateY(-1px) !important;
-  filter: brightness(1.06) !important;
+  filter: brightness(1.01) !important;
 }
 
-.requestHelpIcoWrap {
-  width: 46px !important;
-  height: 38px !important;
+.requestPage .requestHelpIcoWrap {
+  width: calc(46px * var(--ra-scale)) !important;
+  height: calc(38px * var(--ra-scale)) !important;
   display: grid !important;
   place-items: center !important;
 
-  border-radius: 9999px !important;
-  background: rgba(0, 0, 0, 0.18) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: var(--ra-r-pill) !important;
+  background: rgba(94, 133, 66, 0.10) !important;
+  border: 1px solid rgba(94, 133, 66, 0.22) !important;
+}
+
+.requestPage .requestHelpIco {
+  width: calc(18px * var(--ra-scale)) !important;
+  height: calc(18px * var(--ra-scale)) !important;
+  color: var(--ra-green) !important;
 }
 
 /* =========================
-   BOTÃO PRINCIPAL (PÍLULA) — mantém verde (CTA)
+   BOTÃO PRINCIPAL (CTA)
 ========================= */
-.requestActions {
+.requestPage .requestActions {
   display: grid !important;
   place-items: center !important;
-  margin-top: 12px !important;
+  margin-top: calc(10px * var(--ra-scale)) !important;
+  padding-bottom: calc(6px * var(--ra-scale)) !important;
 }
 
-.requestMainBtn {
-  height: 62px !important;
-  min-width: 380px !important;
-  padding: 0 30px !important;
-  border-radius: 9999px !important;
+.requestPage .requestMainBtn {
+  height: var(--ra-h-cta) !important;
+  min-width: min(100%, calc(420px * var(--ra-scale))) !important;
+  padding: 0 calc(34px * var(--ra-scale)) !important;
+  border-radius: var(--ra-r-pill) !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  background: linear-gradient(
-    180deg,
-    rgba(160, 234, 82, 0.98) 0%,
-    rgba(76, 148, 18, 0.96) 100%
-  ) !important;
+  border: 1px solid rgba(94, 133, 66, 0.35) !important;
+  background: linear-gradient(180deg, var(--ra-green-2) 0%, var(--ra-green-3) 100%) !important;
 
   color: rgba(255, 255, 255, 0.98) !important;
-
-  font-size: 20px !important;
+  font-size: var(--ra-fs-btn) !important;
   font-weight: 1000 !important;
 
   cursor: pointer !important;
   user-select: none !important;
 
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  box-shadow:
+    0 calc(18px * var(--ra-scale)) calc(44px * var(--ra-scale)) rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
   transition: transform 180ms ease, filter 180ms ease !important;
 }
 
-.requestMainBtn:hover {
+.requestPage .requestMainBtn:hover {
   transform: translateY(-1px) !important;
-  filter: brightness(1.03) !important;
+  filter: brightness(1.02) !important;
 }
 
-.requestMainBtn:disabled {
+.requestPage .requestMainBtn:disabled {
   opacity: 0.75 !important;
   cursor: not-allowed !important;
   transform: none !important;
@@ -608,148 +658,226 @@ select.requestInput option {
 }
 
 /* =========================
-   MODAL (SÓLIDO + PÍLULA) — Plans
+   MODAL — GLASS (igual ao card)
 ========================= */
-.cbModalOverlay {
+.requestPage .cbModalOverlay {
   position: fixed !important;
   inset: 0 !important;
-  z-index: 10000 !important;
+  z-index: 70000 !important;
 
   display: grid !important;
   place-items: center !important;
 
-  background: rgba(0, 0, 0, 0.70) !important;
-  padding: 18px !important;
+  background: rgba(15, 23, 42, 0.40) !important;
+  padding: calc(18px * var(--ra-scale)) !important;
 }
 
-.cbModalPanel {
-  width: min(560px, 100%) !important;
-  border-radius: 26px !important;
+.requestPage .cbModalPanel {
+  width: min(calc(760px * var(--ra-scale)), 100%) !important;
+  border-radius: calc(22px * var(--ra-scale)) !important;
 
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: var(--ra-shadow-card) !important;
 
-  box-shadow: 0 34px 90px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+
   overflow: hidden !important;
   position: relative !important;
+  isolation: isolate !important;
 }
 
-.cbModalHeader {
+.requestPage .cbModalPanel::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -2px !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  background: var(--ra-glow) !important;
+  opacity: 0.55 !important;
+}
+
+.requestPage .cbModalHeader {
+  position: relative !important;
+  z-index: 1 !important;
+
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 12px !important;
-  padding: 14px 16px !important;
-  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+  gap: var(--ra-gap-12) !important;
+
+  padding: calc(16px * var(--ra-scale)) calc(18px * var(--ra-scale)) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.10) !important;
 }
 
-.cbModalTitle {
+.requestPage .cbModalTitle {
   margin: 0 !important;
-  font-size: 16px !important;
-  font-weight: 950 !important;
-  color: rgba(255,255,255,0.94) !important;
+  font-size: calc(18px * var(--ra-scale)) !important;
+  font-weight: 1000 !important;
+  color: var(--ra-text-0) !important;
 }
 
-.cbModalClose {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 9999px !important;
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: #2b3646 !important;
-  color: rgba(255,255,255,0.96) !important;
+.requestPage .cbModalClose {
+  width: calc(46px * var(--ra-scale)) !important;
+  height: calc(46px * var(--ra-scale)) !important;
+  border-radius: var(--ra-r-pill) !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+
+  color: var(--ra-text-0) !important;
   cursor: pointer !important;
+
+  box-shadow: 0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.08) !important;
+  transition: transform 160ms ease, filter 160ms ease !important;
 }
 
-.cbModalBody {
-  padding: 16px !important;
+.requestPage .cbModalBody {
+  position: relative !important;
+  z-index: 1 !important;
+  padding: calc(16px * var(--ra-scale)) calc(18px * var(--ra-scale)) !important;
 }
 
-.cbModalFooter {
-  padding: 14px 16px !important;
-  border-top: 1px solid rgba(255,255,255,0.12) !important;
+.requestPage .cbModalContent {
+  display: grid !important;
+  grid-template-columns: calc(28px * var(--ra-scale)) 1fr !important;
+  align-items: center !important;
+  gap: var(--ra-gap-12) !important;
+
+  padding: calc(14px * var(--ra-scale)) calc(14px * var(--ra-scale)) !important;
+  border-radius: calc(18px * var(--ra-scale)) !important;
+
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  box-shadow: 0 calc(12px * var(--ra-scale)) calc(28px * var(--ra-scale)) rgba(15, 23, 42, 0.10) !important;
+}
+
+.requestPage .cbModalIcon {
+  width: calc(22px * var(--ra-scale)) !important;
+  height: calc(22px * var(--ra-scale)) !important;
+}
+.requestPage .cbModalIcon.is-success { color: var(--ra-green) !important; }
+.requestPage .cbModalIcon.is-warn { color: rgba(202, 138, 4, 0.95) !important; }
+.requestPage .cbModalIcon.is-error { color: rgba(239, 68, 68, 0.95) !important; }
+
+.requestPage .cbModalText {
+  margin: 0 !important;
+  color: var(--ra-text-1) !important;
+  font-weight: 900 !important;
+  line-height: 1.45 !important;
+  font-size: calc(14px * var(--ra-scale)) !important;
+  white-space: pre-line !important;
+}
+
+.requestPage .cbModalFooter {
+  position: relative !important;
+  z-index: 1 !important;
+
+  padding: calc(16px * var(--ra-scale)) calc(18px * var(--ra-scale)) !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+
   display: flex !important;
   justify-content: flex-end !important;
-  gap: 12px !important;
+  gap: var(--ra-gap-12) !important;
   flex-wrap: wrap !important;
 }
 
-.cbBtnPrimary,
-.cbBtnGhost {
-  height: 46px !important;
-  padding: 0 16px !important;
-  border-radius: 9999px !important;
-  font-weight: 950 !important;
+.requestPage .cbBtnPrimary,
+.requestPage .cbBtnGhost {
+  height: calc(48px * var(--ra-scale)) !important;
+  padding: 0 calc(18px * var(--ra-scale)) !important;
+  border-radius: var(--ra-r-pill) !important;
+  font-weight: 1000 !important;
   cursor: pointer !important;
+  transition: transform 160ms ease, filter 160ms ease !important;
+  font-size: calc(15px * var(--ra-scale)) !important;
 }
 
-.cbBtnGhost {
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: rgba(0,0,0,0.22) !important;
-  color: rgba(255,255,255,0.96) !important;
+.requestPage .cbBtnGhost {
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: var(--ra-text-0) !important;
+  box-shadow: 0 calc(10px * var(--ra-scale)) calc(22px * var(--ra-scale)) rgba(15, 23, 42, 0.08) !important;
 }
 
-.cbBtnPrimary {
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
-  color: rgba(255,255,255,0.98) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+.requestPage .cbBtnPrimary {
+  border: 1px solid rgba(94, 133, 66, 0.35) !important;
+  background: linear-gradient(180deg, var(--ra-green-2) 0%, var(--ra-green-3) 100%) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+
+  box-shadow:
+    0 calc(18px * var(--ra-scale)) calc(44px * var(--ra-scale)) rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
 
-.cbBtnPrimary:hover,
-.cbBtnGhost:hover,
-.cbModalClose:hover {
-  filter: brightness(1.06) !important;
+.requestPage .cbBtnPrimary:hover,
+.requestPage .cbBtnGhost:hover,
+.requestPage .cbModalClose:hover {
   transform: translateY(-1px) !important;
+  filter: brightness(1.02) !important;
 }
 
-.cbBtnPrimary:disabled,
-.cbBtnGhost:disabled,
-.cbModalClose:disabled {
+.requestPage .cbBtnPrimary:disabled,
+.requestPage .cbBtnGhost:disabled,
+.requestPage .cbModalClose:disabled {
   opacity: 0.65 !important;
   cursor: not-allowed !important;
   transform: none !important;
   filter: none !important;
 }
 
+/* Portal (fora do .requestPage) — aplica quando esta tela estiver aberta */
+@supports selector(:has(*)) {
+  body:has(.pg-wrap.requestPage) .cbModalOverlay {
+    background: rgba(15, 23, 42, 0.40) !important;
+  }
+
+  body:has(.pg-wrap.requestPage) .cbModalPanel {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border: 1px solid rgba(15, 23, 42, 0.06) !important;
+    box-shadow: var(--ra-shadow-card) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+
 /* =========================
-   RESPONSIVO
+   RESPONSIVO — reduz escala pra não quebrar
 ========================= */
 @media (max-width: 980px) {
-  .requestCard {
-    padding: 28px !important;
-    width: min(980px, 100%) !important;
+  .pg-wrap.requestPage {
+    --ra-scale: 1.2;
+  }
+
+  .requestPage .requestCardHeader {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: center !important;
+  }
+
+  .requestPage .requestCreditsCard {
+    width: 100% !important;
   }
 }
 
 @media (max-width: 720px) {
-  .requestCard {
-    min-height: auto !important;
-    padding: 22px !important;
+  .pg-wrap.requestPage {
+    --ra-scale: 1;
+    padding: 18px 14px 22px !important;
   }
 
-  .requestCardHeader {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    text-align: center !important;
-    gap: 14px !important;
-  }
-
-  .requestCreditsCard {
+  .requestPage .requestCard {
     width: 100% !important;
   }
 
-  .requestTitle {
-    font-size: 18px !important;
-  }
-
-  .requestMainBtn {
+  .requestPage .requestMainBtn {
     width: 100% !important;
     min-width: 0 !important;
   }
 
-  .requestHelpBtn {
+  .requestPage .requestHelpBtn {
     width: 100% !important;
-    font-size: 15px !important;
     text-align: center !important;
   }
 }
@@ -757,14 +885,14 @@ select.requestInput option {
 /* =========================
    ACESSIBILIDADE
 ========================= */
-.requestMainBtn:focus-visible,
-.requestHelpBtn:focus-visible,
-.requestInput:focus-visible,
-.requestDropdownClear:focus-visible,
-.cbBtnPrimary:focus-visible,
-.cbBtnGhost:focus-visible,
-.cbModalClose:focus-visible {
-  outline: 2px solid rgba(160, 234, 82, 0.38) !important;
+.requestPage .requestMainBtn:focus-visible,
+.requestPage .requestHelpBtn:focus-visible,
+.requestPage .requestInput:focus-visible,
+.requestPage .requestDropdownClear:focus-visible,
+.requestPage .cbBtnPrimary:focus-visible,
+.requestPage .cbBtnGhost:focus-visible,
+.requestPage .cbModalClose:focus-visible {
+  outline: 2px solid rgba(94, 133, 66, 0.45) !important;
   outline-offset: 2px !important;
 }
 
@@ -772,127 +900,14 @@ select.requestInput option {
    REDUZIR MOVIMENTO
 ========================= */
 @media (prefers-reduced-motion: reduce) {
-  .requestMainBtn,
-  .requestHelpBtn,
-  .requestSearch,
-  .requestCreditsCard,
-  .requestDropdownBtn,
-  .cbBtnPrimary,
-  .cbBtnGhost,
-  .cbModalClose {
+  .requestPage .requestMainBtn,
+  .requestPage .requestHelpBtn,
+  .requestPage .requestSearch,
+  .requestPage .requestDropdownBtn,
+  .requestPage .cbBtnPrimary,
+  .requestPage .cbBtnGhost,
+  .requestPage .cbModalClose,
+  .requestPage .requestDropdownClear {
     transition: none !important;
   }
-}
-
-/* =========================================================
-   DROPSEARCH — POLISH + REMOÇÃO TOTAL DO CONTORNO VERDE
-   ✅ só afeta o DROPDOWN
-========================================================= */
-
-/* acabamento “premium” sem mudar a cor do fundo */
-.requestSearch.requestDropdown {
-  position: relative !important;
-  overflow: hidden !important;
-  border-radius: 9999px !important;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-}
-
-/* brilho interno sutil */
-.requestSearch.requestDropdown::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  pointer-events: none !important;
-  border-radius: inherit !important;
-  opacity: 0.55 !important;
-  background: radial-gradient(900px 60px at 50% -10px, rgba(255,255,255,0.10), rgba(0,0,0,0) 60%) !important;
-}
-
-/* stroke interno */
-.requestSearch.requestDropdown::after {
-  content: "" !important;
-  position: absolute !important;
-  inset: 1px !important;
-  pointer-events: none !important;
-  border-radius: inherit !important;
-  border: 1px solid rgba(255,255,255,0.10) !important;
-  opacity: 0.9 !important;
-}
-
-/* divisor do ícone */
-.requestSearch.requestDropdown .requestSearchIco {
-  position: relative !important;
-}
-.requestSearch.requestDropdown .requestSearchIco::after {
-  content: "" !important;
-  position: absolute !important;
-  right: 0 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 1px !important;
-  height: 26px !important;
-  background: rgba(255,255,255,0.10) !important;
-  border-radius: 999px !important;
-  pointer-events: none !important;
-}
-
-/* input polish */
-.requestSearch.requestDropdown .requestInput {
-  border-radius: 9999px !important;
-  caret-color: rgba(210, 255, 180, 0.98) !important;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.22) !important;
-}
-.requestSearch.requestDropdown .requestInput::selection {
-  background: rgba(160, 234, 82, 0.22) !important;
-  color: rgba(255,255,255,0.98) !important;
-}
-
-/* ✅ REMOVE o outline verde do :focus-visible SÓ no input do dropdown */
-.requestSearch.requestDropdown .requestInput:focus-visible {
-  outline: none !important;
-}
-
-/* ✅ FOCADO: sem borda verde, sem ring verde */
-.requestSearch.requestDropdown:focus-within {
-  filter: none !important;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-
-  border-color: var(--stroke-1) !important;  /* <-- tira verde */
-  box-shadow:
-    0 18px 52px rgba(0,0,0,0.24),
-    inset 0 1px 0 rgba(255,255,255,0.08) !important; /* <-- sem 0 0 0 4px verde */
-}
-
-/* placeholder suaviza no foco */
-.requestSearch.requestDropdown:focus-within .requestInput::placeholder {
-  opacity: 0.55 !important;
-}
-
-/* ✅ DIGITANDO: (quando tem texto) continua SEM verde */
-@supports selector(:has(*)) {
-  .requestSearch.requestDropdown:has(.requestInput:not(:placeholder-shown)) {
-    filter: none !important;
-    background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-
-    border-color: var(--stroke-1) !important; /* <-- tira verde */
-    box-shadow:
-      0 18px 52px rgba(0,0,0,0.24),
-      inset 0 1px 0 rgba(255,255,255,0.08) !important; /* <-- sem ring */
-  }
-
-  .requestSearch.requestDropdown:focus-within:has(.requestInput:not(:placeholder-shown)) {
-    border-color: var(--stroke-1) !important;
-    box-shadow:
-      0 18px 52px rgba(0,0,0,0.24),
-      inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  }
-}
-
-/* botão limpar alinhado */
-.requestSearch.requestDropdown .requestDropdownClear {
-  border-radius: 9999px !important;
-  filter: none !important;
-}
-.requestSearch.requestDropdown:focus-within .requestDropdownClear {
-  box-shadow: 0 14px 34px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10) !important;
 }
