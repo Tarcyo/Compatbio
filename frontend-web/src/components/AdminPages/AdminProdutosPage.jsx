@@ -124,22 +124,19 @@ function Pill({ kind = "neutral", children }) {
 }
 
 export default function AdminProdutosPage() {
-  // tabs
   const [tab, setTab] = useState("produtos"); // produtos | solicitacoes
 
-  // Produtos
   const [loadingProdutos, setLoadingProdutos] = useState(true);
   const [errProdutos, setErrProdutos] = useState("");
   const [produtos, setProdutos] = useState([]);
 
   const [q, setQ] = useState("");
-  const [tipo, setTipo] = useState("ALL"); // ALL | QU_MICO | BIOL_GICO
-  const [demo, setDemo] = useState("ALL"); // ALL | DEMO | NORMAL
+  const [tipo, setTipo] = useState("ALL");
+  const [demo, setDemo] = useState("ALL");
 
-  // Modal produto
   const [produtoModal, setProdutoModal] = useState({
     open: false,
-    mode: "create", // create | edit
+    mode: "create",
     current: null,
   });
   const [formNome, setFormNome] = useState("");
@@ -147,21 +144,16 @@ export default function AdminProdutosPage() {
   const [formDemo, setFormDemo] = useState(false);
   const [savingProduto, setSavingProduto] = useState(false);
 
-  // Solicitações de adição
   const [loadingSol, setLoadingSol] = useState(true);
   const [errSol, setErrSol] = useState("");
   const [solicitacoes, setSolicitacoes] = useState([]);
+  const [solActionLoading, setSolActionLoading] = useState(null);
 
-  const [solActionLoading, setSolActionLoading] = useState(null); // id em ação
-
-  // -----------------------
-  // Fetch Produtos
-  // -----------------------
   const produtosUrl = useMemo(() => {
     const url = new URL(`${API_BASE}/admin/api/produtos`);
     if (q.trim()) url.searchParams.set("q", q.trim());
     if (tipo !== "ALL") url.searchParams.set("tipo", tipo);
-    if (demo !== "ALL") url.searchParams.set("demo", demo); // DEMO | NORMAL
+    if (demo !== "ALL") url.searchParams.set("demo", demo);
     return url.toString();
   }, [q, tipo, demo]);
 
@@ -203,9 +195,6 @@ export default function AdminProdutosPage() {
     };
   }, [tab, produtosUrl]);
 
-  // -----------------------
-  // Fetch Solicitações
-  // -----------------------
   useEffect(() => {
     if (tab !== "solicitacoes") return;
 
@@ -247,9 +236,6 @@ export default function AdminProdutosPage() {
     };
   }, [tab]);
 
-  // -----------------------
-  // Produto modal handlers
-  // -----------------------
   const openCreateProduto = () => {
     setFormNome("");
     setFormTipo("QU_MICO");
@@ -292,7 +278,6 @@ export default function AdminProdutosPage() {
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || `Erro HTTP ${res.status}`);
 
-      // Atualiza UI local
       if (isEdit) {
         setProdutos((prev) =>
           prev.map((p) =>
@@ -312,9 +297,6 @@ export default function AdminProdutosPage() {
     }
   };
 
-  // -----------------------
-  // Solicitações actions
-  // -----------------------
   const aprovarSolicitacao = async (s) => {
     setSolActionLoading(s.ID);
     try {
@@ -335,10 +317,7 @@ export default function AdminProdutosPage() {
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || `Erro HTTP ${res.status}`);
 
-      // remove da lista de pendentes
       setSolicitacoes((prev) => prev.filter((x) => x.ID !== s.ID));
-
-      // opcional: adiciona produto criado no topo
       if (data?.produto?.ID) setProdutos((prev) => [data.produto, ...prev]);
     } catch (e) {
       alert(e?.message || "Erro ao aprovar solicitação.");
@@ -347,7 +326,6 @@ export default function AdminProdutosPage() {
     }
   };
 
-  // ✅ sem motivo da recusa (removido totalmente)
   const recusarSolicitacao = async (s) => {
     setSolActionLoading(s.ID);
     try {
@@ -371,16 +349,12 @@ export default function AdminProdutosPage() {
     }
   };
 
-  // -----------------------
-  // Render
-  // -----------------------
   return (
     <div className="analysisPage">
       <div className="pg-card apCard">
         <header className="apHeader">
           <div className="apHeaderLeft">
             <h1 className="apTitle">Produtos</h1>
-            <p className="apSubtitle">Gerencie produtos e responda solicitações de adição feitas pelos clientes.</p>
           </div>
 
           <div className="apTabbar" role="tablist" aria-label="Abas">
@@ -477,7 +451,6 @@ export default function AdminProdutosPage() {
           </>
         ) : (
           <>
-            {/* ✅ motivo da recusa removido totalmente */}
             <section className="apToolbar apToolbar--sol">
               <div className="apHint">
                 <span className="apHintTitle">Pendentes</span>
@@ -537,7 +510,6 @@ export default function AdminProdutosPage() {
           </>
         )}
 
-        {/* Modal Criar/Editar produto */}
         <Modal
           open={produtoModal.open}
           title={produtoModal.mode === "edit" ? "Editar produto" : "Adicionar produto"}

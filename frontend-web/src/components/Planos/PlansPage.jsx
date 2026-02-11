@@ -254,21 +254,31 @@ function PlanCard({
   );
 }
 
-function TabBar({ value, onChange, items }) {
+/**
+ * ✅ TabBar reutilizável (main e sub)
+ */
+function TabBar({ value, onChange, items, ariaLabel = "Tabs", idPrefix = "tabs", variant = "sub" }) {
   return (
-    <div className="plansTabsWrap">
-      <div className="plansTabs" role="tablist" aria-label="Tipos de planos">
+    <div className={`plansTabsWrap ${variant === "main" ? "is-main" : ""}`}>
+      <div
+        className={`plansTabs ${variant === "main" ? "plansTabs--main" : ""}`}
+        role="tablist"
+        aria-label={ariaLabel}
+      >
         {items.map((it) => {
           const active = value === it.value;
+          const tabId = `${idPrefix}-tab-${it.value}`;
+          const panelId = `${idPrefix}-panel-${it.value}`;
+
           return (
             <button
               key={it.value}
-              id={`plans-tab-${it.value}`}
+              id={tabId}
               type="button"
               role="tab"
               aria-selected={active}
-              aria-controls={`plans-panel-${it.value}`}
-              className={`plansTab ${active ? "is-active" : ""}`}
+              aria-controls={panelId}
+              className={`plansTab ${variant === "main" ? "plansTab--main" : ""} ${active ? "is-active" : ""}`}
               onClick={() => onChange(it.value)}
             >
               {it.label}
@@ -283,6 +293,12 @@ function TabBar({ value, onChange, items }) {
 export default function PlansCreditsPage() {
   const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000").toString().replace(/\/+$/, "");
 
+  // ✅ ativa escala (50%) SOMENTE enquanto estiver nessa tela
+  useEffect(() => {
+    document.body.classList.add("pc-ui-scale");
+    return () => document.body.classList.remove("pc-ui-scale");
+  }, []);
+
   const [assinaturaData, setAssinaturaData] = useState(null);
   const [loadingPlano, setLoadingPlano] = useState(true);
   const [errPlano, setErrPlano] = useState("");
@@ -295,7 +311,11 @@ export default function PlansCreditsPage() {
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [errPrice, setErrPrice] = useState("");
 
-  const [tab, setTab] = useState("pf");
+  // ✅ tab principal (Meu Plano | Planos | Créditos)
+  const [mainTab, setMainTab] = useState("plans");
+
+  // ✅ sub tab dentro de "Planos" (PF | PJ)
+  const [plansKind, setPlansKind] = useState("pf");
 
   const [credits, setCredits] = useState(10);
 
@@ -490,6 +510,41 @@ export default function PlansCreditsPage() {
     return { pfPlans: pf, pjPlans: pj };
   }, [planos]);
 
+  // ✅ Tabs principais (Meu Plano só existe se tiver assinatura)
+  const mainTabs = useMemo(() => {
+    const items = [];
+    if (hasSubscription) items.push({ value: "my", label: "Meu Plano" });
+    items.push({ value: "plans", label: "Planos" });
+    items.push({ value: "credits", label: "Créditos Avulsos" });
+    return items;
+  }, [hasSubscription]);
+
+  // ✅ aba inicial automática conforme regra:
+  // - se tem plano => "my"
+  // - senão => "plans"
+  useEffect(() => {
+    if (loadingPlano) return;
+
+    const desired = hasSubscription ? "my" : "plans";
+    const validValues = new Set(mainTabs.map((t) => t.value));
+
+    setMainTab((prev) => {
+      if (validValues.has(prev)) {
+        // se "my" sumiu (usuário perdeu plano), cai para "plans"
+        if (prev === "my" && !hasSubscription) return "plans";
+        return prev;
+      }
+      return desired;
+    });
+
+    // se o usuário acabou de ganhar assinatura e estava em outra aba, seguimos a regra de "aba inicial"
+    // sem forçar sempre, apenas quando ainda estava em state inválido ou na primeira carga (prev default).
+    // Para garantir o requisito de forma consistente:
+    if (hasSubscription) setMainTab("my");
+    else setMainTab("plans");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingPlano, hasSubscription]);
+
   const mapPlanoToCard = useCallback(
     (p) => {
       const nome = p?.NOME || "Plano";
@@ -528,9 +583,9 @@ export default function PlansCreditsPage() {
   );
 
   const shownPlans = useMemo(() => {
-    const list = tab === "pj" ? pjPlans : pfPlans;
+    const list = plansKind === "pj" ? pjPlans : pfPlans;
     return list.map(mapPlanoToCard);
-  }, [tab, pfPlans, pjPlans, mapPlanoToCard]);
+  }, [plansKind, pfPlans, pjPlans, mapPlanoToCard]);
 
   const handleChoose = useCallback(
     async (planoId) => {
@@ -750,239 +805,297 @@ export default function PlansCreditsPage() {
 
   return (
     <div className="pg-wrap plansPage">
-      <ConfirmModal
-        open={cancelModalOpen}
-        title={modalCancelTitle}
-        subtitle="Confirmação de cancelamento"
-        loading={cancelLoading}
-        confirmLabel="Sim, cancelar"
-        cancelLabel="Não, voltar"
-        variant="danger"
-        onClose={() => setCancelModalOpen(false)}
-        onConfirm={doCancelSubscription}
-        body={
-          <div>
-            <p className="pcModalText" style={{ marginBottom: 10 }}>
-              Você está prestes a cancelar a assinatura compartilhada.
-            </p>
+      <div className="plansZoomRoot">
+        <ConfirmModal
+          open={cancelModalOpen}
+          title={modalCancelTitle}
+          subtitle="Confirmação de cancelamento"
+          loading={cancelLoading}
+          confirmLabel="Sim, cancelar"
+          cancelLabel="Não, voltar"
+          variant="danger"
+          onClose={() => setCancelModalOpen(false)}
+          onConfirm={doCancelSubscription}
+          body={
+            <div>
+              <p className="pcModalText" style={{ marginBottom: 10 }}>
+                Você está prestes a cancelar a assinatura compartilhada.
+              </p>
 
-            <div className="pcModalBullets">
-              <div className="pcModalBullet">
-                <IconCheckCircle className="pcModalBulletIco" />
-                <span>O acesso continua até o fim do período atual.</span>
-              </div>
-              <div className="pcModalBullet">
-                <IconCheckCircle className="pcModalBulletIco" />
-                <span>Os usuários vinculados podem perder o acesso depois disso.</span>
-              </div>
-            </div>
-          </div>
-        }
-      />
-
-      <section className="plansCard">
-        <header className="plansCardHeader">
-          <h1 className="plansCardTitle">Planos e Créditos</h1>
-        </header>
-
-        <div className="plansCardBody">
-          <h3 className="plansSectionTitle">Seu Plano Atual</h3>
-
-          {loadingPlano ? (
-            <p className="creditsHint" style={{ marginTop: 6 }}>
-              Carregando plano atual...
-            </p>
-          ) : errPlano ? (
-            <p className="creditsHint" style={{ marginTop: 6, color: "rgba(198,44,34,0.95)" }}>
-              {errPlano}
-            </p>
-          ) : (
-            <div className="currentPlan">
-              <div className="currentPlanLeft">
-                <h4 className="currentPlanTitle">{currentPlan.name}</h4>
-
-                {currentPlan.subtitle ? (
-                  <p className="creditsHint" style={{ marginTop: 6 }}>
-                    {currentPlan.subtitle}
-                  </p>
-                ) : null}
-
-                <ul className="currentPlanList" aria-label="Detalhes do plano">
-                  {currentPlan.features.map((t) => (
-                    <li key={t} className="currentPlanItem">
-                      <IconCheckCircle className="currentPlanCheck" />
-                      <span>{t}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {cancelMsg ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(94,133,66,0.98)" }}>
-                    {cancelMsg}
-                  </p>
-                ) : null}
-                {cancelErr ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
-                    {cancelErr}
-                  </p>
-                ) : null}
-
-                {leaveMsg ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(94,133,66,0.98)" }}>
-                    {leaveMsg}
-                  </p>
-                ) : null}
-                {leaveErr ? (
-                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
-                    {leaveErr}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="currentPlanRight" style={{ gap: 10, display: "flex", flexWrap: "wrap" }}>
-                {showCancelBtn ? (
-                  <button
-                    type="button"
-                    className="chooseBtn is-danger"
-                    onClick={handleCancelSubscription}
-                    disabled={cancelLoading || subLoading || leaveLoading}
-                    title={cancelLoading ? "Cancelando..." : "Cancelar assinatura"}
-                  >
-                    {cancelLoading ? "Cancelando..." : "Cancelar Assinatura"}
-                  </button>
-                ) : null}
-
-                {showLeaveBtn ? (
-                  <button
-                    type="button"
-                    className="chooseBtn is-blue"
-                    onClick={handleLeaveSubscription}
-                    disabled={leaveLoading || subLoading || cancelLoading}
-                    title={leaveLoading ? "Saindo..." : "Sair da assinatura"}
-                    style={{ filter: "brightness(0.98)" }}
-                  >
-                    {leaveLoading ? "Saindo..." : "Sair da assinatura"}
-                  </button>
-                ) : null}
+              <div className="pcModalBullets">
+                <div className="pcModalBullet">
+                  <IconCheckCircle className="pcModalBulletIco" />
+                  <span>O acesso continua até o fim do período atual.</span>
+                </div>
+                <div className="pcModalBullet">
+                  <IconCheckCircle className="pcModalBulletIco" />
+                  <span>Os usuários vinculados podem perder o acesso depois disso.</span>
+                </div>
               </div>
             </div>
-          )}
+          }
+        />
 
-          <div className="plansDivider" />
+        <section className="plansCard">
+          <header className="plansCardHeader">
+            <h1 className="plansCardTitle">Planos e Créditos</h1>
+          </header>
 
-          <h3 className="plansSectionTitle">Planos do Sistema</h3>
-
-          <TabBar
-            value={tab}
-            onChange={setTab}
-            items={[
-              { value: "pf", label: `Pessoa Física (${pfPlans.length})` },
-              { value: "pj", label: `Pessoa Jurídica (${pjPlans.length})` },
-            ]}
-          />
-
-          {subErr ? (
-            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
-              {subErr}
-            </p>
-          ) : null}
-
-          {subCheckoutUrl ? (
-            <p className="creditsHint" style={{ marginTop: 6 }}>
-              <a
-                href={subCheckoutUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="plansLink"
-              >
-                Clique aqui para continuar a assinatura no Stripe
-              </a>
-            </p>
-          ) : null}
-
-          {loadingPlanos ? (
-            <p className="creditsHint" style={{ marginTop: 10 }}>
-              Carregando planos...
-            </p>
-          ) : errPlanos ? (
-            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
-              {errPlanos}
-            </p>
-          ) : shownPlans.length === 0 ? (
-            <p className="creditsHint" style={{ marginTop: 10 }}>
-              Nenhum plano encontrado para esta categoria.
-            </p>
-          ) : (
-            <div id={`plans-panel-${tab}`} role="tabpanel" aria-labelledby={`plans-tab-${tab}`} className="plansScrollArea">
-              <div className="plansGrid">
-                {shownPlans.map((p) => (
-                  <PlanCard
-                    key={p.id}
-                    title={p.title}
-                    price={p.price}
-                    features={p.features}
-                    ctaLabel={subLoading ? "Abrindo..." : p.cta}
-                    variant={p.variant}
-                    badge={p.badge}
-                    disabled={p.disabled}
-                    hint={p.hint}
-                    onCta={() => handleChoose(p.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="plansDivider" />
-
-          <h3 className="plansSectionTitle">Comprar Créditos Avulsos</h3>
-
-          <p className="creditsLabel">Quantos créditos você deseja comprar?</p>
-
-          <div className="creditsRow">
-            <input
-              className="creditsInput"
-              type="number"
-              min={1}
-              value={credits}
-              onChange={(e) => setCredits(Math.max(1, Math.floor(Number(e.target.value || 1))))}
-              aria-label="Quantidade de créditos"
+          <div className="plansCardBody">
+            {/* ✅ TABBAR PRINCIPAL (3 partes) */}
+            <TabBar
+              value={mainTab}
+              onChange={setMainTab}
+              items={mainTabs}
+              ariaLabel="Seções"
+              idPrefix="main"
+              variant="main"
             />
 
-            <button
-              type="button"
-              className="buyBtn is-green"
-              onClick={handleBuyCredits}
-              disabled={buyLoading || loadingPrice || !!errPrice || !pricePerCredit || subLoading || cancelLoading || leaveLoading}
-              title={buyLoading ? "Abrindo checkout..." : loadingPrice ? "Carregando preço..." : errPrice ? errPrice : ""}
-            >
-              <IconCheckCircle className="buyBtnIco" />
-              {buyLoading ? "Abrindo..." : "Comprar Créditos"}
-            </button>
-          </div>
-
-          <small className="creditsHint">{creditPriceText}</small>
-
-          {buyErr ? (
-            <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
-              {buyErr}
-            </p>
-          ) : null}
-
-          {checkoutUrl ? (
-            <p className="creditsHint" style={{ marginTop: 6 }}>
-              <a
-                href={checkoutUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="plansLink"
+            {/* =====================
+                MEU PLANO (só se tiver)
+            ====================== */}
+            {hasSubscription && mainTab === "my" ? (
+              <div
+                id="main-panel-my"
+                role="tabpanel"
+                aria-labelledby="main-tab-my"
+                className="plansPanel"
               >
-                Clique aqui para continuar o pagamento no Stripe
-              </a>
-            </p>
-          ) : null}
-        </div>
-      </section>
+                <h3 className="plansSectionTitle">Meu Plano</h3>
+
+                {loadingPlano ? (
+                  <p className="creditsHint" style={{ marginTop: 6 }}>
+                    Carregando plano atual...
+                  </p>
+                ) : errPlano ? (
+                  <p className="creditsHint" style={{ marginTop: 6, color: "rgba(198,44,34,0.95)" }}>
+                    {errPlano}
+                  </p>
+                ) : (
+                  <div className="currentPlan">
+                    <div className="currentPlanLeft">
+                      <h4 className="currentPlanTitle">{currentPlan.name}</h4>
+
+                      {currentPlan.subtitle ? (
+                        <p className="creditsHint" style={{ marginTop: 6 }}>
+                          {currentPlan.subtitle}
+                        </p>
+                      ) : null}
+
+                      <ul className="currentPlanList" aria-label="Benefícios e detalhes do plano atual">
+                        {currentPlan.features.map((t) => (
+                          <li key={t} className="currentPlanItem">
+                            <IconCheckCircle className="currentPlanCheck" />
+                            <span>{t}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {cancelMsg ? (
+                        <p className="creditsHint" style={{ marginTop: 10, color: "rgba(94,133,66,0.98)" }}>
+                          {cancelMsg}
+                        </p>
+                      ) : null}
+                      {cancelErr ? (
+                        <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
+                          {cancelErr}
+                        </p>
+                      ) : null}
+
+                      {leaveMsg ? (
+                        <p className="creditsHint" style={{ marginTop: 10, color: "rgba(94,133,66,0.98)" }}>
+                          {leaveMsg}
+                        </p>
+                      ) : null}
+                      {leaveErr ? (
+                        <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
+                          {leaveErr}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="currentPlanRight" style={{ gap: 10, display: "flex", flexWrap: "wrap" }}>
+                      {showCancelBtn ? (
+                        <button
+                          type="button"
+                          className="chooseBtn is-danger"
+                          onClick={handleCancelSubscription}
+                          disabled={cancelLoading || subLoading || leaveLoading}
+                          title={cancelLoading ? "Cancelando..." : "Cancelar assinatura"}
+                        >
+                          {cancelLoading ? "Cancelando..." : "Cancelar Assinatura"}
+                        </button>
+                      ) : null}
+
+                      {showLeaveBtn ? (
+                        <button
+                          type="button"
+                          className="chooseBtn is-blue"
+                          onClick={handleLeaveSubscription}
+                          disabled={leaveLoading || subLoading || cancelLoading}
+                          title={leaveLoading ? "Saindo..." : "Sair da assinatura"}
+                          style={{ filter: "brightness(0.98)" }}
+                        >
+                          {leaveLoading ? "Saindo..." : "Sair da assinatura"}
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* =====================
+                PLANOS DO SISTEMA
+            ====================== */}
+            {mainTab === "plans" ? (
+              <div
+                id="main-panel-plans"
+                role="tabpanel"
+                aria-labelledby="main-tab-plans"
+                className="plansPanel"
+              >
+                <h3 className="plansSectionTitle">Planos do Sistema</h3>
+
+                <TabBar
+                  value={plansKind}
+                  onChange={setPlansKind}
+                  items={[
+                    { value: "pf", label: `Pessoa Física (${pfPlans.length})` },
+                    { value: "pj", label: `Pessoa Jurídica (${pjPlans.length})` },
+                  ]}
+                  ariaLabel="Categorias de planos"
+                  idPrefix="kind"
+                  variant="sub"
+                />
+
+                {subErr ? (
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
+                    {subErr}
+                  </p>
+                ) : null}
+
+                {subCheckoutUrl ? (
+                  <p className="creditsHint" style={{ marginTop: 6 }}>
+                    <a href={subCheckoutUrl} target="_blank" rel="noreferrer noopener" className="plansLink">
+                      Clique aqui para continuar a assinatura no Stripe
+                    </a>
+                  </p>
+                ) : null}
+
+                {loadingPlanos ? (
+                  <p className="creditsHint" style={{ marginTop: 10 }}>
+                    Carregando planos...
+                  </p>
+                ) : errPlanos ? (
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
+                    {errPlanos}
+                  </p>
+                ) : shownPlans.length === 0 ? (
+                  <p className="creditsHint" style={{ marginTop: 10 }}>
+                    Nenhum plano encontrado para esta categoria.
+                  </p>
+                ) : (
+                  <div
+                    id={`kind-panel-${plansKind}`}
+                    role="tabpanel"
+                    aria-labelledby={`kind-tab-${plansKind}`}
+                    className="plansScrollArea"
+                  >
+                    <div className="plansGrid">
+                      {shownPlans.map((p) => (
+                        <PlanCard
+                          key={p.id}
+                          title={p.title}
+                          price={p.price}
+                          features={p.features}
+                          ctaLabel={subLoading ? "Abrindo..." : p.cta}
+                          variant={p.variant}
+                          badge={p.badge}
+                          disabled={p.disabled}
+                          hint={p.hint}
+                          onCta={() => handleChoose(p.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* =====================
+                CRÉDITOS AVULSOS
+            ====================== */}
+            {mainTab === "credits" ? (
+              <div
+                id="main-panel-credits"
+                role="tabpanel"
+                aria-labelledby="main-tab-credits"
+                className="plansPanel"
+              >
+                <h3 className="plansSectionTitle">Comprar Créditos Avulsos</h3>
+
+                <p className="creditsLabel">Quantos créditos você deseja comprar?</p>
+
+                <div className="creditsRow">
+                  <input
+                    className="creditsInput"
+                    type="number"
+                    min={1}
+                    value={credits}
+                    onChange={(e) => setCredits(Math.max(1, Math.floor(Number(e.target.value || 1))))}
+                    aria-label="Quantidade de créditos"
+                  />
+
+                  <button
+                    type="button"
+                    className="buyBtn is-green"
+                    onClick={handleBuyCredits}
+                    disabled={
+                      buyLoading ||
+                      loadingPrice ||
+                      !!errPrice ||
+                      !pricePerCredit ||
+                      subLoading ||
+                      cancelLoading ||
+                      leaveLoading
+                    }
+                    title={
+                      buyLoading
+                        ? "Abrindo checkout..."
+                        : loadingPrice
+                        ? "Carregando preço..."
+                        : errPrice
+                        ? errPrice
+                        : ""
+                    }
+                  >
+                    <IconCheckCircle className="buyBtnIco" />
+                    {buyLoading ? "Abrindo..." : "Comprar Créditos"}
+                  </button>
+                </div>
+
+                <small className="creditsHint">{creditPriceText}</small>
+
+                {buyErr ? (
+                  <p className="creditsHint" style={{ marginTop: 10, color: "rgba(198,44,34,0.95)" }}>
+                    {buyErr}
+                  </p>
+                ) : null}
+
+                {checkoutUrl ? (
+                  <p className="creditsHint" style={{ marginTop: 6 }}>
+                    <a href={checkoutUrl} target="_blank" rel="noreferrer noopener" className="plansLink">
+                      Clique aqui para continuar o pagamento no Stripe
+                    </a>
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,12 @@
-/* history.css — LIGHT (Perfil) SEM efeito no fundo e SEM blur */
+/* history.css — LIGHT (Perfil)
+   ✅ +50% no tamanho de tudo (fontes, paddings, alturas, sombras, etc.)
+   ✅ Mais contraste: itens da lista destacam mais do fundo do card
+   ✅ Remove visualmente:
+      - "Mostrando só o essencial..."
+      - pills "COMPRAS ..." / "PAGO (PÁG.) ..."
+      - "Página X de Y"
+   ✅ Responsivo mantido
+*/
 
 .histPage,
 .histPage * {
@@ -27,7 +35,7 @@ body.modal-open {
   justify-content: flex-start !important; /* <<< ESQUERDA */
   align-items: flex-start !important;
 
-  padding: 28px 22px 34px 6px !important; /* <<< MAIS PRA ESQUERDA */
+  padding: 42px 33px 51px 9px !important; /* 28/22/34/6 * 1.5 */
 
   background: transparent !important;
   box-shadow: none !important;
@@ -54,29 +62,35 @@ body.modal-open {
 }
 
 /* =========================
-   TOKENS (Perfil)
+   TOKENS (Perfil) — +50%
+   + contraste do card vs itens
 ========================= */
 .histPage {
   --green: #5e8542;
 
-  --text: rgba(31, 41, 55, 0.92);
-  --muted: rgba(107, 114, 128, 0.95);
+  --text: rgba(17, 24, 39, 0.96);
+  --muted: rgba(75, 85, 99, 0.96);
 
-  --stroke: rgba(15, 23, 42, 0.08);
+  /* um pouco mais forte */
+  --stroke: rgba(15, 23, 42, 0.14);
 
-  --card-solid: #ffffff;
+  /* fundo do card mais “acinzentado” p/ dar contraste com itens brancos */
+  --card-solid: #f3f5f7;
 
-  --shadow-lg: 0 18px 52px rgba(15, 23, 42, 0.08);
-  --shadow-md: 0 14px 34px rgba(15, 23, 42, 0.08);
-  --shadow-sm: 0 10px 22px rgba(15, 23, 42, 0.06);
+  /* sombras * 1.5 */
+  --shadow-lg: 0 27px 78px rgba(15, 23, 42, 0.10);
+  --shadow-md: 0 21px 51px rgba(15, 23, 42, 0.10);
+  --shadow-sm: 0 15px 33px rgba(15, 23, 42, 0.08);
 
-  --r-xl: 22px;
-  --r-lg: 18px;
+  /* raios * 1.5 */
+  --r-xl: 33px;
+  --r-lg: 27px;
   --pill: 999px;
 }
 
 /* =========================
    CARD PRINCIPAL (SÓLIDO, SEM BLUR, SEM CENTRALIZAR)
+   + contraste: fundo levemente cinza
 ========================= */
 .pg-card.histCard,
 .histCard {
@@ -86,10 +100,10 @@ body.modal-open {
   margin-right: auto !important; /* <<< SOBRA VAI PRA DIREITA */
 
   border-radius: var(--r-xl) !important;
-  padding: 18px 18px 20px !important;
+  padding: 27px 27px 30px !important; /* 18/18/20 * 1.5 */
 
   background: var(--card-solid) !important;
-  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
   box-shadow: var(--shadow-lg) !important;
 
   /* SEM efeito glass */
@@ -105,22 +119,22 @@ body.modal-open {
 .histHeader {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
+  justify-content: flex-start; /* como vamos ocultar o lado direito */
+  gap: 21px; /* 14 * 1.5 */
 
-  padding: 6px 8px 14px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+  padding: 9px 12px 21px; /* 6/8/14 * 1.5 */
+  border-bottom: 1px solid rgba(15, 23, 42, 0.10);
 }
 
 .histHeaderLeft {
   display: grid;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
   min-width: 0;
 }
 
 .histTitle {
   margin: 0;
-  font-size: 40px;
+  font-size: 60px; /* 40 * 1.5 */
   line-height: 1.06;
   font-weight: 950;
   color: var(--text);
@@ -128,9 +142,9 @@ body.modal-open {
 
 .histSubtitle {
   margin: 0;
-  font-size: 14px;
+  font-size: 21px; /* 14 * 1.5 */
   font-weight: 750;
-  color: rgba(55, 65, 81, 0.76);
+  color: rgba(55, 65, 81, 0.80);
 }
 
 /* =========================
@@ -138,8 +152,8 @@ body.modal-open {
 ========================= */
 .histTabs {
   --tabs: 2;
-  --pad: 6px;
-  --gap: 8px;
+  --pad: 9px; /* 6 * 1.5 */
+  --gap: 12px; /* 8 * 1.5 */
 
   position: relative;
   display: grid;
@@ -149,11 +163,11 @@ body.modal-open {
   padding: var(--pad);
   border-radius: var(--pill);
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6f9 100%);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 100%);
   box-shadow: var(--shadow-sm);
 
-  width: min(380px, 100%);
+  width: min(570px, 100%); /* 380 * 1.5 */
 }
 
 .histTabPill {
@@ -173,7 +187,7 @@ body.modal-open {
     rgba(160, 234, 82, 0.98) 0%,
     rgba(94, 133, 66, 0.98) 100%
   );
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 15px 33px rgba(15, 23, 42, 0.14); /* 10/22 * 1.5 */
   transition: transform 240ms ease;
   will-change: transform;
 }
@@ -192,11 +206,12 @@ body.modal-open {
   border: 0;
   background: transparent;
 
-  height: 44px;
+  height: 66px; /* 44 * 1.5 */
   border-radius: var(--pill);
 
   font-weight: 900;
-  color: rgba(55, 65, 81, 0.80);
+  font-size: 21px; /* novo p/ acompanhar escala */
+  color: rgba(55, 65, 81, 0.86);
   cursor: pointer;
   user-select: none;
 
@@ -211,21 +226,21 @@ body.modal-open {
   filter: brightness(1.02);
 }
 .histTab.is-active {
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
 }
 
 /* =========================
-   HEADER RIGHT (pills)
+   HEADER RIGHT (pills) — será ocultado no fim
 ========================= */
 .histHeaderRight {
   display: grid;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
   justify-items: end;
 }
 
 .histPills {
   display: inline-flex;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -233,80 +248,82 @@ body.modal-open {
 .histPill {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 
-  padding: 10px 14px;
+  padding: 15px 21px; /* 10/14 * 1.5 */
   border-radius: var(--pill);
 
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6f9 100%);
-  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 100%);
+  border: 1px solid rgba(15, 23, 42, 0.14);
   box-shadow: var(--shadow-sm);
 
   font-weight: 900;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
 }
 
 .histPillLabel {
-  font-size: 12px;
+  font-size: 18px; /* 12 * 1.5 */
   font-weight: 900;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
+  color: rgba(107, 114, 128, 0.98);
 }
 
 .histPagerTopText {
-  font-size: 13px;
+  font-size: 19.5px; /* 13 * 1.5 */
   font-weight: 900;
-  color: rgba(107, 114, 128, 0.95);
+  color: rgba(107, 114, 128, 0.98);
 }
 
 /* =========================
    BODY
 ========================= */
 .histBody {
-  padding: 18px 8px 6px;
+  padding: 27px 12px 9px; /* 18/8/6 * 1.5 */
   display: grid;
-  gap: 12px;
+  gap: 18px; /* 12 * 1.5 */
 }
 
 .histToast {
-  padding: 10px 12px;
+  padding: 15px 18px; /* 10/12 * 1.5 */
   border-radius: var(--pill);
-  border: 1px solid rgba(94, 133, 66, 0.24);
-  background: rgba(160, 234, 82, 0.12);
-  color: rgba(31, 41, 55, 0.92);
+  border: 1px solid rgba(94, 133, 66, 0.28);
+  background: rgba(160, 234, 82, 0.14);
+  color: rgba(17, 24, 39, 0.95);
   font-weight: 900;
   box-shadow: var(--shadow-sm);
+  font-size: 19.5px;
 }
 
 .histState {
-  padding: 16px 14px;
+  padding: 24px 21px; /* 16/14 * 1.5 */
   border-radius: var(--r-lg);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.12);
   background: #ffffff;
-  color: rgba(31, 41, 55, 0.86);
+  color: rgba(17, 24, 39, 0.90);
   font-weight: 900;
   box-shadow: var(--shadow-sm);
+  font-size: 21px;
 }
 
 .histState.is-error {
-  border-color: rgba(239, 68, 68, 0.22);
-  background: rgba(239, 68, 68, 0.08);
-  color: rgba(127, 29, 29, 0.95);
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.10);
+  color: rgba(127, 29, 29, 0.98);
 }
 
 /* scroll interno */
 .histScroll {
-  max-height: min(640px, calc(100dvh - 240px));
+  max-height: min(960px, calc(100dvh - 360px)); /* 640/240 * 1.5 */
   overflow: auto;
-  padding-right: 6px;
+  padding-right: 9px; /* 6 * 1.5 */
 }
 
 .histScroll::-webkit-scrollbar {
-  width: 10px;
+  width: 15px; /* 10 * 1.5 */
 }
 .histScroll::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.18);
   border-radius: 999px;
 }
 .histScroll::-webkit-scrollbar-track {
@@ -314,35 +331,36 @@ body.modal-open {
 }
 
 /* =========================
-   LISTA / ITENS
+   LISTA / ITENS — MAIS CONTRASTE
 ========================= */
 .histList {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 12px;
+  gap: 18px; /* 12 * 1.5 */
 }
 
+/* Itens mais “saltados” no fundo do card */
 .histItem {
   border-radius: var(--r-xl);
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(15, 23, 42, 0.16); /* mais contraste */
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12); /* mais contraste */
   overflow: hidden;
   transition: transform 160ms ease, filter 160ms ease;
 }
 
 .histItem:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   filter: brightness(1.01);
 }
 
 .histTopRow {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 14px;
-  padding: 16px;
+  gap: 21px; /* 14 * 1.5 */
+  padding: 24px; /* 16 * 1.5 */
   align-items: start;
 }
 
@@ -350,49 +368,50 @@ body.modal-open {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 }
 
 .histId {
   font-weight: 950;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
+  font-size: 24px;
 }
 
 /* essencial */
 .histEssGrid {
-  margin-top: 12px;
+  margin-top: 18px; /* 12 * 1.5 */
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 }
 
 .histEssBox {
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
-  box-shadow: var(--shadow-sm);
+  padding: 18px; /* 12 * 1.5 */
+  border-radius: 24px; /* 16 * 1.5 */
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff; /* mais contraste */
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
 }
 
 .histEssLabel {
   display: block;
-  font-size: 12px;
+  font-size: 18px; /* 12 * 1.5 */
   font-weight: 900;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
-  margin-bottom: 6px;
+  color: rgba(107, 114, 128, 0.98);
+  margin-bottom: 9px; /* 6 * 1.5 */
 }
 
 .histEssValue {
-  font-size: 15px;
+  font-size: 22.5px; /* 15 * 1.5 */
   font-weight: 950;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
 }
 
 .histRight {
   display: grid;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
   justify-items: end;
   align-content: start;
 }
@@ -401,24 +420,25 @@ body.modal-open {
    BOTÕES
 ========================= */
 .histBtn {
-  height: 44px;
-  padding: 0 16px;
+  height: 66px; /* 44 * 1.5 */
+  padding: 0 24px; /* 16 * 1.5 */
   border-radius: var(--pill);
 
   font-weight: 900;
+  font-size: 21px;
   cursor: pointer;
   user-select: none;
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6f9 100%);
-  color: rgba(55, 65, 81, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 100%);
+  color: rgba(55, 65, 81, 0.95);
 
   box-shadow: var(--shadow-sm);
   transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease;
 }
 
 .histBtn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   filter: brightness(1.02);
 }
 .histBtn:disabled {
@@ -429,10 +449,14 @@ body.modal-open {
 }
 
 .histBtnWarn {
-  border-color: rgba(245, 158, 11, 0.28);
-  background: linear-gradient(180deg, rgba(255, 214, 84, 0.96) 0%, rgba(206, 162, 18, 0.94) 100%);
-  color: rgba(15, 20, 10, 0.96);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+  border-color: rgba(245, 158, 11, 0.30);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 214, 84, 0.98) 0%,
+    rgba(206, 162, 18, 0.96) 100%
+  );
+  color: rgba(15, 20, 10, 0.98);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
 }
 
 /* =========================
@@ -440,47 +464,47 @@ body.modal-open {
 ========================= */
 .histStatus,
 .histReqStatus {
-  font-size: 12px;
+  font-size: 18px; /* 12 * 1.5 */
   font-weight: 950;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
-  padding: 7px 12px;
+  padding: 10.5px 18px; /* 7/12 * 1.5 */
   border-radius: var(--pill);
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(15, 23, 42, 0.03);
-  color: rgba(55, 65, 81, 0.88);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.05);
+  color: rgba(55, 65, 81, 0.92);
 
   white-space: nowrap;
 }
 
 .histStatus.is-ok,
 .histReqStatus.is-ok {
-  border-color: rgba(94, 133, 66, 0.24);
-  background: rgba(160, 234, 82, 0.14);
-  color: rgba(45, 78, 24, 0.95);
+  border-color: rgba(94, 133, 66, 0.28);
+  background: rgba(160, 234, 82, 0.16);
+  color: rgba(45, 78, 24, 0.98);
 }
 
 .histStatus.is-pending,
 .histReqStatus.is-pending {
-  border-color: rgba(245, 158, 11, 0.26);
-  background: rgba(255, 214, 84, 0.18);
-  color: rgba(120, 53, 15, 0.95);
+  border-color: rgba(245, 158, 11, 0.30);
+  background: rgba(255, 214, 84, 0.20);
+  color: rgba(120, 53, 15, 0.98);
 }
 
 .histStatus.is-bad,
 .histReqStatus.is-bad {
-  border-color: rgba(239, 68, 68, 0.24);
-  background: rgba(239, 68, 68, 0.10);
-  color: rgba(127, 29, 29, 0.95);
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.12);
+  color: rgba(127, 29, 29, 0.98);
 }
 
 .histStatus.is-neutral,
 .histReqStatus.is-neutral {
-  border-color: rgba(15, 23, 42, 0.10);
-  background: rgba(15, 23, 42, 0.03);
-  color: rgba(55, 65, 81, 0.88);
+  border-color: rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.05);
+  color: rgba(55, 65, 81, 0.92);
 }
 
 /* =========================
@@ -488,90 +512,92 @@ body.modal-open {
 ========================= */
 .histDetails {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 18px; /* 12 * 1.5 */
 }
 
 .histSummary {
   cursor: pointer;
   user-select: none;
   font-weight: 950;
-  color: rgba(55, 65, 81, 0.92);
+  font-size: 21px;
+  color: rgba(55, 65, 81, 0.95);
 
-  padding: 10px 12px;
+  padding: 15px 18px; /* 10/12 * 1.5 */
   border-radius: var(--pill);
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6f9 100%);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 100%);
   box-shadow: var(--shadow-sm);
 }
 
 .histDetailBox {
-  margin-top: 10px;
-  padding: 14px;
+  margin-top: 15px; /* 10 * 1.5 */
+  padding: 21px; /* 14 * 1.5 */
   border-radius: var(--r-lg);
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.14);
   box-shadow: var(--shadow-sm);
 }
 
 .histDetailGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 }
 
 .histFieldLabel {
   display: block;
-  font-size: 12px;
+  font-size: 18px; /* 12 * 1.5 */
   font-weight: 900;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
-  margin-bottom: 6px;
+  color: rgba(107, 114, 128, 0.98);
+  margin-bottom: 9px; /* 6 * 1.5 */
 }
 
 .histFieldValue {
-  font-size: 14px;
+  font-size: 21px; /* 14 * 1.5 */
   font-weight: 900;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
   word-break: break-word;
 }
 
 .histDivider {
   height: 1px;
-  margin: 12px 0;
-  background: rgba(15, 23, 42, 0.08);
+  margin: 18px 0; /* 12 * 1.5 */
+  background: rgba(15, 23, 42, 0.12);
 }
 
 .histMuted {
   margin: 0;
-  color: rgba(107, 114, 128, 0.95);
-  font-weight: 750;
+  color: rgba(75, 85, 99, 0.96);
+  font-weight: 800;
+  font-size: 19.5px;
 }
 
 .histRefundList {
-  margin-top: 10px;
+  margin-top: 15px; /* 10 * 1.5 */
   display: grid;
-  gap: 8px;
+  gap: 12px; /* 8 * 1.5 */
 }
 
 .histRefundCard {
-  padding: 10px;
-  border-radius: 16px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+  padding: 15px; /* 10 * 1.5 */
+  border-radius: 24px; /* 16 * 1.5 */
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff;
   box-shadow: var(--shadow-sm);
 }
 
 .histRefundRow {
   display: flex;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
   flex-wrap: wrap;
   align-items: center;
 }
 
 /* =========================
-   MODAL (mantém normal)
+   MODAL (mantém normal) — +50%
 ========================= */
 .refundOverlay {
   position: fixed;
@@ -580,7 +606,7 @@ body.modal-open {
 
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: 27px; /* 18 * 1.5 */
 
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(7px);
@@ -588,22 +614,22 @@ body.modal-open {
 }
 
 .refundModal {
-  width: min(680px, 100%);
-  border-radius: 18px;
+  width: min(1020px, 100%); /* 680 * 1.5 */
+  border-radius: 27px; /* 18 * 1.5 */
   overflow: hidden;
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
+  border: 1px solid rgba(15, 23, 42, 0.14);
   background: #ffffff;
 
-  box-shadow: 0 34px 90px rgba(15, 23, 42, 0.25);
-  color: rgba(31, 41, 55, 0.92);
+  box-shadow: 0 51px 135px rgba(15, 23, 42, 0.25); /* 34/90 * 1.5 */
+  color: rgba(17, 24, 39, 0.95);
 
   transform-origin: center;
   animation: refundPop 180ms ease-out;
 }
 
 @keyframes refundPop {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  from { opacity: 0; transform: translateY(12px) scale(0.98); } /* 8 * 1.5 */
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -611,68 +637,68 @@ body.modal-open {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 18px; /* 12 * 1.5 */
 
-  padding: 16px 16px 14px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 24px 24px 21px; /* 16/16/14 * 1.5 */
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
 
   background: linear-gradient(180deg, rgba(15,23,42,0.03), rgba(15,23,42,0));
 }
 
 .refundTopLeft {
   display: flex;
-  gap: 12px;
+  gap: 18px; /* 12 * 1.5 */
   min-width: 0;
 }
 
 .refundIconWrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 66px;  /* 44 * 1.5 */
+  height: 66px; /* 44 * 1.5 */
+  border-radius: 21px; /* 14 * 1.5 */
   display: grid;
   place-items: center;
 
-  border: 1px solid rgba(94, 133, 66, 0.22);
-  background: rgba(160, 234, 82, 0.14);
+  border: 1px solid rgba(94, 133, 66, 0.26);
+  background: rgba(160, 234, 82, 0.16);
   box-shadow: var(--shadow-sm);
 }
 
-.refundIcon { width: 22px; height: 22px; color: var(--green); }
+.refundIcon { width: 33px; height: 33px; color: var(--green); } /* 22 * 1.5 */
 
-.refundTitles { display: grid; gap: 6px; min-width: 0; }
+.refundTitles { display: grid; gap: 9px; min-width: 0; } /* 6 * 1.5 */
 
 .refundKicker {
-  font-size: 11px;
+  font-size: 16.5px; /* 11 * 1.5 */
   font-weight: 950;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
+  color: rgba(107, 114, 128, 0.98);
 }
 
 .refundTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 27px; /* 18 * 1.5 */
   font-weight: 950;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
 }
 
 .refundSubtitle {
   margin: 0;
-  font-size: 13px;
-  font-weight: 750;
-  color: rgba(55, 65, 81, 0.80);
+  font-size: 19.5px; /* 13 * 1.5 */
+  font-weight: 800;
+  color: rgba(55, 65, 81, 0.86);
   line-height: 1.35;
 }
 
 .refundCloseBtn {
-  width: 40px;
-  height: 40px;
+  width: 60px;  /* 40 * 1.5 */
+  height: 60px; /* 40 * 1.5 */
   border-radius: 999px;
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(15, 23, 42, 0.05);
 
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
   display: grid;
   place-items: center;
 
@@ -680,101 +706,101 @@ body.modal-open {
   transition: transform 160ms ease, filter 160ms ease;
 }
 
-.refundCloseBtn:hover { transform: translateY(-1px); filter: brightness(1.02); }
+.refundCloseBtn:hover { transform: translateY(-2px); filter: brightness(1.02); }
 .refundCloseBtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-.refundCloseIco { width: 18px; height: 18px; }
+.refundCloseIco { width: 27px; height: 27px; } /* 18 * 1.5 */
 
 .refundBody {
-  padding: 16px 16px 8px;
+  padding: 24px 24px 12px; /* 16/16/8 * 1.5 */
   display: grid;
-  gap: 12px;
+  gap: 18px; /* 12 * 1.5 */
 }
 
 .refundSummary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 }
 
 .refundSummaryItem {
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+  padding: 18px; /* 12 * 1.5 */
+  border-radius: 24px; /* 16 * 1.5 */
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #ffffff;
   box-shadow: var(--shadow-sm);
 }
 
-.refundSummaryItem.is-strong { border-color: rgba(94, 133, 66, 0.20); }
+.refundSummaryItem.is-strong { border-color: rgba(94, 133, 66, 0.26); }
 
 .refundSummaryLabel {
   display: block;
-  font-size: 11px;
+  font-size: 16.5px; /* 11 * 1.5 */
   font-weight: 950;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
-  margin-bottom: 6px;
+  color: rgba(107, 114, 128, 0.98);
+  margin-bottom: 9px; /* 6 * 1.5 */
 }
 
 .refundSummaryValue {
-  font-size: 14px;
+  font-size: 21px; /* 14 * 1.5 */
   font-weight: 950;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
   word-break: break-word;
 }
 
 .refundInfoBox {
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(160, 234, 82, 0.10);
+  padding: 18px; /* 12 * 1.5 */
+  border-radius: 24px; /* 16 * 1.5 */
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(160, 234, 82, 0.12);
 }
 
 .refundInfoRow {
   display: flex;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
   align-items: flex-start;
 
-  font-size: 13px;
-  font-weight: 750;
-  color: rgba(31, 41, 55, 0.88);
+  font-size: 19.5px; /* 13 * 1.5 */
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.90);
   line-height: 1.35;
 }
-.refundInfoRow + .refundInfoRow { margin-top: 8px; }
+.refundInfoRow + .refundInfoRow { margin-top: 12px; } /* 8 * 1.5 */
 
 .refundInfoIco {
-  width: 18px;
-  height: 18px;
+  width: 27px; /* 18 * 1.5 */
+  height: 27px;
   color: var(--green);
   flex: 0 0 auto;
   margin-top: 1px;
 }
 
-.refundField { display: grid; gap: 8px; }
+.refundField { display: grid; gap: 12px; } /* 8 * 1.5 */
 
 .refundFieldLabel {
-  font-size: 12px;
+  font-size: 18px; /* 12 * 1.5 */
   font-weight: 950;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
+  color: rgba(107, 114, 128, 0.98);
 }
 
 .refundTextarea {
   width: 100%;
-  min-height: 112px;
+  min-height: 168px; /* 112 * 1.5 */
   resize: vertical;
 
-  padding: 12px 12px;
-  border-radius: 16px;
+  padding: 18px 18px; /* 12 * 1.5 */
+  border-radius: 24px; /* 16 * 1.5 */
 
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(15, 23, 42, 0.16);
   background: #ffffff;
-  color: rgba(31, 41, 55, 0.92);
+  color: rgba(17, 24, 39, 0.95);
 
-  font-size: 14px;
-  font-weight: 750;
+  font-size: 21px; /* 14 * 1.5 */
+  font-weight: 800;
   line-height: 1.45;
 
   outline: none;
@@ -783,75 +809,81 @@ body.modal-open {
 }
 
 .refundTextarea:focus {
-  border-color: rgba(94, 133, 66, 0.45);
-  box-shadow: 0 0 0 4px rgba(160, 234, 82, 0.22), var(--shadow-sm);
+  border-color: rgba(94, 133, 66, 0.55);
+  box-shadow: 0 0 0 6px rgba(160, 234, 82, 0.22), var(--shadow-sm); /* 4 * 1.5 */
 }
 
 .refundCounterRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 }
 
 .refundMiniHint {
-  font-size: 12px;
-  font-weight: 750;
-  color: rgba(107, 114, 128, 0.95);
+  font-size: 18px; /* 12 * 1.5 */
+  font-weight: 800;
+  color: rgba(107, 114, 128, 0.98);
 }
 
 .refundCounter {
-  font-size: 12px;
+  font-size: 18px; /* 12 * 1.5 */
   font-weight: 950;
-  color: rgba(107, 114, 128, 0.95);
+  color: rgba(107, 114, 128, 0.98);
 }
 
 .refundError {
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(239, 68, 68, 0.22);
-  background: rgba(239, 68, 68, 0.08);
-  color: rgba(127, 29, 29, 0.95);
+  padding: 15px 18px; /* 10/12 * 1.5 */
+  border-radius: 21px; /* 14 * 1.5 */
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.10);
+  color: rgba(127, 29, 29, 0.98);
   font-weight: 900;
+  font-size: 19.5px;
 }
 
 .refundFooter {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 15px; /* 10 * 1.5 */
 
-  padding: 12px 16px 16px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 18px 24px 24px; /* 12/16/16 * 1.5 */
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
 }
 
 .refundBtnGhost,
 .refundBtnPrimary {
-  height: 44px;
-  padding: 0 16px;
+  height: 66px; /* 44 * 1.5 */
+  padding: 0 24px; /* 16 * 1.5 */
   border-radius: var(--pill);
 
   font-weight: 950;
+  font-size: 21px;
   cursor: pointer;
   user-select: none;
 
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6f9 100%);
-  color: rgba(55, 65, 81, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 100%);
+  color: rgba(55, 65, 81, 0.95);
 
   box-shadow: var(--shadow-sm);
   transition: transform 160ms ease, filter 160ms ease;
 }
 
 .refundBtnGhost:hover,
-.refundBtnPrimary:hover { transform: translateY(-1px); filter: brightness(1.02); }
+.refundBtnPrimary:hover { transform: translateY(-2px); filter: brightness(1.02); }
 
 .refundBtnGhost:disabled,
 .refundBtnPrimary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; filter: none; }
 
 .refundBtnPrimary {
-  border-color: rgba(94, 133, 66, 0.22);
-  background: linear-gradient(180deg, rgba(160, 234, 82, 0.98) 0%, rgba(94, 133, 66, 0.98) 100%);
-  color: rgba(15, 20, 10, 0.96);
+  border-color: rgba(94, 133, 66, 0.26);
+  background: linear-gradient(
+    180deg,
+    rgba(160, 234, 82, 0.98) 0%,
+    rgba(94, 133, 66, 0.98) 100%
+  );
+  color: rgba(15, 20, 10, 0.98);
 }
 
 /* =========================
@@ -866,12 +898,17 @@ body.modal-open {
   .histEssGrid { grid-template-columns: 1fr; }
   .histDetailGrid { grid-template-columns: 1fr; }
   .histScroll { max-height: none; }
+
+  .refundSummary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 560px) {
   .histTabs { width: 100%; }
-  .histTitle { font-size: 34px; }
-  .pg-wrap.histPage { padding: 12px 10px 18px 6px; }
+  .histTitle { font-size: 51px; } /* 34 * 1.5 */
+  .pg-wrap.histPage { padding: 18px 15px 27px 9px; } /* 12/10/18/6 * 1.5 */
+
+  .histTopRow { padding: 18px; } /* um pouco menor no mobile pra caber melhor */
+  .refundModal { width: min(1020px, 100%); }
 }
 
 /* acessibilidade */
@@ -882,8 +919,8 @@ body.modal-open {
 .refundTextarea:focus-visible,
 .refundBtnGhost:focus-visible,
 .refundBtnPrimary:focus-visible {
-  outline: 2px solid rgba(94, 133, 66, 0.45);
-  outline-offset: 2px;
+  outline: 3px solid rgba(94, 133, 66, 0.55); /* 2 * 1.5 */
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -895,4 +932,19 @@ body.modal-open {
   .refundBtnPrimary {
     transition: none;
   }
+}
+
+/* =========================
+   ✅ REMOÇÕES PEDIDAS (via CSS)
+   - Some com o texto do subtítulo
+   - Some com os cards "COMPRAS", "PAGO (PÁG.) ..."
+   - Some com "Página X de Y"
+========================= */
+.histSubtitle {
+  display: none !important;
+}
+
+/* Some tudo do bloco direito do header (pills + paginação) */
+.histHeaderRight {
+  display: none !important;
 }

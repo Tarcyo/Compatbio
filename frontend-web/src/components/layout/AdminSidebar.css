@@ -1,142 +1,151 @@
-/* AdminSidebar.css — IGUAL ao sidebar anterior (Plans palette + sem glass + contraste + pílulas)
-   ✅ Sidebar sólido (sem blur)
-   ✅ Active item: branco + texto preto
-   ✅ Active pill (animação): branco
+/* AdminSidebar.css — ✅ IGUAL ao sidebar do app (LIGHT + GLASS + verde)
+   - Card com glass leitoso + blur
+   - Botões/pills brancos com leve gradiente
+   - Pílula ativa verde (animação) e texto branco no item ativo
+   - Alinhamento perfeito (sem “offset torto”)
+   - Responsivo (labels somem < 980px)
 */
 
-/* =========================
-   SIDEBAR (CARD — SÓLIDO)
-========================= */
+.asb,
+.asb * {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   SIDEBAR (CARD — GLASS LIGHT)
+============================================================ */
 .asb {
-  /* tokens (Plans) */
-  --accent: rgba(160, 234, 82, 1);
+  /* tokens (iguais ao padrão do app) */
+  --green: #5e8542;
+  --text: rgba(31, 41, 55, 0.92);
+  --muted: rgba(107, 114, 128, 0.95);
 
-  --bg-0: #2a3443;
-  --bg-1: #222b38;
+  --stroke: rgba(15, 23, 42, 0.10);
+  --stroke-soft: rgba(15, 23, 42, 0.07);
 
-  --panel: #39465b;
-  --panel2: #334156;
+  /* glass */
+  --glass: rgba(255, 255, 255, 0.64);
+  --glass-border: rgba(255, 255, 255, 0.36);
+  --glass-stroke: rgba(15, 23, 42, 0.06);
+  --glass-shadow: 0 18px 52px rgba(15, 23, 42, 0.10);
 
-  --btn-0: #3b4961;
-  --btn-1: #313e54;
-
-  --stroke-0: rgba(255, 255, 255, 0.14);
-  --stroke-1: rgba(255, 255, 255, 0.18);
-
-  --text-0: rgba(255, 255, 255, 0.96);
-  --text-1: rgba(255, 255, 255, 0.84);
-  --text-2: rgba(255, 255, 255, 0.68);
-
-  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
-  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
+  /* raios */
+  --r-xl: 32px;
 
   width: 100%;
-  height: 90dvh;
-  max-height: 90dvh;
+  height: calc(100dvh - 40px);
+  max-height: calc(100dvh - 40px);
   min-height: 0;
 
   position: relative;
-
   display: flex;
   flex-direction: column;
 
-  padding: 22px 18px;
-  border-radius: 32px;
+  padding: 18px 16px;
+  border-radius: var(--r-xl);
 
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
-  border: 1px solid var(--stroke-0);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 
-  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.08);
-
-  /* ✅ remove glassmorphism */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
 
   overflow: hidden;
-  color: var(--text-0);
+  color: var(--text);
+  color-scheme: light;
 }
 
-/* brilho interno sutil */
+/* brilho interno sutil (cara de vidro) */
 .asb::before {
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  background:
-    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%);
-  opacity: 0.85;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px rgba(15, 23, 42, 0.04);
 }
 
-.asb > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* =========================
-   TOPO
-========================= */
 .asb-top {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   min-height: 0;
   flex: 1 1 auto;
 }
 
+/* ============================================================
+   BRAND / LOGO
+============================================================ */
 .asb-brand {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px 14px;
+  padding: 10px 6px 10px;
 }
 
 .asb-logo {
   width: 100%;
-  max-width: 260px;
+  max-width: 240px;
   height: auto;
   display: block;
-  filter: drop-shadow(0 12px 26px rgba(0,0,0,.30));
+  filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.10));
 }
 
-/* =========================
-   NAV + PILL (animação)
-========================= */
+/* ============================================================
+   NAV
+============================================================ */
 .asb-nav {
+  --nav-pad: 10px;
+
   position: relative;
 
   display: flex;
   flex-direction: column;
   gap: 12px;
 
-  padding: 8px 6px;
+  padding: var(--nav-pad);
 
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
 
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
 }
 
-.asb-nav::-webkit-scrollbar { width: 12px; height: 12px; }
-.asb-nav::-webkit-scrollbar-track { background: transparent; }
-.asb-nav::-webkit-scrollbar-corner { background: transparent; }
+.asb-nav::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.asb-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.asb-nav::-webkit-scrollbar-corner {
+  background: transparent;
+}
 .asb-nav::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.20);
+  background-color: rgba(15, 23, 42, 0.16);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: padding-box;
 }
-.asb-nav::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.32); }
+.asb-nav::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(15, 23, 42, 0.24);
+}
 
-/* ✅ PÍLULA ANIMADA BRANCA */
+/* ============================================================
+   ACTIVE PILL (verde) — alinhado ao padding do nav
+============================================================ */
 .asb-activePill {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  top: 8px;
+  top: 0;
+  left: var(--nav-pad);
+  right: var(--nav-pad);
 
   border-radius: 9999px;
   pointer-events: none;
@@ -144,15 +153,12 @@
 
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(236, 241, 248, 0.96) 100%
+    rgba(160, 234, 82, 0.98) 0%,
+    rgba(94, 133, 66, 0.98) 100%
   );
 
-  border: 1px solid rgba(255, 255, 255, 0.55);
-
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(94, 133, 66, 0.25);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.16);
 
   transition:
     transform 520ms cubic-bezier(.18, 1.15, .22, 1),
@@ -162,35 +168,40 @@
   will-change: transform, height;
   z-index: 0;
 }
-.asb-activePill.is-show { opacity: 1; }
 
-/* =========================
-   ITENS (PÍLULA)
-========================= */
+.asb-activePill.is-show {
+  opacity: 1;
+}
+
+/* ============================================================
+   ITENS
+============================================================ */
 .asb-item {
   position: relative;
   z-index: 1;
 
-  height: 66px;
+  height: 64px;
+  width: 100%;
   border-radius: 9999px;
 
-  display: grid;
-  grid-template-columns: 52px 1fr;
+  display: flex;
   align-items: center;
+  gap: 14px;
 
-  padding: 0 16px;
+  padding: 0 18px;
   text-decoration: none;
 
-  color: rgba(255, 255, 255, 0.84);
+  color: rgba(55, 65, 81, 0.92);
 
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+  border: 1px solid rgba(15, 23, 42, 0.16);
 
   box-shadow:
-    0 14px 34px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+    0 14px 26px rgba(15, 23, 42, 0.12),
+    0 2px 0 rgba(255, 255, 255, 0.90) inset;
 
   overflow: hidden;
+
   transition:
     transform 220ms cubic-bezier(.2,.8,.2,1),
     color 220ms ease,
@@ -204,9 +215,9 @@
   inset: -40px -60px -40px -60px;
   background: radial-gradient(
     circle at 20% 30%,
-    rgba(255,255,255,0.18) 0%,
-    rgba(255,255,255,0.08) 35%,
-    rgba(255,255,255,0.00) 60%
+    rgba(15, 23, 42, 0.10) 0%,
+    rgba(15, 23, 42, 0.05) 35%,
+    rgba(15, 23, 42, 0.00) 60%
   );
   transform: translateX(-18%) rotate(-8deg);
   opacity: 0;
@@ -215,9 +226,8 @@
 
 .asb-item:hover {
   transform: translateY(-1px);
-  color: rgba(255, 255, 255, 0.96);
-  border-color: rgba(255, 255, 255, 0.18);
-  filter: brightness(1.05);
+  border-color: rgba(15, 23, 42, 0.22);
+  filter: brightness(1.02);
 }
 
 .asb-item:hover::before {
@@ -225,78 +235,81 @@
   transform: translateX(10%) rotate(-8deg);
 }
 
-/* ✅ ITEM ATIVO: BRANCO + TEXTO PRETO (igual anterior) */
+/* ✅ ATIVO: texto/ícone BRANCOS em cima do verde */
 .asb-item.is-active {
-  background: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.55) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 
-  box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
-
-  color: rgba(0, 0, 0, 0.92) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
 }
 
-/* garante preto em tudo dentro do ativo */
-.asb-item.is-active .asb-itemLabel,
-.asb-item.is-active .asb-itemIcon,
-.asb-item.is-active .asb-icon {
-  color: rgba(0, 0, 0, 0.92) !important;
+.asb-itemIcon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
 }
-
-.asb-itemIcon { display: grid; place-items: center; }
 
 .asb-icon {
   width: 26px;
   height: 26px;
-  opacity: 0.94;
-  transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1);
+  opacity: 0.92;
+  transition:
+    transform 420ms cubic-bezier(.18, 1.15, .22, 1),
+    opacity 220ms ease;
 }
 
 .asb-itemLabel {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 850;
   letter-spacing: 0.2px;
+  line-height: 1;
+  flex: 1 1 auto;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   transition: transform 420ms cubic-bezier(.18, 1.15, .22, 1);
 }
 
-.asb-item.is-active .asb-icon { opacity: 1; transform: translateX(2px) scale(1.06); }
-.asb-item.is-active .asb-itemLabel { transform: translateX(2px); }
+.asb-item.is-active .asb-icon,
+.asb-item.is-active .asb-itemLabel {
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
 
-/* opcional: reduz brilho hover no ativo */
-.asb-item.is-active::before { opacity: 0 !important; }
-
-/* =========================
-   LOGOUT (Sair) — PÍLULA
-========================= */
+/* ============================================================
+   LOGOUT (Sair) — igual ao app
+============================================================ */
 .asb-bottom {
   margin-top: auto;
-  padding-top: 20px;
-  padding-bottom: 12px;
-
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.00) 0%,
-    rgba(0, 0, 0, 0.18) 35%,
-    rgba(0, 0, 0, 0.28) 100%
-  );
+  padding-top: 16px;
+  padding-bottom: 10px;
 }
 
 .asb-logout {
+  position: relative;
   width: 100%;
-  height: 66px;
+  height: 64px;
   border-radius: 9999px;
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-  color: rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+  color: rgba(55, 65, 81, 0.92);
 
-  display: grid;
-  grid-template-columns: 52px 1fr;
+  display: flex;
   align-items: center;
-  padding: 0 16px;
+  justify-content: center;
 
   cursor: pointer;
+
+  box-shadow:
+    0 14px 26px rgba(15, 23, 42, 0.12),
+    0 2px 0 rgba(255, 255, 255, 0.90) inset;
+
   transition:
     transform 200ms cubic-bezier(.2,.8,.2,1),
     filter 200ms ease,
@@ -304,23 +317,33 @@
 }
 
 .asb-logout:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(15, 23, 42, 0.22);
   transform: translateY(-1px);
-  filter: brightness(1.05);
+  filter: brightness(1.02);
 }
-
-.asb-logout:active { transform: translateY(0px); }
+.asb-logout:active {
+  transform: translateY(0px);
+}
 
 .asb-logoutIcon {
+  position: absolute;
+  left: 18px;
+
+  width: 34px;
+  height: 34px;
+
   display: grid;
   place-items: center;
-  color: rgba(255, 120, 120, 0.95);
+
+  color: rgba(239, 68, 68, 0.95);
 }
 
-/* troca o ícone antigo */
-.asb-iconPower { display: none !important; }
+/* esconde o svg (vamos usar mask) */
+.asb-iconPower {
+  display: none !important;
+}
 
-/* ícone novo (mask) */
+/* ícone via mask (mesmo do app) */
 .asb-logoutIcon::before {
   content: "";
   width: 26px;
@@ -340,23 +363,24 @@
 }
 
 .asb-logoutLabel {
-  font-size: 20px;
-  font-weight: 1000;
+  font-size: 18px;
+  font-weight: 950;
   letter-spacing: 0.2px;
+  line-height: 1;
 }
 
-/* =========================
+/* ============================================================
    ACESSIBILIDADE
-========================= */
+============================================================ */
 .asb-item:focus-visible,
 .asb-logout:focus-visible {
-  outline: 2px solid rgba(160, 234, 82, 0.38);
+  outline: 2px solid rgba(94, 133, 66, 0.45);
   outline-offset: 2px;
 }
 
-/* =========================
+/* ============================================================
    REDUZ MOVIMENTO
-========================= */
+============================================================ */
 @media (prefers-reduced-motion: reduce) {
   .asb-activePill,
   .asb-item,
@@ -365,35 +389,28 @@
   .asb-itemLabel,
   .asb-logout {
     transition: none !important;
+    animation: none !important;
   }
 }
 
-/* =========================
-   RESPONSIVO (igual anterior)
-========================= */
+/* ============================================================
+   RESPONSIVO (igual ao app)
+============================================================ */
 @media (max-width: 980px) {
-  .asb-logo { max-width: 76px; }
+  .asb-logo {
+    max-width: 76px;
+  }
+
+  .asb-itemLabel {
+    display: none;
+  }
 
   .asb-item {
-    grid-template-columns: 1fr;
-    justify-items: center;
+    justify-content: center;
     padding: 0;
-    height: 62px;
   }
 
-  .asb-itemLabel { display: none; }
-
-  .asb-logout {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    padding: 0;
-    height: 62px;
-  }
-
-  .asb-logoutLabel { display: none; }
-
-  .asb-activePill {
-    left: 10px;
-    right: 10px;
+  .asb-logoutLabel {
+    display: none;
   }
 }

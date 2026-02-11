@@ -911,3 +911,48 @@
     transition: none !important;
   }
 }
+/* Modal (dentro da página OU via portal) */
+
+/* "Solicitar inclusão de produto" (título do modal) */
+.requestPage .cbModalTitle,
+body:has(.pg-wrap.requestPage) .cbModalTitle {
+  color: rgba(55, 65, 81, 0.95) !important; /* cinza escuro */
+}
+
+/* "Tipo" e "Nome do produto" (labels) */
+.requestPage .apModalLabel,
+body:has(.pg-wrap.requestPage) .apModalLabel {
+  color: rgba(55, 65, 81, 0.95) !important; /* cinza escuro */
+}
+/* Fundo igual ao Profile, só quando Request estiver aberta */
+@supports selector(:has(*)) {
+  body:has(.pg-wrap.requestPage) {
+    background:
+      radial-gradient(1100px 520px at 12% 108%,
+        rgba(160, 234, 82, 0.22),
+        rgba(255, 255, 255, 0) 60%),
+      radial-gradient(1000px 520px at 88% 108%,
+        rgba(160, 234, 82, 0.12),
+        rgba(255, 255, 255, 0) 62%),
+      linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%) !important;
+
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+}
+
+.pg-wrap.requestPage {
+    --ui-scale: 1.5;
+
+  --sidebar-space: 320px;
+
+  padding-top: calc(28px * var(--ui-scale)) !important;
+  padding-bottom: calc(3px * var(--ui-scale)) !important;
+
+  /* ✅ empurra o conteúdo pra direita sem quebrar o centro */
+  padding-left: calc((1px * var(--ui-scale)) + var(--sidebar-space)/2.4) !important;
+
+
+}
+
+

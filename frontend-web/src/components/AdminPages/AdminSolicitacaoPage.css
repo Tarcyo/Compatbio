@@ -1,10 +1,8 @@
-/* AdminSolicitacaoPage.css — COMPLETO
-   ✅ Paleta/contraste do CompatBioLogin (Plans)
-   ✅ SEM glassmorphism (sem blur / sem transparência nos painéis)
-   ✅ Card sólido azul
-   ✅ Card movido levemente p/ cima e esquerda
-   ✅ Altura máx menor + scrollbars
-   ✅ Modal "Responder" com MESMO design do card principal
+/* AdminSolicitacaoPage.css — LIGHT + GLASS (CompatBio)
+   ✅ Mesma paleta do dashboard (verde accent + cinzas claros)
+   ✅ Glassmorphism leitoso com blur (com fallback)
+   ✅ Contraste forte entre itens (cards/lista/inputs)
+   ✅ Modal no mesmo estilo do card principal
 */
 
 /* =========================
@@ -12,522 +10,590 @@
 ========================= */
 .pg-wrap,
 .pg-wrap * {
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision !important;
 }
 
 /* =========================
-   VARIÁVEIS (TEM QUE FICAR NO PAI DO MODAL)
-   Modal está fora de .analysisPage, então define aqui!
+   TOKENS (LIGHT + GLASS + CONTRASTE)
+   (precisa ficar no .pg-wrap porque o Modal está fora da .analysisPage)
 ========================= */
-.pg-wrap {
-  /* Paleta base do PlansPage / CompatBioLogin */
-  --bg0: #2a3443;
-  --bg1: #222b38;
+.pg-wrap{
+  /* marca */
+  --accent: rgba(160, 234, 82, 1);         /* #A0EA52 */
+  --accent-2: rgba(160, 234, 82, 0.22);
+  --accent-3: rgba(160, 234, 82, 0.14);
 
-  --panel: #303b4c;
-  --panel2: #2b3646;
+  /* base */
+  --bg-0: #ffffff;
+  --bg-1: #f7f8fb;
+  --bg-2: #eef2f7;
 
-  --row: #243146;
-  --row2: #1f2a3c;
+  /* superfícies glass */
+  --panel: rgba(255,255,255,0.74);
+  --panel-2: rgba(255,255,255,0.62);
 
-  --stroke0: rgba(255, 255, 255, 0.14);
-  --stroke1: rgba(255, 255, 255, 0.16);
+  /* cards sólidos (para contraste na lista) */
+  --tile: rgba(255,255,255,0.92);
+  --tile-2: rgba(238,242,247,0.92);
 
-  --text0: rgba(255, 255, 255, 0.96);
-  --text1: rgba(255, 255, 255, 0.82);
-  --text2: rgba(255, 255, 255, 0.72);
+  /* strokes */
+  --border: rgba(15, 23, 42, 0.12);
+  --border-2: rgba(15, 23, 42, 0.08);
+  --glass-border: rgba(255,255,255,0.36);
+  --glass-stroke: rgba(15,23,42,0.06);
 
-  --shadowLg: 0 30px 90px rgba(0, 0, 0, 0.55);
-  --shadowMd: 0 16px 42px rgba(0, 0, 0, 0.45);
+  /* texto */
+  --text: rgba(31, 41, 55, 0.92);
+  --muted: rgba(75, 85, 99, 0.86);
+  --muted2: rgba(107, 114, 128, 0.80);
 
-  --btn0: #3b4961;
-  --btn1: #313e54;
+  /* sombras */
+  --shadow-lg: 0 30px 90px rgba(15,23,42,0.14);
+  --shadow: 0 16px 44px rgba(15,23,42,0.12);
+  --shadow-soft: 0 12px 28px rgba(15,23,42,0.10);
 
-  --focus: rgba(160, 234, 82, 0.38);
+  /* radius */
+  --r-xl: 28px;
+  --r-lg: 22px;
+  --r-md: 18px;
+  --r-sm: 14px;
+  --pill: 9999px;
+
+  /* estados */
+  --ok: rgba(160, 234, 82, 1);
+  --ok-bg: rgba(160, 234, 82, 0.16);
+  --ok-bd: rgba(94, 133, 66, 0.22);
+
+  --bad: rgba(239, 68, 68, 0.95);
+  --bad-bg: rgba(239, 68, 68, 0.10);
+  --bad-bd: rgba(239, 68, 68, 0.22);
+
+  --warn: rgba(245, 158, 11, 0.96);
+  --warn-bg: rgba(245, 158, 11, 0.12);
+  --warn-bd: rgba(245, 158, 11, 0.22);
+
+  --info: rgba(59, 130, 246, 0.95);
+  --info-bg: rgba(59, 130, 246, 0.10);
+  --info-bd: rgba(59, 130, 246, 0.22);
+
+  --focus: rgba(94, 133, 66, 0.45);
 }
 
 /* =========================
-   POSICIONAMENTO DO CONTEÚDO
+   CONTAINER DA PÁGINA
 ========================= */
-.analysisPage {
-  width: 100%;
-  display: grid;
-  justify-items: start;
-  align-items: start;
-  padding: 0;
-
-  /* ✅ move um pouco para cima e esquerda */
-  transform: translate(-18px, -18px);
+.analysisPage{
+  width: 100% !important;
+  display: grid !important;
+  justify-items: center !important;
+  align-items: start !important;
+  padding: 0 !important;
 }
 
 /* =========================
-   CARD PRINCIPAL (SÓLIDO, SEM GLASS)
+   CARD PRINCIPAL (GLASS LIGHT)
 ========================= */
-.pg-card.admCard {
-  width: min(1200px, 100%);
-  min-height: 620px;
+.pg-card.admCard{
+  width: min(1200px, 100%) !important;
+  min-height: 620px !important;
 
-  /* ✅ reduz altura máxima (fica mais "baixo") */
-  max-height: calc(100vh - 120px);
-  overflow: hidden;
+  max-height: calc(100vh - 120px) !important;
+  overflow: hidden !important;
 
-  padding: 40px 44px 34px;
-  border-radius: 28px;
+  padding: 34px 38px 28px !important;
+  border-radius: var(--r-xl) !important;
 
-  /* ✅ cor sólida azul */
-  background: var(--panel2) !important;
+  background:
+    radial-gradient(1000px 420px at 12% 112%, rgba(160,234,82,0.18), rgba(255,255,255,0) 60%),
+    radial-gradient(900px 420px at 88% 112%, rgba(160,234,82,0.10), rgba(255,255,255,0) 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.74) 0%, rgba(247,248,251,0.66) 100%) !important;
 
-  border: 1px solid var(--stroke0) !important;
+  border: 1px solid var(--glass-border) !important;
 
-  /* ✅ mata glass da .pg-card base (Pages.css) */
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.55) !important;
+  color: var(--text) !important;
 
-  box-shadow: var(--shadowLg), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  color: var(--text0);
-
-  position: relative;
+  position: relative !important;
 }
 
-/* se tiver pseudo efeitos antigos, mata */
-.pg-card.admCard::before,
-.pg-card.admCard::after {
-  content: none !important;
-  display: none !important;
+/* brilho interno */
+.pg-card.admCard::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius: inherit !important;
+  pointer-events:none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 0 0 1px rgba(15,23,42,0.04) !important;
+  opacity: 1 !important;
+}
+
+/* brilho diagonal */
+.pg-card.admCard::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius: inherit !important;
+  pointer-events:none !important;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0.12) 0%,
+    rgba(255,255,255,0.00) 46%,
+    rgba(255,255,255,0.08) 100%
+  ) !important;
+  opacity: 0.55 !important;
+}
+
+.pg-card.admCard > *{
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* blur com fallback */
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .pg-card.admCard{
+    -webkit-backdrop-filter: blur(14px) saturate(1.15) !important;
+    backdrop-filter: blur(14px) saturate(1.15) !important;
+  }
 }
 
 /* =========================
    HEADER
 ========================= */
-.admHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
+.admHeader{
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
 
-  margin: 0 0 18px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0 0 18px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid rgba(15,23,42,0.10) !important;
 }
 
-.admHeaderLeft {
-  min-width: 0;
+.admHeaderLeft{ min-width: 0 !important; }
+
+.admTitle{
+  margin: 0 !important;
+  font-size: clamp(28px, 3.2vw, 44px) !important;
+  font-weight: 1000 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text) !important;
+  text-shadow: 0 18px 44px rgba(15,23,42,0.10) !important;
 }
 
-.admTitle {
-  margin: 0;
-  font-size: clamp(30px, 3.4vw, 44px);
-  font-weight: 1000;
-  line-height: 1.06;
-  letter-spacing: 0.2px;
-  color: var(--text0);
-  text-shadow: 0 14px 34px rgba(0, 0, 0, 0.40);
-}
-
-.admSubtitle {
-  margin: 10px 0 0;
-  max-width: 640px;
-  color: var(--text2);
-  font-weight: 800;
-  line-height: 1.35;
-  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+.admSubtitle{
+  margin: 10px 0 0 !important;
+  max-width: 720px !important;
+  color: var(--muted) !important;
+  font-weight: 850 !important;
+  line-height: 1.35 !important;
 }
 
 /* =========================
-   FILTROS (SÓLIDOS)
+   FILTROS (GLASS PILL COM CONTRASTE)
 ========================= */
-.admFilters {
-  display: grid;
-  gap: 14px;
-  justify-items: end;
-  min-width: min(420px, 100%);
+.admFilters{
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(260px, 1fr)) !important;
+  gap: 12px !important;
+  align-items: end !important;
 }
 
-.admFilter {
-  width: 100%;
+.admFilter{ width: 100% !important; }
+
+.admFilterLabel{
+  display: block !important;
+  margin: 0 0 10px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(55,65,81,0.78) !important;
 }
 
-.admFilterLabel {
-  display: block;
-  margin: 0 0 10px;
-  font-size: 12.5px;
-  font-weight: 950;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
+.admSelectShell{
+  height: 56px !important;
+  border-radius: var(--pill) !important;
+
+  display: grid !important;
+  grid-template-columns: 52px 1fr 46px !important;
+  align-items: center !important;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
+  border: 1px solid var(--border) !important;
+
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
+
+  overflow: hidden !important;
 }
 
-.admSelectShell {
-  height: 58px;
-  border-radius: 999px;
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .admSelectShell{
+    -webkit-backdrop-filter: blur(10px) saturate(1.12) !important;
+    backdrop-filter: blur(10px) saturate(1.12) !important;
+  }
+}
 
-  display: grid;
-  grid-template-columns: 54px 1fr 46px;
-  align-items: center;
+.admSelectShell:hover{
+  filter: brightness(1.02) !important;
+  border-color: rgba(15,23,42,0.18) !important;
+  transform: translateY(-1px) !important;
+}
 
-  background: var(--btn1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
+.admSelectShell:focus-within{
+  border-color: rgba(94,133,66,0.32) !important;
   box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-
-  transition: border-color 160ms ease, filter 160ms ease;
+    0 0 0 4px rgba(160,234,82,0.14),
+    var(--shadow-soft),
+    inset 0 1px 0 rgba(255,255,255,0.92) !important;
 }
 
-.admSelectShell:hover {
-  filter: brightness(1.04);
-  border-color: rgba(255, 255, 255, 0.24);
+.admSelectIcon{
+  display: grid !important;
+  place-items: center !important;
+  color: rgba(31,41,55,0.82) !important;
 }
 
-.admSelectShell:focus-within {
-  border-color: rgba(160, 234, 82, 0.42);
-  box-shadow:
-    0 0 0 4px rgba(160, 234, 82, 0.14),
-    0 16px 34px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+.admSelectIcon svg{
+  width: 20px !important;
+  height: 20px !important;
+  opacity: 0.92 !important;
 }
 
-.admSelectIcon {
-  display: grid;
-  place-items: center;
-  color: rgba(255, 255, 255, 0.92);
+.admSelect{
+  height: 100% !important;
+  width: 100% !important;
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+
+  padding: 0 10px 0 0 !important;
+
+  color: rgba(31,41,55,0.92) !important;
+  font-size: 15.5px !important;
+  font-weight: 900 !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
 }
 
-.admSelectIcon svg {
-  width: 20px;
-  height: 20px;
-  opacity: 0.95;
+.admSelect option{
+  background: #ffffff !important;
+  color: #111827 !important;
+  font-weight: 900 !important;
 }
 
-.admSelect {
-  height: 100%;
-  width: 100%;
-  border: 0;
-  outline: none;
-  background: transparent;
-  padding: 0 10px 0 0;
-
-  color: rgba(255, 255, 255, 0.96);
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+.admSelectCaret{
+  width: 46px !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+  position: relative !important;
 }
 
-.admSelect option {
-  background: #222b38;
-  color: #ffffff;
-  font-weight: 900;
+.admSelectCaret::before{
+  content: "" !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-right: 2px solid rgba(31,41,55,0.70) !important;
+  border-bottom: 2px solid rgba(31,41,55,0.70) !important;
+  transform: rotate(45deg) !important;
 }
 
-.admSelectCaret {
-  width: 46px;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  position: relative;
-}
-
-.admSelectCaret::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-right: 2px solid rgba(255, 255, 255, 0.92);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.92);
-  transform: rotate(45deg);
-}
-
-/* versão modal */
-.admSelectShell--modal {
-  height: 58px;
-  border-radius: 999px;
-  background: var(--btn1);
+/* versão modal (mantém igual) */
+.admSelectShell--modal{
+  height: 56px !important;
 }
 
 /* =========================
    BODY + SCROLL
 ========================= */
-.admBody {
-  margin-top: 14px;
+.admBody{
+  margin-top: 14px !important;
 
-  max-height: calc(100vh - 360px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  max-height: calc(100vh - 320px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 
-  padding-right: 8px;
+  padding-right: 8px !important;
 }
 
-.admBody::-webkit-scrollbar { width: 12px; }
-.admBody::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.26);
-  border-radius: 999px;
+/* scrollbars light */
+.admBody::-webkit-scrollbar{ width: 12px !important; }
+.admBody::-webkit-scrollbar-track{
+  background: transparent !important;
+  border-radius: 999px !important;
 }
-.admBody::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  border: 3px solid rgba(0, 0, 0, 0.26);
+.admBody::-webkit-scrollbar-thumb{
+  background: rgba(15,23,42,0.16) !important;
+  border-radius: 999px !important;
+  border: 3px solid transparent !important;
+  background-clip: padding-box !important;
 }
-.admBody::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+.admBody::-webkit-scrollbar-thumb:hover{
+  background: rgba(15,23,42,0.24) !important;
 }
 
 /* estados */
-.admState {
-  padding: 16px 14px;
-  border-radius: 18px;
+.admState{
+  padding: 14px 16px !important;
+  border-radius: 22px !important;
 
-  background: var(--panel);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
+  border: 1px solid var(--border) !important;
 
-  color: rgba(255, 255, 255, 0.80);
-  font-weight: 900;
+  color: rgba(55,65,81,0.90) !important;
+  font-weight: 900 !important;
+
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.90) !important;
 }
 
-.admState.is-error {
-  border-color: rgba(255, 120, 120, 0.28);
-  background: rgba(255, 120, 120, 0.12);
-  color: rgba(255, 210, 210, 0.96);
+.admState.is-error{
+  border-color: rgba(239,68,68,0.24) !important;
+  background: linear-gradient(180deg, rgba(239,68,68,0.10), rgba(239,68,68,0.06)) !important;
+  color: rgba(127,29,29,0.96) !important;
 }
 
 /* =========================
-   LISTA / CARDS (SÓLIDOS)
+   LISTA / CARDS (ALTO CONTRASTE)
 ========================= */
-.admCards {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
+.admCards{
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: 12px !important;
 }
 
-.admCardItem {
-  border-radius: 26px;
-  background: var(--row);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+.admCardItem{
+  border-radius: 26px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
+  border: 1px solid var(--border) !important;
 
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 44px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  padding: 18px 18px !important;
 
-  padding: 18px 18px;
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
-.admCardTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+.admCardItem:hover{
+  transform: translateY(-1px) !important;
+  filter: brightness(1.01) !important;
+  border-color: rgba(15,23,42,0.18) !important;
 }
 
-.admCardLeft {
-  min-width: 0;
-  display: grid;
-  gap: 10px;
+.admCardTop{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
 }
 
-.admCardTitleRow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+.admCardLeft{
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.admCardTitleRow{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
 }
 
 /* =========================
    Linha de produto (destaque)
 ========================= */
-.admProductLine {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
+.admProductLine{
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
 
-  font-size: 18px;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
+  font-size: 18px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.1px !important;
 
-  color: rgba(255, 255, 255, 0.96);
-  text-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+  color: rgba(31,41,55,0.94) !important;
 }
 
-.admProductName {
-  display: inline-block;
-  max-width: 520px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.admProductName{
+  display: inline-block !important;
+  max-width: 520px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
-.admProductArrow {
-  opacity: 0.75;
-  font-weight: 1000;
-}
-
-/* =========================
-   Status pills
-========================= */
-.admStatus {
-  font-size: 12px;
-  font-weight: 1000;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-
-  padding: 7px 12px;
-  border-radius: 999px;
-
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.90);
-
-  white-space: nowrap;
-}
-
-.admStatus.is-pending {
-  border-color: rgba(255, 210, 90, 0.30);
-  background: rgba(255, 210, 90, 0.12);
-  color: rgba(255, 235, 190, 0.95);
-}
-
-.admStatus.is-ok {
-  border-color: rgba(160, 234, 82, 0.30);
-  background: rgba(160, 234, 82, 0.12);
-  color: rgba(190, 255, 140, 0.98);
-}
-
-.admStatus.is-bad {
-  border-color: rgba(255, 120, 120, 0.30);
-  background: rgba(255, 120, 120, 0.12);
-  color: rgba(255, 210, 210, 0.98);
-}
-
-.admStatus.is-neutral {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.86);
-}
-
-.admStatus.is-progress {
-  border-color: rgba(120, 190, 255, 0.34);
-  background: rgba(120, 190, 255, 0.12);
-  color: rgba(210, 240, 255, 0.96);
+.admProductArrow{
+  opacity: 0.65 !important;
+  font-weight: 1000 !important;
 }
 
 /* =========================
-   Botão responder
+   Status pills (bem legíveis no light)
 ========================= */
-.admReplyBtn {
-  height: 46px;
-  padding: 0 18px;
-  border-radius: 999px;
+.admStatus{
+  font-size: 12px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 7px 12px !important;
+  border-radius: var(--pill) !important;
+
+  border: 1px solid var(--border) !important;
+  background: rgba(255,255,255,0.70) !important;
+  color: rgba(31,41,55,0.86) !important;
+
+  white-space: nowrap !important;
+}
+
+.admStatus.is-pending{
+  border-color: var(--warn-bd) !important;
+  background: var(--warn-bg) !important;
+  color: rgba(146, 64, 14, 0.92) !important;
+}
+
+.admStatus.is-ok{
+  border-color: var(--ok-bd) !important;
+  background: var(--ok-bg) !important;
+  color: rgba(20, 83, 45, 0.92) !important;
+}
+
+.admStatus.is-bad{
+  border-color: var(--bad-bd) !important;
+  background: var(--bad-bg) !important;
+  color: rgba(127, 29, 29, 0.96) !important;
+}
+
+.admStatus.is-neutral{
+  border-color: rgba(15,23,42,0.14) !important;
+  background: rgba(15,23,42,0.04) !important;
+  color: rgba(55,65,81,0.86) !important;
+}
+
+.admStatus.is-progress{
+  border-color: var(--info-bd) !important;
+  background: var(--info-bg) !important;
+  color: rgba(30, 58, 138, 0.92) !important;
+}
+
+/* =========================
+   Botão responder (verde premium)
+========================= */
+.admReplyBtn{
+  height: 46px !important;
+  padding: 0 18px !important;
+  border-radius: var(--pill) !important;
+
+  border: 1px solid rgba(94,133,66,0.28) !important;
 
   background: linear-gradient(
     180deg,
     rgba(160, 234, 82, 0.98) 0%,
     rgba(76, 148, 18, 0.96) 100%
-  );
+  ) !important;
 
-  color: rgba(255, 255, 255, 0.98);
-  font-weight: 1000;
-  letter-spacing: 0.2px;
+  color: rgba(255,255,255,0.98) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
 
-  cursor: pointer;
-  user-select: none;
+  cursor: pointer !important;
+  user-select: none !important;
 
   box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    0 18px 44px rgba(15,23,42,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.18) !important;
 
-  transition: transform 180ms ease, filter 180ms ease;
+  transition: transform 180ms ease, filter 180ms ease !important;
 }
 
-.admReplyBtn:hover { transform: translateY(-1px); filter: brightness(1.03); }
-.admReplyBtn:active { transform: translateY(0); }
+.admReplyBtn:hover{
+  transform: translateY(-1px) !important;
+  filter: brightness(1.03) !important;
+}
+.admReplyBtn:active{ transform: translateY(0) !important; }
 
 /* =========================
-   Details / descrição
+   Details / descrição (contraste e leitura)
 ========================= */
-.admDetails {
-  margin-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-  padding-top: 12px;
+.admDetails{
+  margin-top: 14px !important;
+  border-top: 1px solid rgba(15,23,42,0.08) !important;
+  padding-top: 12px !important;
 }
 
-.admSummary {
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
+.admSummary{
+  cursor: pointer !important;
+  user-select: none !important;
+  list-style: none !important;
 
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
 
-  padding: 10px 14px;
-  border-radius: 999px;
+  padding: 10px 14px !important;
+  border-radius: var(--pill) !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: var(--row2);
+  border: 1px solid rgba(15,23,42,0.12) !important;
+  background: rgba(15,23,42,0.04) !important;
 
-  font-size: 13px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  color: rgba(55,65,81,0.86) !important;
 }
 
-.admSummary::-webkit-details-marker { display: none; }
+.admSummary::-webkit-details-marker{ display: none !important; }
 
-.admSummary::before {
-  content: "";
-  width: 9px;
-  height: 9px;
-  display: inline-block;
-  border-right: 2px solid rgba(255, 255, 255, 0.80);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.80);
-  transform: rotate(-45deg);
-  opacity: 0.9;
-  transition: transform 180ms ease;
+.admSummary::before{
+  content: "" !important;
+  width: 9px !important;
+  height: 9px !important;
+  display: inline-block !important;
+  border-right: 2px solid rgba(55,65,81,0.72) !important;
+  border-bottom: 2px solid rgba(55,65,81,0.72) !important;
+  transform: rotate(-45deg) !important;
+  opacity: 0.9 !important;
+  transition: transform 180ms ease !important;
 }
 
-.admDetails[open] .admSummary::before { transform: rotate(45deg); }
+.admDetails[open] .admSummary::before{ transform: rotate(45deg) !important; }
 
-.admDesc {
-  margin: 12px 0 0;
-  padding: 12px 14px;
-  border-radius: 18px;
+.admDesc,
+.admDesc--empty{
+  margin: 12px 0 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
 
-  background: var(--row2);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255,255,255,0.82) !important;
+  border: 1px solid rgba(15,23,42,0.10) !important;
 
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 14.5px;
-  line-height: 1.5;
-  font-weight: 800;
+  color: rgba(31,41,55,0.86) !important;
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+  font-weight: 800 !important;
 
-  white-space: pre-wrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.80) !important;
+  white-space: pre-wrap !important;
 }
 
-.admDesc--empty {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border-radius: 18px;
-
-  background: var(--row2);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-
-  color: rgba(255, 255, 255, 0.66);
-  font-weight: 850;
+.admDesc--empty{
+  color: rgba(107,114,128,0.86) !important;
 }
 
-/* =========================================================
-   MODAL — FORÇA APLICAR (SEM GLASS)
-   ✅ Usa seletores mais fortes + !important
-========================================================= */
-.pg-wrap .cbModalOverlay {
+/* =========================
+   MODAL — GLASS LIGHT (MESMO SISTEMA)
+========================= */
+.pg-wrap .cbModalOverlay{
   position: fixed !important;
   inset: 0 !important;
   z-index: 9999 !important;
@@ -535,65 +601,66 @@
   display: grid !important;
   place-items: center !important;
 
-  background: rgba(0, 0, 0, 0.62) !important;
+  background: rgba(15, 23, 42, 0.56) !important;
   padding: 18px !important;
-
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
 }
 
-.pg-wrap .cbModalPanel {
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .pg-wrap .cbModalOverlay{
+    -webkit-backdrop-filter: blur(10px) saturate(1.08) !important;
+    backdrop-filter: blur(10px) saturate(1.08) !important;
+  }
+}
+
+.pg-wrap .cbModalPanel{
   width: min(860px, 100%) !important;
-  border-radius: 28px !important;
+  border-radius: var(--r-xl) !important;
 
-  /* ✅ mesma cor sólida do card principal */
-  background: var(--panel2) !important;
-  border: 1px solid var(--stroke0) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.74) 0%, rgba(247,248,251,0.66) 100%) !important;
+  border: 1px solid var(--glass-border) !important;
 
-  /* ✅ mata qualquer gradiente/vidro antigo */
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-
-  box-shadow: var(--shadowLg), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.55) !important;
   overflow: hidden !important;
-  color: var(--text0) !important;
+
+  color: var(--text) !important;
+  position: relative !important;
 }
 
-.pg-wrap .cbModalPanel::before,
-.pg-wrap .cbModalPanel::after {
-  content: none !important;
-  display: none !important;
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .pg-wrap .cbModalPanel{
+    -webkit-backdrop-filter: blur(14px) saturate(1.15) !important;
+    backdrop-filter: blur(14px) saturate(1.15) !important;
+  }
 }
 
-.pg-wrap .cbModalHeader {
+.pg-wrap .cbModalHeader{
   display: flex !important;
   align-items: flex-start !important;
   justify-content: space-between !important;
   gap: 12px !important;
 
   padding: 18px 20px 14px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(15,23,42,0.08) !important;
   background: transparent !important;
 }
 
-.pg-wrap .cbModalTitle {
+.pg-wrap .cbModalTitle{
   margin: 0 !important;
   font-size: 20px !important;
   font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
-  color: var(--text0) !important;
-  text-shadow: 0 12px 26px rgba(0, 0, 0, 0.30) !important;
+  color: var(--text) !important;
 }
 
-.pg-wrap .cbModalClose {
+.pg-wrap .cbModalClose{
   width: 44px !important;
   height: 44px !important;
   border-radius: 16px !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  background: var(--btn1) !important;
+  border: 1px solid rgba(15,23,42,0.12) !important;
+  background: rgba(255,255,255,0.75) !important;
 
-  color: rgba(255, 255, 255, 0.92) !important;
+  color: rgba(31,41,55,0.88) !important;
   font-size: 22px !important;
   font-weight: 1000 !important;
 
@@ -601,118 +668,116 @@
   display: grid !important;
   place-items: center !important;
 
-  transition: transform 160ms ease, filter 160ms ease !important;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.80) !important;
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
-.pg-wrap .cbModalClose:hover {
+.pg-wrap .cbModalClose:hover{
   transform: translateY(-1px) !important;
-  filter: brightness(1.05) !important;
+  filter: brightness(1.03) !important;
+  border-color: rgba(15,23,42,0.18) !important;
 }
 
-.pg-wrap .cbModalBody {
+.pg-wrap .cbModalBody{
   padding: 18px 20px 12px !important;
-
-  /* ✅ limita altura e adiciona scroll */
   max-height: min(68vh, 560px) !important;
   overflow: auto !important;
-
   background: transparent !important;
 }
 
-.pg-wrap .cbModalBody::-webkit-scrollbar { width: 12px; }
-.pg-wrap .cbModalBody::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.26);
-  border-radius: 999px;
+.pg-wrap .cbModalBody::-webkit-scrollbar{ width: 12px !important; }
+.pg-wrap .cbModalBody::-webkit-scrollbar-track{ background: transparent !important; border-radius: 999px !important; }
+.pg-wrap .cbModalBody::-webkit-scrollbar-thumb{
+  background: rgba(15,23,42,0.16) !important;
+  border-radius: 999px !important;
+  border: 3px solid transparent !important;
+  background-clip: padding-box !important;
 }
-.pg-wrap .cbModalBody::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  border: 3px solid rgba(0, 0, 0, 0.26);
-}
-.pg-wrap .cbModalBody::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
+.pg-wrap .cbModalBody::-webkit-scrollbar-thumb:hover{ background: rgba(15,23,42,0.24) !important; }
 
-.pg-wrap .cbModalFooter {
+.pg-wrap .cbModalFooter{
   display: flex !important;
   justify-content: flex-end !important;
   gap: 10px !important;
   flex-wrap: wrap !important;
 
   padding: 14px 20px 18px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
-
+  border-top: 1px solid rgba(15,23,42,0.08) !important;
   background: transparent !important;
 }
 
-/* Sucesso/erro */
-.pg-wrap .cbModalContent {
+/* feedback success/error */
+.pg-wrap .cbModalContent{
   display: flex !important;
   gap: 14px !important;
   align-items: flex-start !important;
 
   padding: 14px 14px !important;
   border-radius: 20px !important;
-  background: var(--row) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+
+  background: rgba(255,255,255,0.82) !important;
+  border: 1px solid rgba(15,23,42,0.10) !important;
+
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.85) !important;
 }
 
-.pg-wrap .cbModalIcon { width: 22px !important; height: 22px !important; margin-top: 3px !important; }
-.pg-wrap .cbModalIcon.is-success { color: rgba(160, 234, 82, 0.98) !important; }
-.pg-wrap .cbModalIcon.is-error { color: rgba(255, 120, 120, 0.95) !important; }
+.pg-wrap .cbModalIcon{ width: 22px !important; height: 22px !important; margin-top: 3px !important; }
+.pg-wrap .cbModalIcon.is-success{ color: rgba(94,133,66,0.92) !important; }
+.pg-wrap .cbModalIcon.is-error{ color: rgba(239,68,68,0.92) !important; }
 
-.pg-wrap .cbModalText {
+.pg-wrap .cbModalText{
   margin: 0 !important;
   white-space: pre-line !important;
-  color: rgba(255, 255, 255, 0.84) !important;
+  color: rgba(31,41,55,0.86) !important;
   font-size: 15.5px !important;
-  font-weight: 800 !important;
+  font-weight: 850 !important;
   line-height: 1.45 !important;
 }
 
-/* Botões modal */
+/* botões modal */
 .pg-wrap .cbBtnPrimary,
-.pg-wrap .cbBtnGhost {
+.pg-wrap .cbBtnGhost{
   height: 46px !important;
   padding: 0 18px !important;
-  border-radius: 999px !important;
+  border-radius: var(--pill) !important;
   font-weight: 1000 !important;
   cursor: pointer !important;
   user-select: none !important;
-  transition: transform 160ms ease, filter 160ms ease !important;
+  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
-.pg-wrap .cbBtnPrimary {
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+.pg-wrap .cbBtnPrimary{
+  border: 1px solid rgba(94,133,66,0.28) !important;
   background: linear-gradient(
     180deg,
     rgba(160, 234, 82, 0.98) 0%,
     rgba(76, 148, 18, 0.96) 100%
   ) !important;
-  color: rgba(255, 255, 255, 0.98) !important;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255,255,255,0.98) !important;
+  box-shadow: 0 18px 44px rgba(15,23,42,0.14), inset 0 1px 0 rgba(255,255,255,0.18) !important;
 }
 
-.pg-wrap .cbBtnGhost {
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  background: var(--btn1) !important;
-  color: rgba(255, 255, 255, 0.92) !important;
+.pg-wrap .cbBtnGhost{
+  border: 1px solid rgba(15,23,42,0.12) !important;
+  background: rgba(255,255,255,0.75) !important;
+  color: rgba(31,41,55,0.88) !important;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.80) !important;
 }
 
-.pg-wrap .cbBtnGhost.cbBtnGhost--info {
-  border-color: rgba(120, 190, 255, 0.28) !important;
-  background: rgba(120, 190, 255, 0.14) !important;
-  color: rgba(210, 240, 255, 0.96) !important;
+.pg-wrap .cbBtnGhost.cbBtnGhost--info{
+  border-color: rgba(59,130,246,0.22) !important;
+  background: rgba(59,130,246,0.10) !important;
+  color: rgba(30,58,138,0.92) !important;
 }
 
 .pg-wrap .cbBtnPrimary:hover,
-.pg-wrap .cbBtnGhost:hover {
+.pg-wrap .cbBtnGhost:hover{
   transform: translateY(-1px) !important;
   filter: brightness(1.03) !important;
 }
 
 .pg-wrap .cbBtnPrimary:disabled,
-.pg-wrap .cbBtnGhost:disabled {
+.pg-wrap .cbBtnGhost:disabled{
   opacity: 0.6 !important;
   cursor: not-allowed !important;
   transform: none !important;
@@ -720,217 +785,213 @@
 }
 
 /* =========================
-   Form do modal (blocos sólidos)
+   FORM DO MODAL
 ========================= */
-.admModalForm {
-  display: grid;
-  gap: 14px;
+.admModalForm{
+  display: grid !important;
+  gap: 14px !important;
 }
 
-.admModalRow {
-  display: grid;
-  gap: 10px;
+.admModalRow{
+  display: grid !important;
+  gap: 10px !important;
 
-  padding: 14px 14px;
-  border-radius: 22px;
+  padding: 14px 14px !important;
+  border-radius: 22px !important;
 
-  background: var(--row);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255,255,255,0.82) !important;
+  border: 1px solid rgba(15,23,42,0.10) !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85) !important;
 }
 
-.admModalLabel {
-  color: rgba(255, 255, 255, 0.82);
-  font-weight: 950;
-  font-size: 13px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
+.admModalLabel{
+  color: rgba(55,65,81,0.86) !important;
+  font-weight: 950 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
 }
 
-.admModalTextarea {
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+.admModalTextarea{
+  border-radius: 18px !important;
+  border: 1px solid rgba(15,23,42,0.12) !important;
 
-  background: var(--row2);
-  color: rgba(255, 255, 255, 0.94);
+  background: rgba(255,255,255,0.92) !important;
+  color: rgba(31,41,55,0.92) !important;
 
-  padding: 12px 12px;
-  outline: none;
-  font-weight: 850;
+  padding: 12px 12px !important;
+  outline: none !important;
+  font-weight: 850 !important;
 
-  resize: vertical;
-  min-height: 130px;
+  resize: vertical !important;
+  min-height: 130px !important;
 
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease !important;
 }
 
-.admModalTextarea:focus {
-  border-color: rgba(160, 234, 82, 0.42);
-  box-shadow: 0 0 0 4px rgba(160, 234, 82, 0.14);
+.admModalTextarea:focus{
+  border-color: rgba(94,133,66,0.32) !important;
+  box-shadow: 0 0 0 4px rgba(160,234,82,0.14) !important;
 }
 
 /* =========================
-   Catálogo (sólido)
+   CATÁLOGO (BANNERS)
 ========================= */
-.admCatalogHint {
-  margin: 0 0 10px;
-  padding: 12px 12px;
-  border-radius: 18px;
+.admCatalogHint{
+  margin: 0 0 10px !important;
+  padding: 12px 12px !important;
+  border-radius: 18px !important;
 
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.80);
+  font-weight: 900 !important;
+  color: rgba(55,65,81,0.86) !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: var(--row);
+  border: 1px solid rgba(15,23,42,0.10) !important;
+  background: rgba(255,255,255,0.82) !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85) !important;
 }
 
-.admCatalogHint.is-error {
-  border-color: rgba(255, 120, 120, 0.28);
-  background: rgba(255, 120, 120, 0.12);
-  color: rgba(255, 210, 210, 0.96);
+.admCatalogHint.is-error{
+  border-color: rgba(239,68,68,0.24) !important;
+  background: rgba(239,68,68,0.10) !important;
+  color: rgba(127,29,29,0.96) !important;
 }
 
-.admCatalogHint--missing {
-  border-color: rgba(120, 190, 255, 0.26);
-  background: rgba(120, 190, 255, 0.14);
-  color: rgba(210, 240, 255, 0.96);
+.admCatalogHint--missing{
+  border-color: rgba(59,130,246,0.22) !important;
+  background: rgba(59,130,246,0.10) !important;
+  color: rgba(30,58,138,0.92) !important;
 }
 
-.admCatalogHintSub {
-  display: block;
-  margin-top: 6px;
-  opacity: 0.95;
-  font-weight: 900;
+.admCatalogHintSub{
+  display: block !important;
+  margin-top: 6px !important;
+  opacity: 0.95 !important;
+  font-weight: 900 !important;
 }
 
-.admCatalogBanner {
-  display: grid;
-  gap: 10px;
-  margin: 0 0 14px;
+.admCatalogBanner{
+  display: grid !important;
+  gap: 10px !important;
+  margin: 0 0 14px !important;
 
-  padding: 12px 12px;
-  border-radius: 20px;
+  padding: 12px 12px !important;
+  border-radius: 20px !important;
 
-  border: 1px solid rgba(160, 234, 82, 0.26);
-  background: rgba(160, 234, 82, 0.14);
+  border: 1px solid rgba(94,133,66,0.22) !important;
+  background: rgba(160,234,82,0.14) !important;
 }
 
-.admCatalogBannerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+.admCatalogBannerTop{
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
 }
 
-.admCatalogBannerTitle {
-  margin: 0;
-  font-weight: 1000;
-  letter-spacing: 0.2px;
-  color: rgba(210, 255, 180, 0.98);
+.admCatalogBannerTitle{
+  margin: 0 !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.2px !important;
+  color: rgba(20,83,45,0.92) !important;
 }
 
-.admCatalogBannerMeta {
-  margin-top: 6px;
-  font-weight: 850;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 13.5px;
-  line-height: 1.35;
+.admCatalogBannerMeta{
+  margin-top: 6px !important;
+  font-weight: 850 !important;
+  color: rgba(31,41,55,0.86) !important;
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
 }
 
-.admCatalogActions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+.admCatalogActions{
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
 }
 
-.admCatalogLoadBtn {
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-weight: 1000;
-  cursor: pointer;
-  user-select: none;
+.admCatalogLoadBtn{
+  height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: var(--pill) !important;
+  font-weight: 1000 !important;
+  cursor: pointer !important;
+  user-select: none !important;
 
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(94,133,66,0.28) !important;
   background: linear-gradient(
     180deg,
     rgba(160, 234, 82, 0.98) 0%,
     rgba(76, 148, 18, 0.96) 100%
-  );
-  color: rgba(255, 255, 255, 0.98);
+  ) !important;
+  color: rgba(255,255,255,0.98) !important;
 
-  transition: transform 180ms ease, filter 180ms ease;
+  transition: transform 180ms ease, filter 180ms ease !important;
 }
 
-.admCatalogLoadBtn:hover { transform: translateY(-1px); filter: brightness(1.03); }
-.admCatalogLoadBtn:active { transform: translateY(0); }
+.admCatalogLoadBtn:hover{ transform: translateY(-1px) !important; filter: brightness(1.03) !important; }
+.admCatalogLoadBtn:active{ transform: translateY(0) !important; }
 
-.admCatalogSmall {
-  font-size: 12.5px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.80);
+.admCatalogSmall{
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+  color: rgba(55,65,81,0.78) !important;
 }
 
 /* =========================
    RESPONSIVO
 ========================= */
-@media (max-width: 980px) {
-  .pg-card.admCard {
-    padding: 30px;
-    width: min(980px, 100%);
+@media (max-width: 980px){
+  .pg-card.admCard{
+    padding: 26px 22px 20px !important;
+    border-radius: var(--r-lg) !important;
   }
 
-  .admProductName {
-    max-width: 100%;
-    white-space: normal;
+  .admFilters{
+    grid-template-columns: 1fr !important;
+  }
+
+  .admProductName{
+    max-width: 100% !important;
+    white-space: normal !important;
   }
 }
 
-@media (max-width: 860px) {
-  /* não desloca no mobile */
-  .analysisPage {
-    transform: none;
+@media (max-width: 860px){
+  .pg-card.admCard{
+    max-height: none !important;
+    overflow: visible !important;
+    min-height: auto !important;
   }
 
-  .pg-card.admCard {
-    max-height: none;
-    overflow: visible;
-    border-radius: 22px;
-    padding: 24px;
-    min-height: auto;
+  .admHeader{
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
   }
 
-  .admHeader {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-  }
+  .admReplyBtn{ width: 100% !important; }
 
-  .admFilters {
-    min-width: 0;
-    justify-items: stretch;
-  }
-
-  .admReplyBtn { width: 100%; }
-
-  .admCardTop {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .admBody {
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
-  }
-
-  .pg-wrap .cbModalHeader {
+  .admCardTop{
     flex-direction: column !important;
     align-items: stretch !important;
   }
 
-  .pg-wrap .cbModalClose {
+  .admBody{
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  .pg-wrap .cbModalHeader{
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .pg-wrap .cbModalClose{
     align-self: flex-end !important;
   }
 }
@@ -944,17 +1005,115 @@
 .pg-wrap .cbBtnGhost:focus-visible,
 .pg-wrap .cbModalClose:focus-visible,
 .admSummary:focus-visible,
-.admModalTextarea:focus-visible {
-  outline: 2px solid rgba(160, 234, 82, 0.38);
-  outline-offset: 3px;
+.admModalTextarea:focus-visible{
+  outline: 2px solid var(--focus) !important;
+  outline-offset: 3px !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce){
   .admSelectShell,
+  .admCardItem,
   .admReplyBtn,
   .pg-wrap .cbBtnPrimary,
   .pg-wrap .cbBtnGhost,
-  .pg-wrap .cbModalClose {
+  .pg-wrap .cbModalClose,
+  .admSummary{
     transition: none !important;
   }
 }
+/* ✅ Texto do dropdown FECHADO (valor exibido no select) */
+.admSelectShell:not(:focus-within) .admSelect{
+  color: rgba(17, 24, 39, 0.92) !important; /* #111827 */
+}
+
+/* (opcional) quando clicar/abrir (fica focado) */
+.admSelectShell:focus-within .admSelect{
+  color: rgba(31, 41, 55, 0.92) !important;
+}
+
+/* (opcional, recomendado) ícone e setinha também escuros no fechado */
+.admSelectShell:not(:focus-within) .admSelectIcon{
+  color: rgba(17, 24, 39, 0.72) !important;
+}
+.admSelectShell:not(:focus-within) .admSelectCaret::before{
+  border-right-color: rgba(17, 24, 39, 0.70) !important;
+  border-bottom-color: rgba(17, 24, 39, 0.70) !important;
+}
+/* =========================
+   POPUP (Modal) — branco sólido + texto preto
+========================= */
+.pg-wrap .cbModalPanel{
+  background: #ffffff !important;
+  color: #111827 !important; /* texto preto */
+  border: 1px solid rgba(15,23,42,0.12) !important;
+
+  /* remove glass do modal (se tiver) */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.pg-wrap .cbModalHeader{
+  border-bottom: 1px solid rgba(15,23,42,0.10) !important;
+}
+
+.pg-wrap .cbModalTitle{
+  color: #111827 !important;
+}
+
+.pg-wrap .cbModalClose{
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,0.14) !important;
+  color: #111827 !important;
+}
+
+/* =========================
+   CARDs internos do popup (form rows / banners) — branco
+========================= */
+.pg-wrap .admModalRow,
+.pg-wrap .admCatalogHint,
+.pg-wrap .cbModalContent{
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,0.10) !important;
+  color: #111827 !important;
+}
+
+/* textarea branco + texto preto */
+.pg-wrap .admModalTextarea{
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid rgba(15,23,42,0.14) !important;
+}
+
+/* =========================
+   DROPDOWN do popup (select “fechado”) — branco + texto preto
+   (o que você chamou de sidebar do popup)
+========================= */
+.pg-wrap .admSelectShell--modal{
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,0.16) !important;
+  box-shadow: 0 12px 28px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.95) !important;
+}
+
+.pg-wrap .admSelectShell--modal .admSelect{
+  color: #111827 !important;
+}
+
+.pg-wrap .admSelectShell--modal .admSelectIcon{
+  color: rgba(17,24,39,0.72) !important;
+}
+
+.pg-wrap .admSelectShell--modal .admSelectCaret::before{
+  border-right-color: rgba(17,24,39,0.70) !important;
+  border-bottom-color: rgba(17,24,39,0.70) !important;
+}
+
+/* opções quando abrir o dropdown */
+.pg-wrap .admSelectShell--modal .admSelect option{
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+/* ✅ Aumenta tudo em 50% (mais simples e bem fiel) */
+.pg-wrap{
+  zoom: 1.03;
+}
+

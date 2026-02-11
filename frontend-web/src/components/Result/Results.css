@@ -1,8 +1,9 @@
-/* Results.css — FINAL (Modal visível + paleta herdando no modal)
-   ✅ Modal NÃO fica transparente
-   ✅ Texto do modal (título + corpo) SEMPRE escuro e visível
-   ✅ Paleta igual telas anteriores (card branco + glow verde)
-   ✅ Sem quebrar layout da lista
+/* Results.css — GLASS + escala moderada + sem quadro branco no fundo
+   ✅ Remove fundo branco do wrapper (pg-wrap)
+   ✅ Glass no mesmo tom (sutil)
+   ✅ Escala geral ~ +25% (reduzido em relação ao 1.5)
+   ✅ Responsivo sem quebrar
+   ✅ Scroll correto (desktop) e sem dupla rolagem (mobile)
 */
 
 .resultsPage,
@@ -14,77 +15,62 @@
 }
 
 /* =========================================================
-   ✅ TOKENS NO ESCOPO CORRETO: pg-wrap (modal é irmão do resultsPage)
-   Isso faz o popup herdar a paleta e parar de ficar “invisível”.
+   ✅ WRAPPER: REMOVE O "QUADRO BRANCO" DO FUNDO
 ========================================================= */
-@supports selector(:has(*)) {
-  .pg-wrap:has(.resultsPage) {
-    --ra-surface-0: #ffffff;
-    --ra-surface-1: #f2f4f7;
+.pg-wrap.resultsWrap {
+  /* escala geral (reduzida) */
+  --s: 1.25;
 
-    --ra-border: rgba(15, 23, 42, 0.12);
-    --ra-border-soft: rgba(15, 23, 42, 0.10);
+  /* tokens */
+  --ra-text-0: rgba(31, 41, 55, 0.92);
+  --ra-text-1: rgba(55, 65, 81, 0.92);
+  --ra-muted: rgba(107, 114, 128, 0.95);
 
-    --ra-shadow-lg: 0 30px 90px rgba(15, 23, 42, 0.14);
-    --ra-shadow-md: 0 14px 34px rgba(15, 23, 42, 0.10);
+  --ra-border: rgba(15, 23, 42, 0.10);
+  --ra-border-soft: rgba(15, 23, 42, 0.08);
 
-    --ra-text-0: rgba(31, 41, 55, 0.92);
-    --ra-text-1: rgba(55, 65, 81, 0.92);
-    --ra-muted: rgba(107, 114, 128, 0.95);
+  --ra-glass: rgba(255, 255, 255, 0.78);
+  --ra-glass-2: rgba(255, 255, 255, 0.68);
 
-    --ra-green: #5e8542;
-    --ra-green-2: rgba(160, 234, 82, 0.98);
-    --ra-green-3: rgba(76, 148, 18, 0.96);
+  --ra-shadow-lg: 0 calc(18px * var(--s)) calc(52px * var(--s)) rgba(15, 23, 42, 0.10);
+  --ra-shadow-md: 0 calc(14px * var(--s)) calc(34px * var(--s)) rgba(15, 23, 42, 0.10);
 
-    --ra-red-2: rgba(255, 120, 120, 0.96);
-    --ra-red-3: rgba(198, 44, 34, 0.94);
+  --ra-green: #5e8542;
+  --ra-red-2: rgba(255, 120, 120, 0.96);
+  --ra-red-3: rgba(198, 44, 34, 0.94);
+  --ra-yellow-2: rgba(255, 214, 84, 0.96);
+  --ra-yellow-3: rgba(206, 162, 18, 0.94);
 
-    --ra-yellow-2: rgba(255, 214, 84, 0.96);
-    --ra-yellow-3: rgba(206, 162, 18, 0.94);
+  /* 🔥 remove “quadro branco”: */
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 
-    --ra-r-xl: 26px;
-    --ra-r-lg: 18px;
-    --ra-r-md: 16px;
-    --ra-r-pill: 9999px;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
 
-    --ra-glow:
-      radial-gradient(900px 300px at 18% 10%, rgba(255,255,255,0.65), rgba(255,255,255,0) 55%),
-      radial-gradient(720px 280px at 78% 0%, rgba(160,234,82,0.16), rgba(255,255,255,0) 58%);
-  }
+  /* mantém espaçamento agradável sem criar um “painel branco” */
+  padding: calc(22px * var(--s)) calc(20px * var(--s)) calc(26px * var(--s)) !important;
 
-  /* ✅ remove quadro branco do wrapper dessa página */
-  .pg-wrap:has(.resultsPage) {
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 28px 22px 34px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
 
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+  position: relative !important;
+  isolation: isolate !important;
+}
 
-    min-height: 100dvh !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
-
-    position: relative !important;
-    isolation: isolate !important;
-
-    opacity: 1 !important;
-    filter: none !important;
-  }
-
-  .pg-wrap:has(.resultsPage)::before,
-  .pg-wrap:has(.resultsPage)::after {
-    content: none !important;
-    display: none !important;
-  }
+/* se o Pages.css coloca pseudo-elementos/efeitos no pg-wrap */
+.pg-wrap.resultsWrap::before,
+.pg-wrap.resultsWrap::after {
+  content: none !important;
+  display: none !important;
 }
 
 /* =========================================================
-   Layout base da página
+   PAGE CONTAINER + GLOW DE FUNDO (sutil, sem exagerar)
 ========================================================= */
 .resultsPage {
   width: 100% !important;
@@ -96,47 +82,51 @@
   isolation: isolate !important;
 }
 
+.resultsPage::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+
+  /* mesmo “clima” da tela Perfil, mas discreto */
+  background:
+    radial-gradient(1100px 520px at 12% 108%, rgba(160, 234, 82, 0.18), rgba(255, 255, 255, 0) 62%),
+    radial-gradient(1000px 520px at 88% 108%, rgba(160, 234, 82, 0.10), rgba(255, 255, 255, 0) 64%),
+    radial-gradient(900px 320px at 18% 8%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%);
+  opacity: 0.9 !important;
+}
+
+.resultsPage > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
 /* =========================================================
-   ✅ Mata qualquer glassmorphism vindo do Pages.css no card
+   CARD PRINCIPAL (glass)
 ========================================================= */
 .pg-wrap .pg-card.resultsCard,
 .pg-card.resultsCard,
 .resultsCard {
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, var(--ra-surface-0, #fff) 0%, var(--ra-surface-1, #f2f4f7) 100%) !important;
-  background-color: #ffffff !important;
+  width: min(calc(1120px * var(--s)), 100%) !important;
+  min-height: calc(480px * var(--s)) !important;
 
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  padding: calc(22px * var(--s)) calc(24px * var(--s)) calc(18px * var(--s)) !important;
+  border-radius: calc(24px * var(--s)) !important;
 
-  opacity: 1 !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-}
+  background: var(--ra-glass) !important;
+  border: 1px solid var(--ra-border) !important;
+  box-shadow: var(--ra-shadow-lg) !important;
 
-.pg-wrap .pg-card.resultsCard::after,
-.pg-card.resultsCard::after {
-  content: none !important;
-}
-
-/* =========================================================
-   CARD PRINCIPAL
-========================================================= */
-.resultsCard {
-  width: min(1180px, 100%) !important;
-  min-height: 520px !important;
-
-  padding: 28px 30px 22px !important;
-  border-radius: var(--ra-r-xl, 26px) !important;
-
-  border: 1px solid rgba(15, 23, 42, 0.10) !important;
-  box-shadow: var(--ra-shadow-lg, 0 30px 90px rgba(15, 23, 42, 0.14)) !important;
+  backdrop-filter: blur(calc(10px * var(--s))) !important;
+  -webkit-backdrop-filter: blur(calc(10px * var(--s))) !important;
 
   position: relative !important;
   overflow: hidden !important;
   isolation: isolate !important;
 
-  transform: translateX(-60px) !important;
+  /* ✅ evita “desalinhamento” com sidebar/layout */
+  transform: none !important;
 }
 
 .resultsCard::before {
@@ -145,8 +135,12 @@
   inset: -2px !important;
   pointer-events: none !important;
   border-radius: inherit !important;
-  background: var(--ra-glow, none) !important;
-  opacity: 0.60 !important;
+
+  /* glow interno sutil */
+  background:
+    radial-gradient(900px 300px at 18% 10%, rgba(255,255,255,0.60), rgba(255,255,255,0) 55%),
+    radial-gradient(720px 280px at 78% 0%, rgba(160,234,82,0.14), rgba(255,255,255,0) 58%);
+  opacity: 0.55 !important;
 }
 
 .resultsCard > * {
@@ -155,46 +149,60 @@
 }
 
 /* =========================================================
-   HEADER
+   HEADER (título + descrição)
 ========================================================= */
 .resultsCardHeader {
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: space-between !important;
-  gap: 18px !important;
+  gap: calc(16px * var(--s)) !important;
 
-  margin: 0 0 16px !important;
-  padding: 6px 6px 16px !important;
+  margin: 0 0 calc(14px * var(--s)) !important;
+  padding: calc(6px * var(--s)) calc(6px * var(--s)) calc(14px * var(--s)) !important;
 
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-bottom: 1px solid var(--ra-border-soft) !important;
+}
+
+.resultsHeaderLeft {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: calc(8px * var(--s)) !important;
 }
 
 .resultsCardTitle {
   margin: 0 !important;
-  font-size: clamp(30px, 2.8vw, 44px) !important;
+  font-size: clamp(40px, 3.2vw, 58px) !important;
   font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
-  line-height: 1.08 !important;
-  color: rgba(31, 41, 55, 0.92) !important;
+  line-height: 1.06 !important;
+  color: var(--ra-text-0) !important;
+}
+
+.resultsCardDesc {
+  margin: 0 !important;
+  max-width: 78ch !important;
+
+  font-size: calc(13px * var(--s)) !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+  color: rgba(55, 65, 81, 0.84) !important;
 }
 
 .resultsReloadBtn {
-  height: 48px !important;
-  padding: 0 20px !important;
+  height: calc(44px * var(--s)) !important;
+  padding: 0 calc(18px * var(--s)) !important;
   border-radius: 9999px !important;
 
-  font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
+  font-size: calc(14px * var(--s)) !important;
+  font-weight: 950 !important;
 
   cursor: pointer !important;
   user-select: none !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-  color: rgba(55, 65, 81, 0.92) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: var(--ra-text-1) !important;
 
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.08) !important;
   transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
@@ -212,51 +220,50 @@
 }
 
 /* =========================================================
-   BODY / TOAST
+   BODY / TOAST / STATES
 ========================================================= */
 .resultsCardBody {
   position: relative !important;
-  padding: 16px 6px 0 !important;
+  padding: calc(14px * var(--s)) calc(6px * var(--s)) 0 !important;
 }
 
 .resultsToast {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 12px !important;
+  gap: calc(12px * var(--s)) !important;
 
-  margin: 0 0 14px !important;
-  padding: 12px 14px !important;
-  border-radius: 18px !important;
+  margin: 0 0 calc(12px * var(--s)) !important;
+  padding: calc(12px * var(--s)) calc(14px * var(--s)) !important;
+  border-radius: calc(18px * var(--s)) !important;
 
-  border: 1px solid rgba(94, 133, 66, 0.22) !important;
-  background: #ffffff !important;
-  background-image:
-    radial-gradient(420px 200px at 18% 40%, rgba(160, 234, 82, 0.18), rgba(255,255,255,0) 70%),
-    linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  background: var(--ra-glass-2) !important;
+  border: 1px solid rgba(94, 133, 66, 0.20) !important;
+
+  backdrop-filter: blur(calc(10px * var(--s))) !important;
+  -webkit-backdrop-filter: blur(calc(10px * var(--s))) !important;
 
   color: rgba(62, 94, 42, 0.96) !important;
   font-weight: 950 !important;
+  font-size: calc(14px * var(--s)) !important;
 
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10) !important;
+  box-shadow: 0 calc(12px * var(--s)) calc(28px * var(--s)) rgba(15, 23, 42, 0.10) !important;
 }
 
 .resultsToastBtn {
-  width: 38px !important;
-  height: 38px !important;
+  width: calc(38px * var(--s)) !important;
+  height: calc(38px * var(--s)) !important;
   border-radius: 9999px !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-
-  color: rgba(31, 41, 55, 0.92) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: var(--ra-text-0) !important;
 
   cursor: pointer !important;
   display: grid !important;
   place-items: center !important;
 
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.08) !important;
   transition: transform 160ms ease, filter 160ms ease !important;
 }
 
@@ -265,29 +272,116 @@
   filter: brightness(1.02) !important;
 }
 
+.resultsStateText {
+  margin: 0 !important;
+  font-size: calc(14px * var(--s)) !important;
+  font-weight: 900 !important;
+  color: rgba(55, 65, 81, 0.84) !important;
+}
+
+.resultsStateText.is-error {
+  color: rgba(185, 28, 28, 0.92) !important;
+}
+
+.resultsStateText.is-empty {
+  color: rgba(55, 65, 81, 0.76) !important;
+}
+
 /* =========================================================
-   SCROLLER
+   SCROLLER (barra de rolagem adequada)
 ========================================================= */
 .resultsScroller {
-  margin-top: 10px !important;
-  min-height: 360px !important;
-  max-height: 520px !important;
+  margin-top: calc(10px * var(--s)) !important;
+
+  /* desktop: rolagem dentro do card */
+  max-height: min(calc(500px * var(--s)), 66dvh) !important;
+  min-height: calc(320px * var(--s)) !important;
 
   overflow-y: auto !important;
   overflow-x: hidden !important;
 
-  padding-right: 6px !important;
+  padding-right: calc(6px * var(--s)) !important;
 }
 
-.resultsScroller::-webkit-scrollbar { width: 10px !important; }
+.resultsScroller::-webkit-scrollbar {
+  width: calc(10px * var(--s)) !important;
+}
 .resultsScroller::-webkit-scrollbar-thumb {
   background: rgba(15, 23, 42, 0.14) !important;
   border-radius: 999px !important;
-  border: 2px solid rgba(255,255,255,0.65) !important;
+  border: calc(2px * var(--s)) solid rgba(255, 255, 255, 0.60) !important;
 }
 .resultsScroller::-webkit-scrollbar-track {
   background: rgba(15, 23, 42, 0.06) !important;
   border-radius: 999px !important;
+}
+
+/* =========================================================
+   ✅ CABEÇALHO DA “TABELA” (DESCRIÇÕES NO TOPO)
+========================================================= */
+.resultsTableHead {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 8 !important;
+
+  margin: 0 0 calc(12px * var(--s)) 0 !important;
+  padding: 0 0 calc(8px * var(--s)) 0 !important;
+
+  /* “faixa” suave pra não ficar recortando quando rolar */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.86) 0%,
+    rgba(255, 255, 255, 0.70) 70%,
+    rgba(255, 255, 255, 0.00) 100%
+  ) !important;
+
+  backdrop-filter: blur(calc(8px * var(--s))) !important;
+  -webkit-backdrop-filter: blur(calc(8px * var(--s))) !important;
+}
+
+.resultsHeadRow {
+  width: 100% !important;
+
+  display: grid !important;
+  align-items: center !important;
+  column-gap: calc(14px * var(--s)) !important;
+
+  /* MESMO GRID DA ROW PRA ALINHAR PERFEITO */
+  grid-template-columns:
+    calc(140px * var(--s))
+    minmax(0, 1fr)
+    calc(32px * var(--s))
+    minmax(0, 1fr)
+    calc(160px * var(--s))
+    calc(210px * var(--s)) !important;
+
+  padding: calc(10px * var(--s)) calc(16px * var(--s)) !important;
+  border-radius: calc(18px * var(--s)) !important;
+
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+
+  box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.06) !important;
+}
+
+.resultsHeadCell {
+  font-size: calc(11px * var(--s)) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(107, 114, 128, 0.95) !important;
+
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.resultsHeadCell--arrow {
+  text-align: center !important;
+}
+
+.resultsHeadCell--actions {
+  justify-self: center !important;
 }
 
 /* =========================================================
@@ -298,34 +392,35 @@
   margin: 0 !important;
   padding: 0 !important;
   display: grid !important;
-  gap: 14px !important;
+  gap: calc(12px * var(--s)) !important;
 }
 
 .resultsRow {
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 86px !important;
+  min-height: calc(82px * var(--s)) !important;
 
   display: grid !important;
   align-items: center !important;
-  column-gap: 16px !important;
+  column-gap: calc(14px * var(--s)) !important;
 
   grid-template-columns:
-    150px
+    calc(140px * var(--s))
     minmax(0, 1fr)
-    34px
+    calc(32px * var(--s))
     minmax(0, 1fr)
-    170px
-    220px !important;
+    calc(160px * var(--s))
+    calc(210px * var(--s)) !important;
 
-  padding: 16px 18px !important;
-  border-radius: 22px !important;
+  padding: calc(14px * var(--s)) calc(16px * var(--s)) !important;
+  border-radius: calc(22px * var(--s)) !important;
 
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
 
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  box-shadow:
+    0 calc(14px * var(--s)) calc(34px * var(--s)) rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
 
   transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
@@ -333,37 +428,69 @@
 .resultsRow:hover {
   transform: translateY(-1px) !important;
   filter: brightness(1.01) !important;
-  border-color: rgba(15, 23, 42, 0.18) !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
 }
 
 .resultsDate {
-  font-size: 15px !important;
+  font-size: calc(15px * var(--s)) !important;
   font-weight: 950 !important;
   color: rgba(55, 65, 81, 0.78) !important;
-  min-width: 0 !important;
 }
 
-.resultsName {
+/* =========================================================
+   ✅ PRODUTOS MAIS DESTACADOS (químico/biológico)
+========================================================= */
+.resultsProd {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: calc(6px * var(--s)) !important;
+
+  padding: calc(10px * var(--s)) calc(12px * var(--s)) !important;
+  border-radius: calc(18px * var(--s)) !important;
+
+  background:
+    radial-gradient(420px 220px at 18% 40%, rgba(160, 234, 82, 0.14), rgba(255,255,255,0) 70%),
+    linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(242,244,247,0.86) 100%) !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+
+  box-shadow:
+    0 calc(10px * var(--s)) calc(24px * var(--s)) rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.30) !important;
+}
+
+.resultsProd--chem {
+  border-color: rgba(94, 133, 66, 0.22) !important;
+}
+
+.resultsProdLabel {
+  font-size: calc(10.5px * var(--s)) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(107, 114, 128, 0.92) !important;
+}
+
+.resultsProdName {
   min-width: 0 !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 
-  font-size: 16px !important;
-  font-weight: 950 !important;
-  color: rgba(31, 41, 55, 0.92) !important;
+  font-size: calc(16px * var(--s)) !important;
+  font-weight: 1000 !important;
+  color: var(--ra-text-0) !important;
 }
 
 .resultsArrow {
   display: grid !important;
   place-items: center !important;
   color: rgba(107, 114, 128, 0.85) !important;
-  min-width: 0 !important;
 }
 
 .resultsArrow svg {
-  width: 22px !important;
-  height: 22px !important;
+  width: calc(22px * var(--s)) !important;
+  height: calc(22px * var(--s)) !important;
   opacity: 0.95 !important;
 }
 
@@ -373,22 +500,21 @@
 .resultsStatus {
   justify-self: start !important;
 
-  padding: 10px 14px !important;
-  border-radius: 14px !important;
+  padding: calc(10px * var(--s)) calc(14px * var(--s)) !important;
+  border-radius: calc(14px * var(--s)) !important;
 
-  font-size: 13px !important;
+  font-size: calc(13px * var(--s)) !important;
   font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
 
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  box-shadow:
+    0 calc(12px * var(--s)) calc(26px * var(--s)) rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 
   user-select: none !important;
-  min-width: 0 !important;
-
   color: rgba(255,255,255,0.98) !important;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.35) !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.30) !important;
 }
 
 .resultsStatus.is-ok {
@@ -397,11 +523,11 @@
 }
 .resultsStatus.is-bad {
   border-color: rgba(239, 68, 68, 0.28) !important;
-  background: linear-gradient(180deg, rgba(255, 120, 120, 0.96) 0%, rgba(198, 44, 34, 0.94) 100%) !important;
+  background: linear-gradient(180deg, var(--ra-red-2) 0%, var(--ra-red-3) 100%) !important;
 }
 .resultsStatus.is-warn {
   border-color: rgba(202, 138, 4, 0.28) !important;
-  background: linear-gradient(180deg, rgba(255, 214, 84, 0.96) 0%, rgba(206, 162, 18, 0.94) 100%) !important;
+  background: linear-gradient(180deg, var(--ra-yellow-2) 0%, var(--ra-yellow-3) 100%) !important;
 }
 
 /* =========================================================
@@ -410,15 +536,14 @@
 .resultsActions {
   display: grid !important;
   place-items: center !important;
-  min-width: 0 !important;
 }
 
 .resultsActionBtn {
   width: 100% !important;
-  max-width: 220px !important;
-  height: 58px !important;
-  padding: 0 18px !important;
-  border-radius: 18px !important;
+  max-width: calc(210px * var(--s)) !important;
+  height: calc(54px * var(--s)) !important;
+  padding: 0 calc(16px * var(--s)) !important;
+  border-radius: calc(18px * var(--s)) !important;
 
   display: inline-flex !important;
   align-items: center !important;
@@ -427,17 +552,17 @@
   cursor: pointer !important;
   user-select: none !important;
 
-  font-size: 15px !important;
+  font-size: calc(15px * var(--s)) !important;
   font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
   color: rgba(55, 65, 81, 0.92) !important;
 
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+  box-shadow:
+    0 calc(12px * var(--s)) calc(28px * var(--s)) rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+
   transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
@@ -449,16 +574,14 @@
 
 .resultsActionBtn.is-refund {
   border-color: rgba(202, 138, 4, 0.26) !important;
-  background: #ffffff !important;
   background-image:
-    radial-gradient(420px 200px at 18% 40%, rgba(255, 214, 84, 0.22), rgba(255,255,255,0) 70%),
+    radial-gradient(420px 200px at 18% 40%, rgba(255, 214, 84, 0.18), rgba(255,255,255,0) 70%),
     linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
   color: rgba(120, 85, 10, 0.96) !important;
 }
 
 /* =========================================================
-   ✅ MODAL — FORÇA TEXTO VISÍVEL (título + corpo + X)
-   (mesmo se existir estilo global forçando branco)
+   MODAL (mantém opaco e legível)
 ========================================================= */
 .resultsModalOverlay {
   position: fixed !important;
@@ -471,9 +594,6 @@
 
   padding: 18px !important;
   background: transparent !important;
-
-  opacity: 1 !important;
-  filter: none !important;
   isolation: isolate !important;
 }
 
@@ -490,24 +610,13 @@
   z-index: 1 !important;
 
   width: min(760px, 100%) !important;
-  border-radius: 28px !important;
+  border-radius: 22px !important;
 
-  /* ✅ opaco */
-  background-color: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-
+  background: #ffffff !important;
   border: 1px solid rgba(15, 23, 42, 0.10) !important;
   box-shadow: 0 30px 90px rgba(15, 23, 42, 0.14) !important;
 
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-
-  opacity: 1 !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-
-  /* ✅ força cor do texto no modal inteiro */
-  color: rgba(31, 41, 55, 0.92) !important;
+  color: var(--ra-text-0) !important;
 }
 
 .resultsModalHeader {
@@ -518,19 +627,13 @@
 
   padding: 16px 18px !important;
   border-bottom: 1px solid rgba(15, 23, 42, 0.10) !important;
-
-  /* ✅ força no header também */
-  color: rgba(31, 41, 55, 0.92) !important;
 }
 
 .resultsModalTitle {
   margin: 0 !important;
   font-size: 18px !important;
   font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
-
-  /* ✅ TÍTULO VISÍVEL */
-  color: rgba(31, 41, 55, 0.92) !important;
+  color: var(--ra-text-0) !important;
 }
 
 .resultsModalClose {
@@ -539,18 +642,13 @@
   border-radius: 9999px !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
 
-  /* ✅ X usa currentColor → então aqui precisa ser escuro */
-  color: rgba(31, 41, 55, 0.92) !important;
-
+  color: var(--ra-text-0) !important;
   cursor: pointer !important;
+
   display: grid !important;
   place-items: center !important;
-
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
-  transition: transform 160ms ease, filter 160ms ease !important;
 }
 
 .resultsModalCloseIco {
@@ -559,16 +657,9 @@
   color: inherit !important;
 }
 
-.resultsModalClose:hover {
-  transform: translateY(-1px) !important;
-  filter: brightness(1.02) !important;
-}
-
 .resultsModalBody {
   padding: 16px 18px 18px !important;
-
-  /* ✅ corpo visível */
-  color: rgba(55, 65, 81, 0.92) !important;
+  color: var(--ra-text-1) !important;
 }
 
 .resultsModalFooter {
@@ -581,121 +672,23 @@
   border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
 }
 
-.resultsModalInfo { display: grid !important; gap: 12px !important; }
-
-.resultsModalText {
-  margin: 0 !important;
-  color: rgba(55, 65, 81, 0.92) !important;
-  font-weight: 900 !important;
-  line-height: 1.45 !important;
-}
-
-.resultsModalMini {
-  margin: 0 !important;
-  font-size: 12.5px !important;
-  font-weight: 900 !important;
-  color: rgba(107, 114, 128, 0.92) !important;
-}
-
-.resultsModalBox {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-
-  padding: 12px !important;
-  border-radius: 18px !important;
-
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10) !important;
-}
-
-.resultsModalLabel {
-  font-size: 12px !important;
-  font-weight: 950 !important;
-  letter-spacing: 0.10em !important;
-  text-transform: uppercase !important;
-  color: rgba(107, 114, 128, 0.95) !important;
-}
-
-.resultsModalValue {
-  font-size: 15px !important;
-  font-weight: 1000 !important;
-  color: rgba(31, 41, 55, 0.92) !important;
-}
-
-.resultsModalError {
-  padding: 12px 12px !important;
-  border-radius: 18px !important;
-
-  border: 1px solid rgba(239, 68, 68, 0.22) !important;
-  background: rgba(239, 68, 68, 0.10) !important;
-  color: rgba(185, 28, 28, 0.95) !important;
-
-  font-weight: 950 !important;
-}
-
-.resultsModalBtnGhost,
-.resultsModalBtnDanger {
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 9999px !important;
-
-  font-weight: 1000 !important;
-  letter-spacing: 0.2px !important;
-
-  cursor: pointer !important;
-  user-select: none !important;
-
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
-}
-
-.resultsModalBtnGhost {
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  background: #ffffff !important;
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-  color: rgba(31, 41, 55, 0.92) !important;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
-}
-
-.resultsModalBtnDanger {
-  border: 1px solid rgba(239, 68, 68, 0.24) !important;
-  background: #ffffff !important;
-  background-image:
-    radial-gradient(420px 200px at 18% 40%, rgba(255, 120, 120, 0.20), rgba(255,255,255,0) 70%),
-    linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
-  color: rgba(185, 28, 28, 0.95) !important;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.10) !important;
-}
-
-.resultsModalBtnGhost:hover,
-.resultsModalBtnDanger:hover {
-  transform: translateY(-1px) !important;
-  filter: brightness(1.02) !important;
-}
-
-.resultsModalBtnGhost:disabled,
-.resultsModalBtnDanger:disabled,
-.resultsModalClose:disabled {
-  opacity: 0.55 !important;
-  cursor: not-allowed !important;
-  transform: none !important;
-  filter: none !important;
-}
-
 /* =========================================================
    RESPONSIVO
 ========================================================= */
+@media (max-width: 1200px) {
+  .pg-wrap.resultsWrap { --s: 1.12; }
+}
+
 @media (max-width: 980px) {
-  .resultsCard {
-    transform: none !important;
-    width: min(980px, 100%) !important;
-  }
+  .pg-wrap.resultsWrap { --s: 1; }
+  .pg-wrap.resultsWrap { padding: 18px !important; }
 }
 
 @media (max-width: 860px) {
+  /* ✅ some o cabeçalho no mobile (layout vira empilhado) */
+  .resultsTableHead { display: none !important; }
+
+  /* evita “duas rolagens” no mobile */
   .resultsScroller {
     max-height: none !important;
     overflow: visible !important;
@@ -704,26 +697,24 @@
   }
 
   .resultsRow {
-    padding: 14px !important;
-    row-gap: 12px !important;
-
     grid-template-columns: 1fr !important;
     grid-template-areas:
       "date"
-      "left"
-      "right"
+      "chem"
+      "bio"
       "status"
       "actions" !important;
+
+    row-gap: 12px !important;
   }
 
   .resultsDate { grid-area: date !important; }
-  .resultsName--left { grid-area: left !important; }
-  .resultsName--right { grid-area: right !important; }
+  .resultsProd--chem { grid-area: chem !important; }
+  .resultsProd--bio { grid-area: bio !important; }
   .resultsStatus { grid-area: status !important; justify-self: start !important; }
   .resultsActions { grid-area: actions !important; }
 
   .resultsArrow { display: none !important; }
-  .resultsModalBox { grid-template-columns: 1fr !important; }
 }
 
 /* =========================================================
@@ -731,8 +722,6 @@
 ========================================================= */
 .resultsActionBtn:focus-visible,
 .resultsReloadBtn:focus-visible,
-.resultsModalBtnGhost:focus-visible,
-.resultsModalBtnDanger:focus-visible,
 .resultsModalClose:focus-visible,
 .resultsToastBtn:focus-visible {
   outline: 2px solid rgba(94, 133, 66, 0.40) !important;
@@ -746,10 +735,119 @@
   .resultsActionBtn,
   .resultsReloadBtn,
   .resultsRow,
-  .resultsToastBtn,
-  .resultsModalBtnGhost,
-  .resultsModalBtnDanger,
-  .resultsModalClose {
+  .resultsToastBtn {
     transition: none !important;
   }
+}
+
+/* =========================================================
+   ✅ POPUP (conteúdo + botões do modal)
+========================================================= */
+
+.resultsModalInfo {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.resultsModalText {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.45 !important;
+  color: var(--ra-text-1) !important;
+}
+
+.resultsModalBox {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+
+  background: rgba(242, 244, 247, 0.92) !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+}
+
+@media (max-width: 560px) {
+  .resultsModalBox {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.resultsModalBoxItem {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 4px !important;
+}
+
+.resultsModalLabel {
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  color: rgba(107, 114, 128, 0.95) !important;
+}
+
+.resultsModalValue {
+  font-size: 14px !important;
+  font-weight: 1000 !important;
+  color: var(--ra-text-0) !important;
+}
+
+.resultsModalError {
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  background: rgba(239, 68, 68, 0.10) !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  color: rgba(185, 28, 28, 0.95) !important;
+  font-weight: 900 !important;
+}
+
+.resultsModalMini {
+  margin: 0 !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  color: rgba(107, 114, 128, 0.95) !important;
+}
+
+/* Botões do rodapé */
+.resultsModalBtnGhost,
+.resultsModalBtnDanger {
+  height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+
+  font-size: 14px !important;
+  font-weight: 950 !important;
+
+  cursor: pointer !important;
+  user-select: none !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.18) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: var(--ra-text-0) !important;
+
+  transition: transform 160ms ease, filter 160ms ease !important;
+}
+
+.resultsModalBtnGhost:hover,
+.resultsModalBtnDanger:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.02) !important;
+}
+
+.resultsModalBtnDanger {
+  border-color: rgba(239, 68, 68, 0.28) !important;
+  background: linear-gradient(180deg, rgba(255, 120, 120, 0.96) 0%, rgba(198, 44, 34, 0.94) 100%) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+.resultsModalBtnGhost:disabled,
+.resultsModalBtnDanger:disabled {
+  opacity: 0.60 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
 }

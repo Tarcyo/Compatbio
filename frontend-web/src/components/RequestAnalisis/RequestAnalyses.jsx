@@ -1,6 +1,5 @@
 // RequestAnalysisPage.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "../Pages/Pages.css";
 import "./RequestAnalysis.css";
 
 function IconSearch(props) {

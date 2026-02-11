@@ -1,5 +1,5 @@
 // Result.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Pages/Pages.css";
 import "./Results.css";
@@ -155,7 +155,7 @@ export default function Result() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setErr("");
 
@@ -202,7 +202,7 @@ export default function Result() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
 
   useEffect(() => {
     let alive = true;
@@ -213,8 +213,7 @@ export default function Result() {
     return () => {
       alive = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [API_BASE]);
+  }, [load]);
 
   const onDetail = (row) => {
     navigate("/app/detalhes-analise", {
@@ -281,11 +280,13 @@ export default function Result() {
   }, [refundTarget]);
 
   return (
-    <div className="pg-wrap">
+    <div className="pg-wrap resultsWrap">
       <div className="resultsPage">
         <section ref={cardRef} className="pg-card resultsCard">
           <header className="resultsCardHeader">
-            <h1 className="resultsCardTitle">Resultados das Análises</h1>
+            <div className="resultsHeaderLeft">
+              <h1 className="resultsCardTitle">Resultados das Análises</h1>
+            </div>
 
             <button
               type="button"
@@ -309,74 +310,84 @@ export default function Result() {
                   aria-label="Fechar aviso"
                   title="Fechar"
                 >
-                  <IconX style={{ width: 18, height: 18 }} />
+                  <IconX style={{ width: "1.2em", height: "1.2em" }} />
                 </button>
               </div>
             ) : null}
 
-            <div className="resultsScroller">
+            <div className="resultsScroller" aria-label="Área rolável da lista">
               {loading ? (
-                <p style={{ color: "rgba(255,255,255,0.82)", fontWeight: 800, margin: 0 }}>
-                  Carregando...
-                </p>
+                <p className="resultsStateText">Carregando...</p>
               ) : err ? (
-                <p style={{ color: "rgba(255,140,140,0.92)", fontWeight: 900, margin: 0 }}>
-                  {err}
-                </p>
+                <p className="resultsStateText is-error">{err}</p>
               ) : !hasRows ? (
-                <p style={{ color: "rgba(255,255,255,0.78)", fontWeight: 800, margin: 0 }}>
-                  Nenhuma solicitação encontrada.
-                </p>
+                <p className="resultsStateText is-empty">Nenhuma solicitação encontrada.</p>
               ) : (
-                <ul className="resultsList" aria-label="Lista de solicitações de análise">
-                  {rows.map((r) => {
-                    const pendente = isPendente(r.statusRaw);
+                <>
+                  {/* ✅ CABEÇALHO NO TOPO DA “TABELA” */}
+                  <div className="resultsTableHead" aria-hidden="true">
+                    <div className="resultsHeadRow">
+                      <span className="resultsHeadCell resultsHeadCell--date">Data</span>
+                      <span className="resultsHeadCell">Produto químico</span>
+                      <span className="resultsHeadCell resultsHeadCell--arrow" aria-hidden="true" />
+                      <span className="resultsHeadCell">Produto biológico</span>
+                      <span className="resultsHeadCell">Situação</span>
+                      <span className="resultsHeadCell resultsHeadCell--actions">Ação</span>
+                    </div>
+                  </div>
 
-                    return (
-                      <li key={r.id} className="resultsRow">
-                        <span className="resultsDate">{r.date}</span>
+                  <ul className="resultsList" aria-label="Tabela de solicitações de análise">
+                    {rows.map((r) => {
+                      const pendente = isPendente(r.statusRaw);
 
-                        <span className="resultsName resultsName--left" title={r.chemical}>
-                          {r.chemical}
-                        </span>
+                      return (
+                        <li key={r.id} className="resultsRow">
+                          <span className="resultsDate">{r.date}</span>
 
-                        <span className="resultsArrow" aria-hidden="true">
-                          <IconArrow />
-                        </span>
+                          <div className="resultsProd resultsProd--chem" title={r.chemical}>
+                            <span className="resultsProdLabel">Produto químico</span>
+                            <span className="resultsProdName">{r.chemical}</span>
+                          </div>
 
-                        <span className="resultsName resultsName--right" title={r.biological}>
-                          {r.biological}
-                        </span>
+                          <span className="resultsArrow" aria-hidden="true">
+                            <IconArrow />
+                          </span>
 
-                        <span className={`resultsStatus ${r.status.cls}`} title={r.statusRaw || ""}>
-                          {r.status.label}
-                        </span>
+                          <div className="resultsProd resultsProd--bio" title={r.biological}>
+                            <span className="resultsProdLabel">Produto biológico</span>
+                            <span className="resultsProdName">{r.biological}</span>
+                          </div>
 
-                        <div className="resultsActions">
-                          {pendente ? (
-                            <button
-                              type="button"
-                              className="resultsActionBtn is-refund"
-                              onClick={() => openRefund(r)}
-                              title="Cancelar solicitação e reembolsar 1 crédito"
-                            >
-                              Reembolsar
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="resultsActionBtn"
-                              onClick={() => onDetail(r)}
-                              title="Ver detalhes desta análise"
-                            >
-                              Detalhar Análise
-                            </button>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                          <span className={`resultsStatus ${r.status.cls}`} title={r.statusRaw || ""}>
+                            {r.status.label}
+                          </span>
+
+                          <div className="resultsActions">
+                            {pendente ? (
+                              <button
+                                type="button"
+                                className="resultsActionBtn is-refund"
+                                onClick={() => openRefund(r)}
+                                title="Cancelar solicitação e reembolsar 1 crédito"
+                              >
+                                Reembolsar
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="resultsActionBtn"
+                                onClick={() => onDetail(r)}
+                                title="Ver detalhes desta análise"
+                              >
+                                Detalhar Análise
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
               )}
             </div>
           </div>

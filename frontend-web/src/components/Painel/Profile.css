@@ -41,7 +41,7 @@
   border-radius: calc(22px * var(--s));
   padding: calc(18px * var(--s)) calc(18px * var(--s)) calc(20px * var(--s));
 
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.82); /* era 0.72 */
   border: 1px solid rgba(15, 23, 42, 0.06);
 
   box-shadow: 0 calc(18px * var(--s)) calc(52px * var(--s)) rgba(15, 23, 42, 0.08);
@@ -613,7 +613,7 @@
   border-radius: 999px;
   overflow: hidden;
 
-  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%);
+  background: linear-gradient(180deg, #ffffff 15%, #f2f4f7 100%);
   border: 1px solid rgba(15, 23, 42, 0.10);
   box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.06);
 
@@ -853,4 +853,29 @@
   .profileSelectWrap {
     transition: none;
   }
+}
+/* Cinza escuro padrão da tela */
+:root {
+  --profile-gray-dark: rgba(55, 65, 81, 0.92);
+  --profile-gray-darker: rgba(31, 41, 55, 0.92);
+}
+
+/* "Usuários na Assinatura:" (estava mais claro) */
+.profileUsersTitle {
+  color: var(--profile-gray-dark) !important;
+}
+
+/* "Sua Assinatura Atual:" (estava mais claro) */
+.profileSectionTitle {
+  color: var(--profile-gray-dark) !important;
+}
+
+/* "Nenhuma assinatura vinculada." (usa .profileText) */
+.profileText {
+  color: var(--profile-gray-dark) !important;
+}
+
+/* "Créditos disponíveis" (label do KPI) */
+.profileCreditsLabelInline {
+  color: var(--profile-gray-dark) !important;
 }

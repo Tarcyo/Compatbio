@@ -1,4 +1,6 @@
 /* AnalysesDetail.css — FINAL (paleta igual telas anteriores: card branco + glow verde)
+   ✅ +50% no tamanho de TUDO via --ui-scale
+   ✅ Responsivo: scale reduz em telas menores automaticamente
    ✅ Sem escurecer a tela
    ✅ Sem “quadro”/sheet no fundo
    ✅ Card sólido, grande, levemente à esquerda (desktop)
@@ -16,13 +18,18 @@
 
 /* =========================
    WRAPPER DA PÁGINA (sem quadro / sem overlay)
+   + SCALE GLOBAL
 ========================= */
 .pg-wrap.detailsPage {
+  /* ✅ Desktop: +50% */
+  --ui-scale: 1.5;
+
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
 
-  padding: 28px 22px 34px !important;
+  padding: calc(28px * var(--ui-scale)) calc(22px * var(--ui-scale))
+    calc(34px * var(--ui-scale)) !important;
 
   background: transparent !important;
   border: 0 !important;
@@ -46,6 +53,26 @@
 .pg-wrap.detailsPage::after {
   content: none !important;
   display: none !important;
+}
+
+/* ✅ Responsividade do scale (evita estourar em telas menores) */
+@media (max-width: 1200px) {
+  .pg-wrap.detailsPage {
+    --ui-scale: 1.35;
+  }
+}
+
+@media (max-width: 980px) {
+  .pg-wrap.detailsPage {
+    --ui-scale: 1.18;
+  }
+}
+
+@media (max-width: 600px) {
+  .pg-wrap.detailsPage {
+    --ui-scale: 1.0;
+    padding: 22px 16px 26px !important;
+  }
 }
 
 /* =========================
@@ -78,25 +105,28 @@
    CARD PRINCIPAL (branco + glow)
 ========================= */
 .analysisDetailsPage .detailsCard {
-  width: min(980px, 100%) !important; /* ✅ consistente com telas anteriores */
+  width: min(calc(980px * var(--ui-scale)), 100%) !important;
   height: auto !important;
   min-height: unset !important;
 
-  padding: 28px 30px 22px !important;
-  border-radius: 26px !important;
+  padding: calc(28px * var(--ui-scale)) calc(30px * var(--ui-scale))
+    calc(22px * var(--ui-scale)) !important;
+
+  border-radius: calc(26px * var(--ui-scale)) !important;
 
   background: #ffffff !important;
   background-image: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
   border: 1px solid rgba(15, 23, 42, 0.10) !important;
 
-  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.14) !important;
+  box-shadow: 0 calc(30px * var(--ui-scale)) calc(90px * var(--ui-scale))
+    rgba(15, 23, 42, 0.14) !important;
 
   position: relative !important;
-  overflow: visible !important; /* nada corta */
+  overflow: visible !important;
   isolation: isolate !important;
 
   /* ✅ leve deslocamento à esquerda (desktop) */
-  transform: translateX(-60px) !important;
+  transform: translateX(calc(-60px * var(--ui-scale))) !important;
 }
 
 /* brilho interno sutil, apenas no card */
@@ -124,23 +154,28 @@
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 16px !important;
+  gap: calc(16px * var(--ui-scale)) !important;
 
-  margin: 0 0 18px !important;
-  padding: 4px 6px 14px !important;
+  margin: 0 0 calc(18px * var(--ui-scale)) !important;
+  padding: calc(4px * var(--ui-scale)) calc(6px * var(--ui-scale))
+    calc(14px * var(--ui-scale)) !important;
 
   border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
 }
 
 .detailsHeaderLeft {
   display: grid !important;
-  gap: 8px !important;
+  gap: calc(8px * var(--ui-scale)) !important;
   min-width: 0 !important;
 }
 
 .detailsCardTitle {
   margin: 0 !important;
-  font-size: clamp(32px, 3.2vw, 44px) !important;
+  font-size: clamp(
+    calc(32px * var(--ui-scale)),
+    3.2vw,
+    calc(44px * var(--ui-scale))
+  ) !important;
   font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
   line-height: 1.05 !important;
@@ -149,24 +184,27 @@
 
 .detailsMeta {
   color: rgba(107, 114, 128, 0.95) !important;
-  font-size: 14.5px !important;
+  font-size: calc(14.5px * var(--ui-scale)) !important;
   font-weight: 800 !important;
 }
 
 /* botão do header */
 .detailsMiniBtn {
-  height: 48px !important;
-  padding: 0 20px !important;
+  height: calc(48px * var(--ui-scale)) !important;
+  padding: 0 calc(20px * var(--ui-scale)) !important;
   border-radius: 9999px !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
   background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
   color: rgba(55, 65, 81, 0.92) !important;
 
+  font-size: calc(14px * var(--ui-scale)) !important;
   font-weight: 950 !important;
   cursor: pointer !important;
 
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 calc(10px * var(--ui-scale)) calc(22px * var(--ui-scale))
+    rgba(15, 23, 42, 0.08) !important;
+
   transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
 
@@ -180,7 +218,7 @@
    TOP (pílula com produtos + badge)
 ========================= */
 .detailsCardBody {
-  padding: 16px 6px 0 !important;
+  padding: calc(16px * var(--ui-scale)) calc(6px * var(--ui-scale)) 0 !important;
 }
 
 .detailsTop {
@@ -188,25 +226,28 @@
   display: grid !important;
   grid-template-columns: 1.25fr auto auto 1.25fr !important;
   align-items: center !important;
-  gap: 14px !important;
+  gap: calc(14px * var(--ui-scale)) !important;
 
-  padding: 16px 16px !important;
+  padding: calc(16px * var(--ui-scale)) calc(16px * var(--ui-scale)) !important;
   border-radius: 9999px !important;
 
   background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.22) !important;
+
+  box-shadow:
+    0 calc(18px * var(--ui-scale)) calc(44px * var(--ui-scale)) rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
 }
 
 .detailsBlock {
   display: grid !important;
-  gap: 6px !important;
+  gap: calc(6px * var(--ui-scale)) !important;
   min-width: 0 !important;
-  padding: 6px 10px !important;
+  padding: calc(6px * var(--ui-scale)) calc(10px * var(--ui-scale)) !important;
 }
 
 .detailsLabel {
-  font-size: 13px !important;
+  font-size: calc(13px * var(--ui-scale)) !important;
   font-weight: 950 !important;
   letter-spacing: 0.10em !important;
   text-transform: uppercase !important;
@@ -214,7 +255,7 @@
 }
 
 .detailsValue {
-  font-size: 16px !important;
+  font-size: calc(16px * var(--ui-scale)) !important;
   font-weight: 950 !important;
   color: rgba(31, 41, 55, 0.92) !important;
 
@@ -225,7 +266,7 @@
 
 .detailsArrow {
   color: rgba(107, 114, 128, 0.92) !important;
-  font-size: 26px !important;
+  font-size: calc(26px * var(--ui-scale)) !important;
   font-weight: 1000 !important;
   transform: translateY(1px) !important;
 }
@@ -239,20 +280,22 @@
    BADGE (pílula com gradiente)
 ========================= */
 .detailsBadge {
-  height: 40px !important;
-  padding: 0 18px !important;
+  height: calc(40px * var(--ui-scale)) !important;
+  padding: 0 calc(18px * var(--ui-scale)) !important;
   border-radius: 9999px !important;
 
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
 
-  font-size: 14px !important;
+  font-size: calc(14px * var(--ui-scale)) !important;
   font-weight: 1000 !important;
   letter-spacing: 0.2px !important;
 
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.20) !important;
+  box-shadow:
+    0 calc(12px * var(--ui-scale)) calc(26px * var(--ui-scale)) rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
 
   color: rgba(255,255,255,0.98) !important;
   text-shadow: 0 2px 10px rgba(0,0,0,0.35) !important;
@@ -278,28 +321,33 @@
    CORPO
 ========================= */
 .detailsBody {
-  padding: 18px 10px 6px !important;
+  padding: calc(18px * var(--ui-scale)) calc(10px * var(--ui-scale))
+    calc(6px * var(--ui-scale)) !important;
 }
 
 .detailsStatusRow {
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
-  margin-top: 12px !important;
+  gap: calc(12px * var(--ui-scale)) !important;
+  margin-top: calc(12px * var(--ui-scale)) !important;
 }
 
 /* Ícone do status (colorido) */
 .detailsStatusIcon {
-  width: 30px !important;
-  height: 30px !important;
+  width: calc(30px * var(--ui-scale)) !important;
+  height: calc(30px * var(--ui-scale)) !important;
   display: grid !important;
   place-items: center !important;
-  filter: drop-shadow(0 14px 26px rgba(15, 23, 42, 0.12)) !important;
+
+  filter: drop-shadow(
+    0 calc(14px * var(--ui-scale)) calc(26px * var(--ui-scale))
+      rgba(15, 23, 42, 0.12)
+  ) !important;
 }
 
 .detailsStatusIcon svg {
-  width: 28px !important;
-  height: 28px !important;
+  width: calc(28px * var(--ui-scale)) !important;
+  height: calc(28px * var(--ui-scale)) !important;
 }
 
 .detailsStatusIcon.is-ok { color: #5e8542 !important; }
@@ -308,15 +356,15 @@
 
 .detailsStatusTitle {
   margin: 0 !important;
-  font-size: 26px !important;
+  font-size: calc(26px * var(--ui-scale)) !important;
   font-weight: 1000 !important;
   color: rgba(31, 41, 55, 0.92) !important;
 }
 
 .detailsText {
-  margin: 14px 0 0 !important;
+  margin: calc(14px * var(--ui-scale)) 0 0 !important;
   color: rgba(55, 65, 81, 0.90) !important;
-  font-size: 16px !important;
+  font-size: calc(16px * var(--ui-scale)) !important;
   font-weight: 750 !important;
   line-height: 1.65 !important;
 }
@@ -332,26 +380,29 @@
 .detailsActions {
   display: grid !important;
   place-items: center !important;
-  margin-top: 22px !important;
+  margin-top: calc(22px * var(--ui-scale)) !important;
 }
 
 .detailsBackBtn {
-  height: 66px !important;
-  min-width: 420px !important;
-  padding: 0 34px !important;
+  height: calc(66px * var(--ui-scale)) !important;
+  min-width: calc(420px * var(--ui-scale)) !important;
+  padding: 0 calc(34px * var(--ui-scale)) !important;
   border-radius: 9999px !important;
 
   border: 1px solid rgba(94, 133, 66, 0.35) !important;
   background: linear-gradient(180deg, rgba(160, 234, 82, 0.98) 0%, rgba(76, 148, 18, 0.96) 100%) !important;
 
   color: rgba(255, 255, 255, 0.98) !important;
-  font-size: 20px !important;
+  font-size: calc(20px * var(--ui-scale)) !important;
   font-weight: 1000 !important;
 
   cursor: pointer !important;
   user-select: none !important;
 
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  box-shadow:
+    0 calc(18px * var(--ui-scale)) calc(44px * var(--ui-scale)) rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+
   transition: transform 180ms ease, filter 180ms ease !important;
 }
 
@@ -365,12 +416,12 @@
 }
 
 /* =========================
-   RESPONSIVO
+   RESPONSIVO (layout)
 ========================= */
 @media (max-width: 980px) {
   .analysisDetailsPage .detailsCard {
     transform: none !important;
-    width: min(920px, 100%) !important;
+    width: min(calc(920px * var(--ui-scale)), 100%) !important;
   }
 }
 
@@ -379,7 +430,7 @@
     flex-direction: column !important;
     align-items: stretch !important;
     text-align: center !important;
-    gap: 14px !important;
+    gap: calc(14px * var(--ui-scale)) !important;
   }
 
   .detailsMiniBtn {
@@ -388,9 +439,9 @@
 
   .detailsTop {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: calc(12px * var(--ui-scale)) !important;
     text-align: left !important;
-    border-radius: 26px !important;
+    border-radius: calc(26px * var(--ui-scale)) !important;
   }
 
   .detailsArrow {
@@ -425,4 +476,18 @@
   .detailsBackBtn {
     transition: none !important;
   }
+}
+.pg-wrap.detailsPage {
+  --ui-scale: 1.5;
+
+  /* ✅ largura (aprox.) do sidebar + um respiro */
+  --sidebar-space: 320px;
+
+  padding-top: calc(28px * var(--ui-scale)) !important;
+  padding-bottom: calc(3px * var(--ui-scale)) !important;
+
+  /* ✅ empurra o conteúdo pra direita sem quebrar o centro */
+  padding-left: calc((1px * var(--ui-scale)) + var(--sidebar-space)/3.33) !important;
+
+  /* mantém o resto igual... */
 }

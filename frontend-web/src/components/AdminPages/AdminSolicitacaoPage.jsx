@@ -596,7 +596,6 @@ export default function AdminSolicitacoesPage() {
           <header className="admHeader">
             <div className="admHeaderLeft">
               <h1 className="admTitle">Solicitações de Análise</h1>
-              <p className="admSubtitle">Veja e responda solicitações. Use filtros para encontrar rapidamente.</p>
             </div>
 
             <div className="admFilters" aria-label="Filtros">
