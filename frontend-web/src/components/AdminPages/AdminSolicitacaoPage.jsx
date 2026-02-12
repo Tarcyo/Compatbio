@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./AdminSolicitacaoPage.css";
+import "./AdminSolicitacoesPage.compat.css";
 
 function IconFilter(props) {
   return (
@@ -32,14 +32,17 @@ function upper(v) {
   return String(v || "").toUpperCase();
 }
 
-function Modal({ open, title, children, footer, onClose }) {
+/* =========================
+   MODAL (isolado)
+========================= */
+function Modal({ open, title, children, footer, onClose, busy }) {
   const panelRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
 
     const onKey = (e) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key === "Escape" && !busy) onClose?.();
     };
     document.addEventListener("keydown", onKey);
 
@@ -50,29 +53,42 @@ function Modal({ open, title, children, footer, onClose }) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
+  }, [open, onClose, busy]);
 
   if (!open) return null;
 
   const onOverlay = (e) => {
+    if (busy) return;
     if (panelRef.current && !panelRef.current.contains(e.target)) {
       onClose?.();
     }
   };
 
   return (
-    <div className="cbModalOverlay" onMouseDown={onOverlay} role="dialog" aria-modal="true">
-      <div className="cbModalPanel" ref={panelRef}>
-        <div className="cbModalHeader">
-          <h3 className="cbModalTitle">{title}</h3>
-          <button className="cbModalClose" type="button" onClick={onClose} aria-label="Fechar">
+    <div
+      className="cbsap-modalOverlay"
+      onMouseDown={onOverlay}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div className="cbsap-modalPanel" ref={panelRef}>
+        <div className="cbsap-modalHeader">
+          <h3 className="cbsap-modalTitle">{title}</h3>
+          <button
+            className="cbsap-modalClose"
+            type="button"
+            onClick={busy ? undefined : onClose}
+            aria-label="Fechar"
+            disabled={busy}
+          >
             ×
           </button>
         </div>
 
-        <div className="cbModalBody">{children}</div>
+        <div className="cbsap-modalBody">{children}</div>
 
-        {footer ? <div className="cbModalFooter">{footer}</div> : null}
+        {footer ? <div className="cbsap-modalFooter">{footer}</div> : null}
       </div>
     </div>
   );
@@ -80,19 +96,19 @@ function Modal({ open, title, children, footer, onClose }) {
 
 function FilterSelect({ label, value, onChange, children }) {
   return (
-    <div className="admFilter">
-      <span className="admFilterLabel">{label}</span>
+    <div className="cbsap-filter">
+      <span className="cbsap-filterLabel">{label}</span>
 
-      <div className="admSelectShell">
-        <span className="admSelectIcon" aria-hidden="true">
+      <div className="cbsap-selectShell">
+        <span className="cbsap-selectIcon" aria-hidden="true">
           <IconFilter />
         </span>
 
-        <select className="admSelect" value={value} onChange={(e) => onChange(e.target.value)}>
+        <select className="cbsap-select" value={value} onChange={(e) => onChange(e.target.value)}>
           {children}
         </select>
 
-        <span className="admSelectCaret" aria-hidden="true" />
+        <span className="cbsap-selectCaret" aria-hidden="true" />
       </div>
     </div>
   );
@@ -115,7 +131,7 @@ function StatusPill({ status }) {
       ? "is-neutral"
       : "is-neutral";
 
-  return <span className={`admStatus ${klass}`}>{status || "—"}</span>;
+  return <span className={`cbsap-status ${klass}`}>{status || "—"}</span>;
 }
 
 function getProdutoQuimicoNome(it) {
@@ -147,7 +163,7 @@ export default function AdminSolicitacoesPage() {
   const [err, setErr] = useState("");
 
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [priorityFilter, setPriorityFilter] = useState("ALL"); // ✅ default = Todos
+  const [priorityFilter, setPriorityFilter] = useState("ALL");
 
   const [items, setItems] = useState([]);
 
@@ -166,7 +182,6 @@ export default function AdminSolicitacoesPage() {
 
   const isBusy = isSaving || isMarking;
 
-  // ✅ Estado da verificação no catálogo
   const [catalog, setCatalog] = useState({
     loading: false,
     found: false,
@@ -176,11 +191,9 @@ export default function AdminSolicitacoesPage() {
     quimNome: "",
   });
 
-  // evita "race" de setState quando abre/fecha rápido
   const catalogReqIdRef = useRef(0);
 
   const closeModal = () => {
-    // invalida requisições em andamento
     catalogReqIdRef.current += 1;
     setCatalog({
       loading: false,
@@ -198,7 +211,8 @@ export default function AdminSolicitacoesPage() {
       pendentes: `${API_BASE}/admin/api/solicitacoes/analise/pendentes`,
       concluidas: `${API_BASE}/admin/api/solicitacoes/analise/concluidas`,
       catalogo: `${API_BASE}/admin/api/resultado-catalogado`,
-      marcarEmAnalise: `${API_BASE}/admin/api/solicitacoes/analise/marcar-em-analise`, // ✅ NOVO
+      marcarEmAnalise: `${API_BASE}/admin/api/solicitacoes/analise/marcar-em-analise`,
+      responder: `${API_BASE}/admin/api/solicitacoes/analise/responder`,
     };
   }, [API_BASE]);
 
@@ -260,7 +274,6 @@ export default function AdminSolicitacoesPage() {
           ]);
           list = [...p, ...c];
         } else {
-          // concluidas traz tudo que NÃO é pendente (inclui EM_ANALISE)
           list = await fetchAllPages(endpoints.concluidas, { signal: ctrl.signal });
         }
 
@@ -292,7 +305,6 @@ export default function AdminSolicitacoesPage() {
     };
   }, [endpoints, statusFilter]);
 
-  // ✅ Prioridades existentes nas solicitações atuais (dinâmico)
   const uniquePriorities = useMemo(() => {
     const set = new Set();
     items.forEach((it) => {
@@ -300,6 +312,14 @@ export default function AdminSolicitacoesPage() {
       if (Number.isFinite(p)) set.add(p);
     });
     return Array.from(set).sort((a, b) => a - b);
+  }, [items]);
+
+  const uniqueStatuses = useMemo(() => {
+    const set = new Set();
+    items.forEach((it) => {
+      if (it?.STATUS) set.add(String(it.STATUS));
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [items]);
 
   const visibleItems = useMemo(() => {
@@ -319,19 +339,10 @@ export default function AdminSolicitacoesPage() {
     return list;
   }, [items, statusFilter, priorityFilter]);
 
-  const uniqueStatuses = useMemo(() => {
-    const set = new Set();
-    items.forEach((it) => {
-      if (it?.STATUS) set.add(String(it.STATUS));
-    });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [items]);
-
   async function checkCatalogForCurrent(it) {
     const quimico = getProdutoQuimicoNome(it);
     const biologico = getProdutoBiologicoNome(it);
 
-    // se não tiver nomes válidos, não consulta
     if (!quimico || !biologico || quimico === "—" || biologico === "—") {
       setCatalog({
         loading: false,
@@ -362,7 +373,6 @@ export default function AdminSolicitacoesPage() {
 
       const res = await fetch(url.toString(), { credentials: "include" });
 
-      // se já houve outro open/close, ignora
       if (reqId !== catalogReqIdRef.current) return;
 
       if (res.status === 404) {
@@ -407,7 +417,6 @@ export default function AdminSolicitacoesPage() {
   const openReply = (it) => {
     const currentStatus = upper(it?.STATUS);
 
-    // replyStatus é só para o "resultado final", então não usa EM_ANALISE/PENDENTE
     const allowedReply = new Set(["COMPATIVEL", "INCOMPATIVEL", "PARCIAL"]);
     const defaultStatus = allowedReply.has(currentStatus) ? currentStatus : "COMPATIVEL";
 
@@ -422,7 +431,6 @@ export default function AdminSolicitacoesPage() {
       current: it,
     });
 
-    // ✅ checa catálogo ao abrir o modal
     checkCatalogForCurrent(it);
   };
 
@@ -450,16 +458,8 @@ export default function AdminSolicitacoesPage() {
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || `Erro HTTP ${res.status}`);
 
-      // Atualiza lista local
       setItems((prev) =>
-        prev.map((it) =>
-          it.ID === current.ID
-            ? {
-                ...it,
-                STATUS: "EM_ANALISE",
-              }
-            : it
-        )
+        prev.map((it) => (it.ID === current.ID ? { ...it, STATUS: "EM_ANALISE" } : it))
       );
 
       setModal({
@@ -494,7 +494,7 @@ export default function AdminSolicitacoesPage() {
         descricao: replyDesc?.trim() ? replyDesc.trim() : null,
       };
 
-      const res = await fetch(`${API_BASE}/admin/api/solicitacoes/analise/responder`, {
+      const res = await fetch(endpoints.responder, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -507,11 +507,7 @@ export default function AdminSolicitacoesPage() {
       setItems((prev) =>
         prev.map((it) =>
           it.ID === current.ID
-            ? {
-                ...it,
-                STATUS: replyStatus,
-                DESCRICAO: replyDesc,
-              }
+            ? { ...it, STATUS: replyStatus, DESCRICAO: replyDesc }
             : it
         )
       );
@@ -542,10 +538,7 @@ export default function AdminSolicitacoesPage() {
     const current = modal.current;
     const st = upper(current?.STATUS);
 
-    // só faz sentido para pendente
     if (st !== "PENDENTE") return false;
-
-    // só aparece quando NÃO existe combinação catalogada
     if (catalog.loading) return false;
     if (catalog.error) return false;
     if (catalog.found && catalog.resultado) return false;
@@ -559,17 +552,22 @@ export default function AdminSolicitacoesPage() {
     if (modal.mode === "form") {
       return (
         <>
-          <button className="cbBtnGhost" type="button" onClick={closeModal} disabled={isBusy}>
+          <button className="cbsap-btnGhost" type="button" onClick={closeModal} disabled={isBusy}>
             Cancelar
           </button>
 
           {canShowMarkAsAnalysis ? (
-            <button className="cbBtnGhost cbBtnGhost--info" type="button" onClick={markAsInAnalysis} disabled={isBusy}>
+            <button
+              className="cbsap-btnGhost cbsap-btnGhost--info"
+              type="button"
+              onClick={markAsInAnalysis}
+              disabled={isBusy}
+            >
               {isMarking ? "Marcando..." : "Marcar como em análise"}
             </button>
           ) : null}
 
-          <button className="cbBtnPrimary" type="button" onClick={saveReply} disabled={isBusy}>
+          <button className="cbsap-btnPrimary" type="button" onClick={saveReply} disabled={isBusy}>
             {isSaving ? "Salvando..." : "Salvar"}
           </button>
         </>
@@ -577,33 +575,35 @@ export default function AdminSolicitacoesPage() {
     }
 
     return (
-      <button className="cbBtnPrimary" type="button" onClick={closeModal}>
+      <button className="cbsap-btnPrimary" type="button" onClick={closeModal}>
         Ok
       </button>
     );
   })();
 
   const modalIcon = (() => {
-    if (modal.mode === "success") return <IconCheck className="cbModalIcon is-success" />;
-    if (modal.mode === "error") return <IconAlert className="cbModalIcon is-error" />;
+    if (modal.mode === "success") return <IconCheck className="cbsap-modalIcon is-success" />;
+    if (modal.mode === "error") return <IconAlert className="cbsap-modalIcon is-error" />;
     return null;
   })();
 
   return (
-    <div className="pg-wrap">
-      <div className="analysisPage">
-        <div className="pg-card admCard">
-          <header className="admHeader">
-            <div className="admHeaderLeft">
-              <h1 className="admTitle">Solicitações de Análise</h1>
+    <div className="cbsap-root">
+      <div className="cbsap-page">
+        <div className="cbsap-card">
+          <header className="cbsap-header">
+            <div className="cbsap-headerLeft">
+              <h1 className="cbsap-title">Solicitações de Análise</h1>
+              <p className="cbsap-subtitle">
+                Filtre por prioridade e status para encontrar rapidamente as solicitações.
+              </p>
             </div>
 
-            <div className="admFilters" aria-label="Filtros">
-              {/* ✅ Dropdown dinâmico: só prioridades existentes em items */}
+            <div className="cbsap-filters" aria-label="Filtros">
               <FilterSelect label="Prioridade" value={priorityFilter} onChange={setPriorityFilter}>
                 <option value="ALL">Todas</option>
                 {uniquePriorities.map((p) => (
-                  <option key={String(p)} value={String(p)}>
+                  <option key={`prio-${p}`} value={String(p)}>
                     {p}
                   </option>
                 ))}
@@ -613,15 +613,17 @@ export default function AdminSolicitacoesPage() {
                 <option value="ALL">Todos</option>
                 <option value="PENDENTE">PENDENTE</option>
                 <option value="EM_ANALISE">EM ANÁLISE</option>
-
                 <option value="COMPATIVEL">COMPATÍVEL</option>
                 <option value="INCOMPATIVEL">INCOMPATÍVEL</option>
                 <option value="PARCIAL">PARCIAL</option>
 
                 {uniqueStatuses
-                  .filter((s) => !["PENDENTE", "EM_ANALISE", "COMPATIVEL", "INCOMPATIVEL", "PARCIAL"].includes(upper(s)))
+                  .filter(
+                    (s) =>
+                      !["PENDENTE", "EM_ANALISE", "COMPATIVEL", "INCOMPATIVEL", "PARCIAL"].includes(upper(s))
+                  )
                   .map((s) => (
-                    <option key={s} value={s}>
+                    <option key={`status-${s}`} value={s}>
                       {s}
                     </option>
                   ))}
@@ -629,52 +631,58 @@ export default function AdminSolicitacoesPage() {
             </div>
           </header>
 
-          <div className="admBody">
+          <div className="cbsap-body">
             {loading ? (
-              <div className="admState">Carregando...</div>
+              <div className="cbsap-state">Carregando...</div>
             ) : err ? (
-              <div className="admState is-error">{err}</div>
+              <div className="cbsap-state is-error">{err}</div>
             ) : visibleItems.length === 0 ? (
-              <div className="admState">Nenhuma solicitação encontrada.</div>
+              <div className="cbsap-state">Nenhuma solicitação encontrada.</div>
             ) : (
-              <ul className="admCards" aria-label="Lista de solicitações">
-                {visibleItems.map((it) => {
-                  const id = it?.ID ?? "—";
+              <ul className="cbsap-cards" aria-label="Lista de solicitações">
+                {visibleItems.map((it, idx) => {
+                  const id = it?.ID ?? null;
                   const quimico = getProdutoQuimicoNome(it);
                   const biologico = getProdutoBiologicoNome(it);
                   const desc = (it?.DESCRICAO ?? "").toString().trim();
 
+                  // ✅ key única e estável (evita “mix” entre renders)
+                  const key =
+                    id != null
+                      ? `sol-${id}`
+                      : `sol-${upper(it?.STATUS)}-${String(quimico)}-${String(biologico)}-${idx}`;
+
                   return (
-                    <li key={String(id)} className="admCardItem">
-                      <div className="admCardTop">
-                        <div className="admCardLeft">
-                          <div className="admCardTitleRow">
+                    <li key={key} className="cbsap-cardItem">
+                      <div className="cbsap-cardTop">
+                        <div className="cbsap-cardLeft">
+                          <div className="cbsap-cardTitleRow">
                             <StatusPill status={it?.STATUS} />
                           </div>
 
-                          <div className="admProductLine" title={`${quimico} → ${biologico}`}>
-                            <span className="admProductName">{quimico}</span>
-                            <span className="admProductArrow" aria-hidden="true">
+                          <div className="cbsap-productLine" title={`${quimico} → ${biologico}`}>
+                            <span className="cbsap-productName">{quimico}</span>
+                            <span className="cbsap-productArrow" aria-hidden="true">
                               →
                             </span>
-                            <span className="admProductName">{biologico}</span>
+                            <span className="cbsap-productName">{biologico}</span>
                           </div>
                         </div>
 
-                        <div className="admCardRight">
-                          <button type="button" className="admReplyBtn" onClick={() => openReply(it)}>
+                        <div className="cbsap-cardRight">
+                          <button type="button" className="cbsap-replyBtn" onClick={() => openReply(it)}>
                             Responder
                           </button>
                         </div>
                       </div>
 
                       {desc ? (
-                        <details className="admDetails">
-                          <summary className="admSummary">Ver descrição</summary>
-                          <p className="admDesc">{desc}</p>
+                        <details className="cbsap-details">
+                          <summary className="cbsap-summary">Ver descrição</summary>
+                          <p className="cbsap-desc">{desc}</p>
                         </details>
                       ) : (
-                        <p className="admDesc admDesc--empty">Sem descrição.</p>
+                        <p className="cbsap-desc cbsap-desc--empty">Sem descrição.</p>
                       )}
                     </li>
                   );
@@ -685,34 +693,44 @@ export default function AdminSolicitacoesPage() {
         </div>
       </div>
 
-      <Modal open={modal.open} title={modal.title} onClose={isBusy ? undefined : closeModal} footer={modalFooter}>
+      <Modal
+        open={modal.open}
+        title={modal.title}
+        onClose={closeModal}
+        footer={modalFooter}
+        busy={isBusy}
+      >
         {modal.mode === "form" ? (
-          <div className="admModalForm">
-            {/* ✅ Área de verificação de catálogo */}
+          <div className="cbsap-modalForm">
+            {/* catálogo */}
             {catalog.loading ? (
-              <div className="admCatalogHint">Verificando catálogo de resultados...</div>
+              <div className="cbsap-catalogHint">Verificando catálogo de resultados...</div>
             ) : catalog.error ? (
-              <div className="admCatalogHint is-error">{catalog.error}</div>
+              <div className="cbsap-catalogHint is-error">{catalog.error}</div>
             ) : catalog.found && catalog.resultado ? (
-              <div className="admCatalogBanner">
-                <div className="admCatalogBannerTop">
+              <div className="cbsap-catalogBanner">
+                <div className="cbsap-catalogBannerTop">
                   <div>
-                    <p className="admCatalogBannerTitle">Já existe um resultado catalogado para esta combinação.</p>
-                    <div className="admCatalogBannerMeta">
+                    <p className="cbsap-catalogBannerTitle">
+                      Já existe um resultado catalogado para esta combinação.
+                    </p>
+
+                    <div className="cbsap-catalogBannerMeta">
                       <div>
                         <span style={{ opacity: 0.85 }}>Status catalogado:</span>{" "}
                         <StatusPill status={catalog.resultado?.STATUS} />
                       </div>
-                      <div className="admCatalogSmall" style={{ marginTop: 6 }}>
+
+                      <div className="cbsap-catalogSmall" style={{ marginTop: 6 }}>
                         {catalog.quimNome} → {catalog.bioNome} (ID: {catalog.resultado?.ID ?? "—"})
                       </div>
                     </div>
                   </div>
 
-                  <div className="admCatalogActions">
+                  <div className="cbsap-catalogActions">
                     <button
                       type="button"
-                      className="admCatalogLoadBtn"
+                      className="cbsap-catalogLoadBtn"
                       onClick={loadCatalogResult}
                       disabled={isBusy}
                       title="Preenche o formulário com o resultado do catálogo"
@@ -723,26 +741,26 @@ export default function AdminSolicitacoesPage() {
                 </div>
               </div>
             ) : (
-              <div className="admCatalogHint admCatalogHint--missing">
+              <div className="cbsap-catalogHint cbsap-catalogHint--missing">
                 Nenhum resultado catalogado encontrado para esta combinação.
                 {upper(modal.current?.STATUS) === "PENDENTE" ? (
-                  <span className="admCatalogHintSub">
+                  <span className="cbsap-catalogHintSub">
                     Você pode marcar a solicitação como <b>EM ANÁLISE</b>.
                   </span>
                 ) : null}
               </div>
             )}
 
-            <div className="admModalRow">
-              <label className="admModalLabel">Resultado</label>
+            <div className="cbsap-modalRow">
+              <label className="cbsap-modalLabel">Resultado</label>
 
-              <div className="admSelectShell admSelectShell--modal">
-                <span className="admSelectIcon" aria-hidden="true">
+              <div className="cbsap-selectShell cbsap-selectShell--modal">
+                <span className="cbsap-selectIcon" aria-hidden="true">
                   <IconFilter />
                 </span>
 
                 <select
-                  className="admSelect"
+                  className="cbsap-select"
                   value={replyStatus}
                   onChange={(e) => setReplyStatus(e.target.value)}
                   disabled={isBusy}
@@ -752,14 +770,14 @@ export default function AdminSolicitacoesPage() {
                   <option value="PARCIAL">PARCIAL</option>
                 </select>
 
-                <span className="admSelectCaret" aria-hidden="true" />
+                <span className="cbsap-selectCaret" aria-hidden="true" />
               </div>
             </div>
 
-            <div className="admModalRow">
-              <label className="admModalLabel">Descrição</label>
+            <div className="cbsap-modalRow">
+              <label className="cbsap-modalLabel">Descrição</label>
               <textarea
-                className="admModalTextarea"
+                className="cbsap-modalTextarea"
                 value={replyDesc}
                 onChange={(e) => setReplyDesc(e.target.value)}
                 placeholder="Escreva a descrição da resposta..."
@@ -769,9 +787,9 @@ export default function AdminSolicitacoesPage() {
             </div>
           </div>
         ) : (
-          <div className="cbModalContent">
+          <div className="cbsap-modalContent">
             {modalIcon}
-            <p className="cbModalText">{modal.message}</p>
+            <p className="cbsap-modalText">{modal.message}</p>
           </div>
         )}
       </Modal>

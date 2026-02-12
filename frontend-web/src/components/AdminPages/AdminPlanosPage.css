@@ -1,153 +1,147 @@
-/* =========================
-   AdminPlanosPage.css — SOLID + PÍLULAS + RESPONSIVO
-   ✅ Sem glassmorphism
-   ✅ Grid auto-fit responsivo
-   ✅ Header/toolbar quebram bem
-   ✅ Botão vira full width no mobile
-   ✅ Modal 100% no celular
-========================= */
+/* AdminPlanosPage.css — LIGHT + GLASS
+   ✅ Sidebar reservada
+   ✅ Card com altura máxima travada
+   ✅ Scrollbar interna (somente lista)
+   ✅ Itens nunca vazam do card
+*/
 
-/* =========================
-   Wrapper da página
-========================= */
-.analysisPage{
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: clamp(14px, 2.6vw, 24px) !important;
-  box-sizing: border-box;
+html, body, #root { height: 100%; }
+body { margin: 0; }
+
+:root{
+  --accent: rgba(160, 234, 82, 1);
+
+  --bg-0: #ffffff;
+  --bg-1: #f7f8fb;
+
+  --border: rgba(15, 23, 42, 0.12);
+  --border-2: rgba(15, 23, 42, 0.08);
+
+  --text: rgba(31, 41, 55, 0.92);
+
+  --shadow-lg: 0 30px 90px rgba(15,23,42,0.14);
+  --shadow: 0 16px 44px rgba(15,23,42,0.12);
+  --shadow-soft: 0 12px 28px rgba(15,23,42,0.10);
+
+  --glass-border: rgba(255,255,255,0.36);
+
+  --r-xl: 38px;
+  --r-lg: 30px;
+  --pill: 9999px;
 }
 
-/* =========================
-   TOKENS (escopo do card + modal)
-========================= */
-.apCard,
-.cbModalPanel{
-  --accent: rgba(160,234,82,1);
+/* ✅ wrapper da página reserva sidebar */
+.apPage{
+  --sidebarW: 400px;  /* ajuste para a largura real */
+  --pagePad: 24px;
+  --cardMaxH: 980px;  /* ✅ limite vertical extra (além do viewport) */
 
-  --bg-0: #2a3443;
-  --bg-1: #222b38;
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: var(--sidebarW) !important;
 
-  --panel: #39465b;
-  --panel2: #334156;
+  height: 100dvh !important;
+  overflow: hidden !important;
 
-  --tile: #344256;
-  --tile2: #2f3c50;
+  padding: var(--pagePad) !important;
+  box-sizing: border-box !important;
 
-  --btn-0: #3b4961;
-  --btn-1: #313e54;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
 
-  --stroke-0: rgba(255,255,255,0.14);
-  --stroke-1: rgba(255,255,255,0.18);
-
-  --text-0: rgba(255,255,255,0.96);
-  --text-1: rgba(255,255,255,0.84);
-  --text-2: rgba(255,255,255,0.68);
-
-  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
-  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
-
-  --r-xl: 28px;
-  --r-lg: 22px;
-  --r-md: 18px;
-  --r-pill: 9999px;
+  min-height: 0 !important;
 }
 
-/* =========================
-   CARD PRINCIPAL
-========================= */
+@media (max-width: 980px){
+  .apPage{
+    left: 0 !important;
+    --sidebarW: 0px;
+    --pagePad: 18px;
+  }
+}
+
+.apCard, .apCard *{
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision !important;
+}
+
+/* ✅ card travado no viewport + limite extra máximo */
 .apCard{
-  width: min(1100px, 100%) !important;
-  padding: clamp(20px, 3vw, 40px) !important;
+  width: min(1700px, 100%) !important;
+  max-width: 100% !important;
+
+  height: calc(100dvh - (var(--pagePad) * 2)) !important;
+  max-height: min(calc(100dvh - (var(--pagePad) * 2)), var(--cardMaxH)) !important;
+
+  min-height: 0 !important;          /* ✅ essencial */
+  overflow: hidden !important;        /* ✅ nada vaza */
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  padding: 60px 66px 30px !important;
   border-radius: var(--r-xl) !important;
 
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  border: 1px solid var(--stroke-0) !important;
-
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-
-  color: var(--text-0) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  box-sizing: border-box;
-}
-
-/* brilho sutil */
-.apCard::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:-2px !important;
-  pointer-events:none !important;
-  border-radius:inherit !important;
   background:
-    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%) !important;
-  opacity:.88 !important;
-}
-.apCard::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  pointer-events:none !important;
-  border-radius:inherit !important;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0.05) 0%,
-    rgba(255,255,255,0.00) 44%,
-    rgba(255,255,255,0.03) 100%
-  ) !important;
-  opacity:.50 !important;
-}
-.apCard > *{ position:relative !important; z-index:1 !important; }
+    radial-gradient(1350px 567px at 12% 108%, rgba(160,234,82,0.18), rgba(255,255,255,0) 60%),
+    radial-gradient(1215px 567px at 88% 108%, rgba(160,234,82,0.10), rgba(255,255,255,0) 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(247,248,251,0.66) 100%) !important;
 
-/* =========================
-   Header
-========================= */
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.55) !important;
+
+  position: relative !important;
+  -webkit-backdrop-filter: blur(19px) saturate(1.15) !important;
+  backdrop-filter: blur(19px) saturate(1.15) !important;
+
+  color: var(--text) !important;
+}
+
+.apCard > *{ position: relative !important; z-index: 1 !important; }
+
 .apHeader{
   display:flex !important;
   align-items:flex-start !important;
   justify-content:space-between !important;
-  gap: 14px !important;
-  margin: 0 0 18px !important;
-  padding-bottom: 14px !important;
-  border-bottom:1px solid rgba(255,255,255,0.12) !important;
+  gap: 24px !important;
+
+  margin: 0 0 28px !important;
+  padding: 0 12px 20px 0 !important;
+  border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+
   flex-wrap: wrap !important;
 }
 
-.apHeaderLeft{
-  min-width: 0 !important;
-  flex: 1 1 420px !important;
-}
-
 .apTitle{
-  margin:0 !important;
-  font-size: clamp(24px, 3vw, 34px) !important;
-  font-weight: 950 !important;
-  line-height: 1.1 !important;
-  text-shadow: 0 12px 30px rgba(0, 0, 0, 0.38) !important;
+  margin: 0 !important;
+  font-size: clamp(40px, 4.6vw, 54px) !important;
+  font-weight: 1000 !important;
+  letter-spacing: -0.02em !important;
 }
 
 .apSubtitle{
-  margin: 10px 0 0 !important;
-  color: var(--text-2) !important;
-  font-weight: 760 !important;
+  margin: 12px 0 0 !important;
+  font-size: 20px !important;
+  font-weight: 850 !important;
+  color: rgba(75,85,99,0.86) !important;
   line-height: 1.35 !important;
-  max-width: 560px !important;
+  max-width: 720px !important;
 }
 
-/* =========================
-   Add button — pílula
-========================= */
 .apAddBtn{
-  height: 52px !important;
-  padding: 0 18px !important;
-  border-radius: var(--r-pill) !important;
-
-  border: 1px solid rgba(255,255,255,0.18) !important;
+  height: 78px !important;
+  padding: 0 28px !important;
+  border-radius: var(--pill) !important;
+  border: 1px solid rgba(94,133,66,0.25) !important;
 
   background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%) !important;
+    linear-gradient(180deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(94,133,66,0.98) 100%) !important;
 
   color: rgba(255,255,255,0.98) !important;
   font-weight: 1000 !important;
@@ -155,978 +149,258 @@
   cursor:pointer !important;
   display:flex !important;
   align-items:center !important;
-  justify-content: center !important;
-  gap:10px !important;
+  gap: 14px !important;
 
-  box-shadow: 0 14px 30px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18) !important;
-  transition: transform 180ms ease, filter 180ms ease !important;
+  box-shadow: 0 22px 46px rgba(15,23,42,0.14), inset 0 1px 0 rgba(255,255,255,0.18) !important;
   white-space: nowrap !important;
 }
-.apAddBtn:hover{ transform: translateY(-1px) !important; filter: brightness(1.03) !important; }
-.apAddBtn:active{ transform: translateY(0) !important; }
-.apAddIcon{ width:18px !important; height:18px !important; }
 
-/* =========================
-   Toolbar (search + stats)
-========================= */
 .apToolbar{
   display:flex !important;
-  gap: 12px !important;
-  align-items: flex-end !important;
-  justify-content: space-between !important;
+  gap: 18px !important;
+  align-items:flex-end !important;
+  justify-content:space-between !important;
+
+  margin-top: 18px !important;
+  padding: 0 12px 22px 0 !important;
   flex-wrap: wrap !important;
-  margin-top: 14px !important;
+
+  border-bottom: 1px solid rgba(15,23,42,0.08) !important;
 }
 
 .apSearch{
-  flex: 1 1 420px !important;
-  min-width: 0 !important;
+  flex: 1 !important;
+  min-width: min(780px, 100%) !important;
 
   position: relative !important;
-  height: 56px !important;
-  border-radius: var(--r-pill) !important;
+  height: 82px !important;
+  border-radius: var(--pill) !important;
 
-  display:flex !important;
+  display:grid !important;
+  grid-template-columns: 72px 1fr !important;
   align-items:center !important;
 
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-  border: 1px solid var(--stroke-1) !important;
+  background: rgba(255,255,255,0.62) !important;
+  border: 1px solid var(--glass-border) !important;
 
-  box-shadow:
-    0 16px 42px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.75) !important;
 
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
-}
-
-.apSearch:hover{
-  transform: translateY(-1px) !important;
-  filter: brightness(1.04) !important;
-  border-color: rgba(255,255,255,0.20) !important;
-}
-
-.apSearch:focus-within{
-  transform: translateY(-1px) !important;
-  border-color: rgba(160,234,82,0.30) !important;
-  box-shadow:
-    0 0 0 4px rgba(160,234,82,0.10),
-    0 18px 52px rgba(0,0,0,0.24),
-    inset 0 1px 0 rgba(255,255,255,0.10) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.12) !important;
+  backdrop-filter: blur(16px) saturate(1.12) !important;
 }
 
 .apSearchIcon{
-  width: 52px !important;
+  display:grid !important;
+  place-items:center !important;
+  color: rgba(31,41,55,0.86) !important;
+}
+.apSearchIcon svg{ width: 26px !important; height: 26px !important; }
+
+.apSearchInput{
   height: 100% !important;
-  display: grid !important;
-  place-items: center !important;
-  color: rgba(255,255,255,0.90) !important;
-}
-.apSearchIcon svg{
-  width: 20px !important;
-  height: 20px !important;
-  opacity: .95 !important;
-}
-
-/* INPUT base */
-.apInput{
-  width:100% !important;
-  height: 52px !important;
-  border-radius: var(--r-pill) !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-
-  color: rgba(255,255,255,0.94) !important;
-  padding: 0 16px !important;
-
-  outline:none !important;
-  font-weight: 820 !important;
-
-  box-shadow:
-    0 16px 38px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.08) !important;
-
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
-  box-sizing: border-box !important;
-}
-.apInput:focus{
-  border-color: rgba(160,234,82,0.30) !important;
-  box-shadow:
-    0 0 0 4px rgba(160,234,82,0.10),
-    0 18px 48px rgba(0,0,0,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.10) !important;
-}
-
-/* INPUT dentro da SEARCH */
-.apSearchInput.apInput{
-  height: 100% !important;
+  width: 100% !important;
   border: 0 !important;
+  outline: none !important;
   background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 18px 0 0 !important;
+
+  padding: 0 26px 0 0 !important;
   border-radius: inherit !important;
 
-  font-size: 16px !important;
-  font-weight: 850 !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  color: rgba(31,41,55,0.92) !important;
   min-width: 0 !important;
-}
-.apSearchInput::placeholder{
-  color: rgba(255,255,255,0.62) !important;
-  font-weight: 700 !important;
-}
-.apSearchInput:focus{
-  box-shadow: none !important;
-  border-color: transparent !important;
 }
 
-/* Stats */
-.apStats{
-  flex: 0 0 auto !important;
-  display:flex !important;
-  align-items:center !important;
-  gap: 10px !important;
-  min-width: 0 !important;
-}
+.apStats{ display:flex !important; align-items:flex-end !important; }
 .apStat{
-  display:flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
+  display:grid !important;
+  gap: 8px !important;
 
-  padding: 10px 14px !important;
-  border-radius: var(--r-pill) !important;
+  padding: 18px 22px !important;
+  border-radius: 26px !important;
 
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.14) !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
 
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
-}
-.apStat strong{
-  font-size: 16px !important;
-  font-weight: 1000 !important;
-  line-height: 1 !important;
-}
-.apStat span{
-  font-size: 12px !important;
-  color: rgba(255,255,255,0.72) !important;
-  font-weight: 850 !important;
-  letter-spacing: .06em !important;
-  text-transform: uppercase !important;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  min-width: 200px !important;
 }
 
-/* =========================
-   Body / states
-========================= */
-.apBody{ margin-top: 18px !important; }
+/* ✅ ÁREA ROLÁVEL (só aqui existe scroll) */
+.apScroll{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;         /* ✅ essencial para scroll funcionar em flex */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;    /* ✅ nada vaza lateral */
+  padding-bottom: 12px !important;  /* ✅ evita “cortar” última linha */
+
+  scrollbar-gutter: stable both-edges;
+  overscroll-behavior: contain;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15,23,42,0.18) transparent;
+}
+.apScroll::-webkit-scrollbar{ width: 12px; height: 12px; }
+.apScroll::-webkit-scrollbar-track{ background: transparent; }
+.apScroll::-webkit-scrollbar-thumb{
+  background-color: rgba(15,23,42,0.16);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.apScroll::-webkit-scrollbar-thumb:hover{
+  background-color: rgba(15,23,42,0.24);
+}
+
+/* ✅ apBody não pode “empurrar” o card */
+.apBody{
+  margin-top: 24px !important;
+  padding: 0 12px 0 0 !important;
+
+  min-height: 0 !important;
+  overflow: hidden !important;      /* ✅ garante que itens não escapem do card */
+}
 
 .apState{
-  padding: 18px 14px !important;
-  color: rgba(255,255,255,0.78) !important;
-  font-weight: 850 !important;
+  padding: 19px 22px !important;
+  border-radius: 30px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
+  border: 1px solid var(--border) !important;
+  font-weight: 900 !important;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+  font-size: 19px !important;
 }
-.apState.is-error{ color: rgba(255,120,120,0.95) !important; }
+.apState.is-error{
+  border-color: rgba(239, 68, 68, 0.24) !important;
+  background: linear-gradient(180deg, rgba(239,68,68,0.10), rgba(239,68,68,0.06)) !important;
+  color: rgba(127,29,29,0.96) !important;
+}
 
-/* =========================
-   Grid cards (responsivo real)
-========================= */
+/* GRID */
 .apGrid{
   list-style:none !important;
-  margin:0 !important;
-  padding:0 !important;
+  margin: 0 !important;
+  padding: 0 0 12px 0 !important;
 
   display:grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-  gap: 14px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+
+  min-width: 0 !important;
+}
+@media (max-width: 1180px){
+  .apGrid{ grid-template-columns: 1fr !important; }
 }
 
-/* Tile */
+/* Item card */
 .apItem{
   border-radius: var(--r-lg) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.90) !important;
 
-  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 14px 34px rgba(0,0,0,0.18) !important;
-
-  padding: 16px !important;
+  padding: 22px !important;
   min-width: 0 !important;
 }
 
 .apItemTop{
   display:flex !important;
-  justify-content:space-between !important;
   align-items:flex-start !important;
-  gap: 12px !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  min-width: 0 !important;
 }
 
-.apItemMain{ min-width: 0 !important; }
+.apItemMain{ flex: 1 !important; min-width: 0 !important; }
 
 .apItemName{
-  font-size: 16.5px !important;
+  font-size: 24px !important;
   font-weight: 1000 !important;
-  line-height: 1.25 !important;
-  color: rgba(255,255,255,0.96) !important;
+  line-height: 1.2 !important;
+  color: rgba(31,41,55,0.92) !important;
 
-  overflow:hidden !important;
+  overflow: hidden !important;         /* ✅ evita estourar largura */
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
 
 .apItemMeta{
-  margin-top: 12px !important;
+  margin-top: 14px !important;
   display:flex !important;
-  gap: 10px !important;
+  gap: 12px !important;
   flex-wrap: wrap !important;
+  min-width: 0 !important;
 }
 
 /* Pills */
 .apPill{
-  font-size: 12px !important;
+  font-size: 15px !important;
   font-weight: 1000 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
 
-  padding: 7px 12px !important;
+  padding: 10px 16px !important;
   border-radius: 999px !important;
 
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: rgba(0,0,0,0.16) !important;
-  color: rgba(255,255,255,0.90) !important;
+  border: 1px solid var(--border-2) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
 
-  display: inline-flex !important;
-  align-items: center !important;
+  color: rgba(55,65,81,0.86) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85) !important;
+
+  display:inline-flex !important;
+  align-items:center !important;
   gap: 10px !important;
+
   max-width: 100% !important;
+  min-width: 0 !important;
 }
-.apPillK{ opacity: .74 !important; font-weight: 950 !important; }
+
+.apPillK{ opacity: .85 !important; }
+
 .apPillV{
-  opacity: 1 !important;
-  font-weight: 1000 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+
   overflow:hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
-  max-width: 240px !important;
+
+  max-width: 520px !important;
+  min-width: 0 !important;
 }
 
 /* Actions */
 .apItemActions{
   display:flex !important;
-  gap: 10px !important;
+  gap: 12px !important;
   flex: 0 0 auto !important;
 }
 
 .apIconBtn{
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: var(--r-pill) !important;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: var(--pill) !important;
 
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
+  border: 1px solid var(--border) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
 
-  cursor:pointer !important;
   display:grid !important;
   place-items:center !important;
+  cursor:pointer !important;
 
-  box-shadow: 0 12px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  transition: filter 160ms ease, transform 160ms ease !important;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.90) !important;
 }
-.apIconBtn:hover{ filter: brightness(1.06) !important; transform: translateY(-1px) !important; }
-.apIconBtn:active{ transform: translateY(0) !important; }
+
 .apIconBtn.is-danger{
-  border-color: rgba(255,120,120,0.28) !important;
-  background: rgba(255,120,120,0.12) !important;
-}
-.apIcon{ width: 18px !important; height: 18px !important; color: rgba(255,255,255,0.90) !important; }
-
-/* =========================
-   Form
-========================= */
-.apForm{ display: grid !important; gap: 14px !important; }
-.apRow{ display: grid !important; gap: 8px !important; }
-
-.apLabel{
-  display:block !important;
-  margin:0 !important;
-  font-size: 12.5px !important;
-  font-weight: 950 !important;
-  letter-spacing: 0.12em !important;
-  text-transform: uppercase !important;
-  color: rgba(255,255,255,0.82) !important;
+  border-color: rgba(239, 68, 68, 0.24) !important;
+  background: rgba(239,68,68,0.10) !important;
 }
 
-.apHelp{
-  color: var(--text-2) !important;
-  font-weight: 760 !important;
-  font-size: 12.5px !important;
-  line-height: 1.35 !important;
-}
+.apIcon{ width: 26px !important; height: 26px !important; color: rgba(55,65,81,0.90) !important; }
 
-.apTwoCols{
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-}
-
-/* Preview */
-.apPreview{
-  margin-top: 6px !important;
-  display: grid !important;
-  gap: 10px !important;
-}
-.apPreviewTitle{
-  font-weight: 950 !important;
-  letter-spacing: .06em !important;
-  color: rgba(255,255,255,0.88) !important;
-}
-.apPreviewCard{
-  border-radius: var(--r-lg) !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.14) !important;
-  padding: 14px !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
-}
-.apPreviewName{
-  font-weight: 1000 !important;
-  color: rgba(255,255,255,0.96) !important;
-  margin-bottom: 6px !important;
-}
-.apPreviewMeta{
-  display:flex !important;
-  flex-wrap: wrap !important;
-  gap: 10px !important;
-  color: rgba(255,255,255,0.76) !important;
-  font-weight: 800 !important;
-  font-size: 13px !important;
-}
-.apPreviewStripe{
-  margin-top: 8px !important;
-  color: rgba(255,255,255,0.70) !important;
-  font-weight: 800 !important;
-  font-size: 13px !important;
-  overflow:hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-/* Delete modal content */
-.apDeleteBox{
-  display: grid !important;
-  gap: 10px !important;
-}
-.apDeleteText{
-  margin: 0 !important;
-  color: rgba(255,255,255,0.92) !important;
-  font-weight: 850 !important;
-  line-height: 1.4 !important;
-}
-.apDeleteWarn{
-  margin: 0 !important;
-  color: rgba(255,255,255,0.72) !important;
-  font-weight: 760 !important;
-  line-height: 1.35 !important;
-}
-.apDangerBtn{
-  border-color: rgba(255,120,120,0.30) !important;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(255,120,120,0.96) 0%, rgba(180,40,40,0.96) 100%) !important;
-}
-
-/* =========================
-   Modal + botões (solid)
-========================= */
-.cbModalOverlay{
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 9999 !important;
-
-  display: grid !important;
-  place-items: center !important;
-
-  background: rgba(0,0,0,0.70) !important;
-  padding: 18px !important;
-}
-
-.cbModalPanel{
-  width: min(620px, 100%) !important;
-  border-radius: 26px !important;
-
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  border: 1px solid var(--stroke-0) !important;
-
-  box-shadow: 0 34px 90px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  overflow: hidden !important;
-
-  color: rgba(255,255,255,0.96) !important;
-}
-
-.cbModalHeader{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  gap:12px !important;
-
-  padding: 16px 18px !important;
-  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
-}
-
-.cbModalTitle{
-  margin:0 !important;
-  color: rgba(255,255,255,0.95) !important;
-  font-size: 18px !important;
-  font-weight: 950 !important;
-}
-
-.cbModalClose{
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 9999px !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
-  color: rgba(255,255,255,0.92) !important;
-
-  font-size: 22px !important;
-  font-weight: 900 !important;
-
-  cursor:pointer !important;
-  display:grid !important;
-  place-items:center !important;
-
-  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  transition: transform 160ms ease, filter 160ms ease !important;
-}
-.cbModalClose:hover{ transform: translateY(-1px) !important; filter: brightness(1.06) !important; }
-.cbModalClose:disabled{ opacity: .6 !important; cursor:not-allowed !important; transform:none !important; filter:none !important; }
-
-.cbModalBody{
-  padding: 18px 18px 6px !important;
-  max-height: min(70vh, 720px) !important;
-  overflow: auto !important;
-}
-
-.cbModalFooter{
-  display:flex !important;
-  justify-content:flex-end !important;
-  gap:10px !important;
-
-  padding: 14px 18px 18px !important;
-  border-top: 1px solid rgba(255,255,255,0.12) !important;
-  flex-wrap: wrap !important;
-}
-
-.cbBtnPrimary, .cbBtnGhost{
-  height: 46px !important;
-  padding: 0 18px !important;
-  border-radius: 9999px !important;
-
-  font-weight: 950 !important;
-  cursor: pointer !important;
-  user-select:none !important;
-
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
-}
-
-.cbBtnPrimary{
-  border: 1px solid rgba(255,255,255,0.18) !important;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%) !important;
-  color: rgba(255,255,255,0.98) !important;
-  box-shadow: 0 14px 34px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18) !important;
-}
-
-.cbBtnGhost{
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
-  color: rgba(255,255,255,0.94) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-}
-
-.cbBtnPrimary:hover, .cbBtnGhost:hover{
-  transform: translateY(-1px) !important;
-  filter: brightness(1.05) !important;
-}
-
-.cbBtnPrimary:disabled, .cbBtnGhost:disabled{
-  opacity: .6 !important;
-  cursor:not-allowed !important;
-  transform:none !important;
-  filter:none !important;
-}
-
-/* ✅ Autofill sem “fundo preto” */
-.apSearchInput:-webkit-autofill,
-.apInput:-webkit-autofill{
-  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
-  -webkit-text-fill-color: rgba(255,255,255,0.94) !important;
-  transition: background-color 999999s ease-in-out 0s !important;
-}
-
-/* =========================
-   RESPONSIVO (forte)
-========================= */
-@media (max-width: 980px){
-  .apToolbar{
-    align-items: stretch !important;
-  }
-  .apStats{
-    width: 100% !important;
-    justify-content: flex-start !important;
-  }
-  .apStat{
-    width: fit-content !important;
-  }
-}
-
-@media (max-width: 720px){
-  .apHeader{
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  .apAddBtn{
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  .apToolbar{
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  .apSearch{
-    height: 54px !important;
-  }
-
-  .apTwoCols{
-    grid-template-columns: 1fr !important;
-  }
-
-  .cbModalOverlay{
-    padding: 12px !important;
-  }
-
-  .cbModalPanel{
-    width: 100% !important;
-    border-radius: 22px !important;
-  }
-
-  .cbModalFooter{
-    justify-content: stretch !important;
-  }
-  .cbBtnPrimary, .cbBtnGhost{
-    width: 100% !important;
-    justify-content: center !important;
-  }
-}
-
-@media (max-width: 420px){
-  .apSearchIcon{
-    width: 46px !important;
-  }
-  .apSearchInput.apInput{
-    padding-right: 14px !important;
-  }
-  .apPillV{
-    max-width: 180px !important;
-  }
-}
-/* =========================
-   AdminPlanosPage.css — SOLID + PÍLULAS + RESPONSIVO
-   ✅ Card mais à esquerda (sem centralizar)
-   ✅ Modal overlay suave (sem “quadro preto”)
-   ✅ Modal via Portal (no JSX) + max-height responsivo
-========================= */
-
-/* =========================
-   PAGE LAYOUT (somente esta página)
-========================= */
-.apPage{
-  display: flex !important;
-  justify-content: flex-start !important;   /* ✅ empurra card pra esquerda */
-  align-items: flex-start !important;
-  padding: clamp(16px, 3vw, 32px) clamp(14px, 3vw, 28px) !important;
-  box-sizing: border-box !important;
-}
-
-/* =========================
-   TOKENS (escopo do card + modal)
-========================= */
-.apCard,
-.apModalPanel{
-  --accent: rgba(160,234,82,1);
-
-  --bg-0: #2a3443;
-  --bg-1: #222b38;
-
-  --panel: #39465b;
-  --panel2: #334156;
-
-  --tile: #344256;
-  --tile2: #2f3c50;
-
-  --btn-0: #3b4961;
-  --btn-1: #313e54;
-
-  --stroke-0: rgba(255,255,255,0.14);
-  --stroke-1: rgba(255,255,255,0.18);
-
-  --text-0: rgba(255,255,255,0.96);
-  --text-2: rgba(255,255,255,0.68);
-
-  --shadow-lg: 0 30px 90px rgba(0,0,0,0.56);
-  --shadow-md: 0 16px 42px rgba(0,0,0,0.45);
-
-  --r-xl: 28px;
-  --r-lg: 22px;
-  --r-pill: 9999px;
-}
-
-/* =========================
-   CARD PRINCIPAL
-========================= */
-.apCard{
-  width: min(1100px, 100%) !important;
-  min-height: 660px !important;
-
-  /* ✅ alinha à esquerda dentro do layout */
-  margin: 0 auto 0 0 !important;
-
-  padding: clamp(20px, 3.2vw, 40px) clamp(18px, 3.4vw, 44px) clamp(18px, 3.2vw, 38px) !important;
-  border-radius: var(--r-xl) !important;
-
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  border: 1px solid var(--stroke-0) !important;
-
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  color: var(--text-0) !important;
-
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-/* brilho sutil */
-.apCard::before{
-  content:"" !important;
-  position:absolute !important;
-  inset:-2px !important;
-  pointer-events:none !important;
-  border-radius:inherit !important;
-  background:
-    radial-gradient(900px 360px at 18% 8%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%),
-    radial-gradient(720px 320px at 72% 0%, rgba(160,234,82,0.12), rgba(0,0,0,0) 58%) !important;
-  opacity:.88 !important;
-}
-.apCard::after{
-  content:"" !important;
-  position:absolute !important;
-  inset:0 !important;
-  pointer-events:none !important;
-  border-radius:inherit !important;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0.05) 0%,
-    rgba(255,255,255,0.00) 44%,
-    rgba(255,255,255,0.03) 100%
-  ) !important;
-  opacity:.50 !important;
-}
-.apCard > *{ position:relative !important; z-index:1 !important; }
-
-/* =========================
-   Header
-========================= */
-.apHeader{
-  display:flex !important;
-  align-items:flex-start !important;
-  justify-content:space-between !important;
-  gap:18px !important;
-  margin:0 0 22px !important;
-  padding-bottom:14px !important;
-  border-bottom:1px solid rgba(255,255,255,0.12) !important;
-  flex-wrap: wrap !important;
-}
-
-.apTitle{
-  margin:0 !important;
-  font-size: clamp(26px, 3.2vw, 34px) !important;
-  font-weight: 950 !important;
-  line-height: 1.1 !important;
-  text-shadow: 0 12px 30px rgba(0, 0, 0, 0.38) !important;
-}
-.apSubtitle{
-  margin:10px 0 0 !important;
-  color: var(--text-2) !important;
-  font-weight: 760 !important;
-  line-height: 1.35 !important;
-  max-width: 520px !important;
-}
-
-/* =========================
-   Toolbar + Search
-========================= */
-.apToolbar{
-  display:flex !important;
-  gap:14px !important;
-  align-items:flex-end !important;
-  justify-content:space-between !important;
-  margin-top: 16px !important;
-  flex-wrap: wrap !important;
-}
-
-.apSearch{
-  flex: 1 !important;
-  min-width: min(520px, 100%) !important;
-
-  position: relative !important;
-  height: 56px !important;
-  border-radius: var(--r-pill) !important;
-
-  display:flex !important;
-  align-items:center !important;
-
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-  border: 1px solid var(--stroke-1) !important;
-
-  box-shadow:
-    0 16px 42px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.08) !important;
-
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
-}
-
-.apSearchIcon{
-  display:grid !important;
-  place-items:center !important;
-  width: 52px !important;
-  height: 56px !important;
-  color: rgba(255,255,255,0.92) !important;
-  opacity: .95 !important;
-}
-.apSearchIcon svg{ width: 18px !important; height: 18px !important; }
-
-.apSearch:hover{
-  transform: translateY(-1px) !important;
-  filter: brightness(1.04) !important;
-  border-color: rgba(255,255,255,0.20) !important;
-}
-.apSearch:focus-within{
-  transform: translateY(-1px) !important;
-  border-color: rgba(160,234,82,0.30) !important;
-  box-shadow:
-    0 0 0 4px rgba(160,234,82,0.10),
-    0 18px 52px rgba(0,0,0,0.24),
-    inset 0 1px 0 rgba(255,255,255,0.10) !important;
-}
-
-/* INPUT base */
-.apInput{
-  width:100% !important;
-  height: 52px !important;
-  border-radius: var(--r-pill) !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%) !important;
-
-  color: rgba(255,255,255,0.94) !important;
-  padding: 0 16px !important;
-
-  outline:none !important;
-  font-weight: 820 !important;
-
-  box-shadow:
-    0 16px 38px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.08) !important;
-
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
-}
-.apInput:focus{
-  border-color: rgba(160,234,82,0.30) !important;
-  box-shadow:
-    0 0 0 4px rgba(160,234,82,0.10),
-    0 18px 48px rgba(0,0,0,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.10) !important;
-}
-
-/* input dentro da search */
-.apSearch .apInput{
-  height: 100% !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-
-  padding: 0 18px 0 0 !important;
-  border-radius: inherit !important;
-
-  font-size: 16px !important;
-  font-weight: 850 !important;
-  min-width: 0 !important;
-}
-.apSearch .apInput::placeholder{
-  color: rgba(255,255,255,0.62) !important;
-  font-weight: 700 !important;
-}
-
-/* Stats */
-.apStats{
-  display:flex !important;
-  gap: 10px !important;
-  align-items: center !important;
-}
-.apStat{
-  display:grid !important;
-  gap: 2px !important;
-  padding: 10px 14px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.14) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
-}
-.apStat strong{
-  font-weight: 1000 !important;
-  font-size: 16px !important;
-}
-.apStat span{
-  opacity: .78 !important;
-  font-weight: 850 !important;
-  font-size: 12px !important;
-  text-transform: uppercase !important;
-  letter-spacing: .10em !important;
-}
-
-/* =========================
-   Add button
-========================= */
-.apAddBtn{
-  height: 52px !important;
-  padding: 0 18px !important;
-  border-radius: var(--r-pill) !important;
-  border: 1px solid rgba(255,255,255,0.18) !important;
-
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%) !important;
-
-  color: rgba(255,255,255,0.98) !important;
-  font-weight: 1000 !important;
-
-  cursor:pointer !important;
-  display:flex !important;
-  align-items:center !important;
-  gap:10px !important;
-
-  box-shadow: 0 14px 30px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18) !important;
-  transition: transform 180ms ease, filter 180ms ease !important;
-}
-.apAddBtn:hover{ transform: translateY(-1px) !important; filter: brightness(1.03) !important; }
-.apAddIcon{ width:18px !important; height:18px !important; }
-
-/* =========================
-   Body / states
-========================= */
-.apBody{ margin-top: 18px !important; }
-
-.apState{
-  padding: 18px 14px !important;
-  color: rgba(255,255,255,0.78) !important;
-  font-weight: 850 !important;
-}
-.apState.is-error{ color: rgba(255,120,120,0.95) !important; }
-
-/* =========================
-   Grid cards
-========================= */
-.apGrid{
-  list-style:none !important;
-  margin:0 !important;
-  padding:0 !important;
-
-  /* ✅ mais responsivo sem depender só de media query */
-  display:grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-  gap: 14px !important;
-}
-
-.apItem{
-  border-radius: var(--r-lg) !important;
-  background: linear-gradient(180deg, var(--tile) 0%, var(--tile2) 100%) !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 14px 34px rgba(0,0,0,0.18) !important;
-  padding: 16px !important;
-}
-
-.apItemTop{
-  display:flex !important;
-  justify-content:space-between !important;
-  align-items:flex-start !important;
-  gap: 10px !important;
-}
-
-.apItemName{
-  font-size: 16.5px !important;
-  font-weight: 1000 !important;
-  line-height: 1.25 !important;
-  color: rgba(255,255,255,0.96) !important;
-}
-
-.apItemActions{
-  display:flex !important;
-  gap: 10px !important;
-  align-items:center !important;
-}
-
-/* Icon buttons */
-.apIconBtn{
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: var(--r-pill) !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
-
-  cursor:pointer !important;
-  display:grid !important;
-  place-items:center !important;
-
-  box-shadow: 0 12px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  transition: filter 160ms ease, transform 160ms ease !important;
-}
-.apIconBtn:hover{ filter: brightness(1.06) !important; transform: translateY(-1px) !important; }
-.apIcon{ width: 18px !important; height: 18px !important; color: rgba(255,255,255,0.90) !important; }
-
-.apItemMeta{
-  margin-top: 12px !important;
-  display:flex !important;
-  gap: 10px !important;
-  flex-wrap: wrap !important;
-}
-
-/* pills */
-.apPill{
-  font-size: 12px !important;
-  font-weight: 1000 !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-
-  padding: 7px 12px !important;
-  border-radius: 999px !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: rgba(0,0,0,0.16) !important;
-  color: rgba(255,255,255,0.90) !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-}
-.apPillK{ opacity: .74 !important; font-weight: 950 !important; }
-.apPillV{ opacity: 1 !important; font-weight: 1000 !important; }
-
-/* =========================
-   Modal (overlay SUAVE + sem “quadro preto”)
-========================= */
+/* Modal */
 .cbModalOverlay.apModalOverlay{
   position: fixed !important;
   inset: 0 !important;
@@ -1135,206 +409,318 @@
   display: grid !important;
   place-items: center !important;
 
-  /* ✅ overlay mais leve e elegante */
-  background:
-    radial-gradient(900px 420px at 50% 14%, rgba(0,0,0,0.18), rgba(0,0,0,0) 60%),
-    rgba(0,0,0,0.32) !important;
+  background: rgba(15, 23, 42, 0.52) !important;
+  padding: 24px !important;
 
-  /* ✅ sem “moldura” preta */
-  padding: clamp(10px, 2.4vw, 18px) !important;
-
-  /* ✅ permite scroll em telas pequenas */
-  overflow-y: auto !important;
-  overscroll-behavior: contain !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
+  backdrop-filter: blur(14px) saturate(1.1) !important;
 }
 
 .cbModalPanel.apModalPanel{
-  width: min(560px, 100%) !important;
-  border-radius: 26px !important;
-
-  background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
-  border: 1px solid var(--stroke-0) !important;
-
-  box-shadow: 0 34px 90px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+  width: min(780px, 100%) !important;
+  max-height: calc(100dvh - 48px) !important;
   overflow: hidden !important;
 
-  color: rgba(255,255,255,0.96) !important;
+  border-radius: 35px !important;
+  background: rgba(255,255,255,0.74) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.65) !important;
 
-  /* ✅ RESPONSIVO: não “estoura” a tela */
-  max-height: calc(100vh - 24px) !important;
-  display: grid !important;
-  grid-template-rows: auto 1fr auto !important;
+  -webkit-backdrop-filter: blur(19px) saturate(1.12) !important;
+  backdrop-filter: blur(19px) saturate(1.12) !important;
+
+  color: rgba(31,41,55,0.92) !important;
 }
 
-.cbModalHeader{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  gap:12px !important;
-
-  padding: 16px 18px !important;
-  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
-}
-
-.cbModalTitle{
-  margin:0 !important;
-  color: rgba(255,255,255,0.95) !important;
-  font-size: 18px !important;
-  font-weight: 950 !important;
-}
-
-.cbModalClose{
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 9999px !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
-  color: rgba(255,255,255,0.92) !important;
-
-  font-size: 22px !important;
-  font-weight: 900 !important;
-
-  cursor:pointer !important;
-  display:grid !important;
-  place-items:center !important;
-
-  box-shadow: 0 12px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-  transition: transform 160ms ease, filter 160ms ease !important;
-}
-.cbModalClose:hover{ transform: translateY(-1px) !important; filter: brightness(1.06) !important; }
-.cbModalClose:disabled{ opacity: .6 !important; cursor:not-allowed !important; transform:none !important; filter:none !important; }
-
-/* ✅ corpo do modal com scroll interno se precisar */
 .cbModalBody{
-  padding: 18px 18px 6px !important;
+  padding: 24px 24px 8px !important;
+  max-height: calc(100dvh - 220px) !important;
   overflow: auto !important;
 }
 
-.cbModalFooter{
-  display:flex !important;
-  justify-content:flex-end !important;
-  gap:10px !important;
-
-  padding: 14px 18px 18px !important;
-  border-top: 1px solid rgba(255,255,255,0.12) !important;
+.apDangerBtn{
+  background: linear-gradient(180deg, rgba(239,68,68,0.90) 0%, rgba(190,40,40,0.90) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.24) !important;
 }
 
-/* botões */
+/* Responsivo */
+@media (max-width: 980px){
+  .apCard{
+    padding: 44px 44px 22px !important;
+    border-radius: 30px !important;
+  }
+  .apToolbar{
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .apSearch{ min-width: 0 !important; }
+}
+@media (max-width: 720px){
+  .apCard{ padding: 34px 24px 18px !important; }
+  .apHeader{ flex-direction: column !important; align-items: stretch !important; gap: 16px !important; }
+  .apAddBtn{ width: 100% !important; justify-content: center !important; }
+}
+
+/* Hard override */
+body .analysisPage.apPage{
+  position: fixed !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+body .analysisPage.apPage > .pg-card.apCard{
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+body .analysisPage.apPage > .pg-card.apCard > .apScroll{
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+/* =========================================================
+   ✅ POPUP (MODAL) — "Adicionar plano" / "Editar plano"
+   Glass Light + Scroll interno + Versão COMPACTA (menor)
+   Cole no FINAL do AdminPlanosPage.css
+========================================================= */
+
+/* Overlay do modal (leve + blur) */
+.cbModalOverlay.apModalOverlay{
+  background: rgba(15, 23, 42, 0.52) !important;
+  padding: 18px !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.06) !important;
+  backdrop-filter: blur(12px) saturate(1.06) !important;
+}
+
+/* Painel do modal (menor) */
+.cbModalPanel.apModalPanel{
+  width: min(720px, 100%) !important;
+  max-height: calc(100dvh - 36px) !important;
+  overflow: hidden !important;
+
+  border-radius: 28px !important;
+  border: 1px solid rgba(255,255,255,0.34) !important;
+
+  background:
+    radial-gradient(820px 380px at 14% 110%, rgba(160,234,82,0.16), rgba(255,255,255,0) 60%),
+    radial-gradient(820px 380px at 86% 110%, rgba(160,234,82,0.09), rgba(255,255,255,0) 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(247,248,251,0.68) 100%) !important;
+
+  box-shadow: 0 26px 70px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.65) !important;
+
+  -webkit-backdrop-filter: blur(16px) saturate(1.10) !important;
+  backdrop-filter: blur(16px) saturate(1.10) !important;
+
+  color: rgba(31,41,55,0.92) !important;
+}
+
+/* Header do modal (compacto) */
+.cbModalHeader{
+  padding: 16px 18px !important;
+  border-bottom: 1px solid rgba(15,23,42,0.10) !important;
+}
+
+.cbModalTitle{
+  font-size: 18px !important;
+  font-weight: 1000 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 !important;
+}
+
+/* Botão fechar (menor) */
+.cbModalClose{
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
+  box-shadow: 0 10px 22px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.85) !important;
+
+  color: rgba(31,41,55,0.88) !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+
+  display: grid !important;
+  place-items: center !important;
+}
+
+/* ✅ Corpo com scroll interno (compacto) */
+.cbModalBody{
+  padding: 16px 18px 10px !important;
+  max-height: calc(100dvh - 180px) !important; /* header+footer */
+  overflow: auto !important;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15,23,42,0.18) transparent;
+}
+.cbModalBody::-webkit-scrollbar{ width: 10px; height: 10px; }
+.cbModalBody::-webkit-scrollbar-track{ background: transparent; }
+.cbModalBody::-webkit-scrollbar-thumb{
+  background-color: rgba(15,23,42,0.16);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.cbModalBody::-webkit-scrollbar-thumb:hover{
+  background-color: rgba(15,23,42,0.24);
+}
+
+/* Footer (compacto) */
+.cbModalFooter{
+  padding: 12px 18px 16px !important;
+  border-top: 1px solid rgba(15,23,42,0.10) !important;
+  gap: 10px !important;
+}
+
+/* Botões do modal (menores) */
 .cbBtnPrimary, .cbBtnGhost{
-  height: 46px !important;
+  height: 48px !important;
   padding: 0 18px !important;
   border-radius: 9999px !important;
 
-  font-weight: 950 !important;
+  font-weight: 1000 !important;
+  font-size: 15px !important;
   cursor: pointer !important;
-  user-select:none !important;
-
-  transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
 }
+
 .cbBtnPrimary{
-  border: 1px solid rgba(255,255,255,0.18) !important;
+  border: 1px solid rgba(94,133,66,0.25) !important;
   background:
-    linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.00) 60%),
-    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(76,148,18,0.96) 100%) !important;
+    linear-gradient(180deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.00) 60%),
+    linear-gradient(180deg, rgba(160,234,82,0.98) 0%, rgba(94,133,66,0.98) 100%) !important;
   color: rgba(255,255,255,0.98) !important;
-  box-shadow: 0 14px 34px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18) !important;
-}
-.cbBtnGhost{
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: linear-gradient(180deg, var(--btn-0) 0%, var(--btn-1) 100%) !important;
-  color: rgba(255,255,255,0.94) !important;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08) !important;
-}
-.cbBtnPrimary:hover, .cbBtnGhost:hover{
-  transform: translateY(-1px) !important;
-  filter: brightness(1.05) !important;
-}
-.cbBtnPrimary:disabled, .cbBtnGhost:disabled{
-  opacity: .6 !important;
-  cursor:not-allowed !important;
-  transform:none !important;
-  filter:none !important;
 }
 
-/* =========================
-   Form / Preview / Delete box
-========================= */
-.apForm{ display:grid !important; gap: 14px !important; }
-.apRow{ display:grid !important; gap: 8px !important; }
+.cbBtnGhost{
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
+  color: rgba(31,41,55,0.92) !important;
+}
+
+/* =========================================================
+   ✅ FORM DENTRO DO MODAL (compacto)
+========================================================= */
+
+.apForm{
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.apRow{
+  display: grid !important;
+  gap: 8px !important;
+}
+
 .apLabel{
-  display:block !important;
-  margin:0 !important;
-  font-size: 12.5px !important;
+  font-size: 12px !important;
   font-weight: 950 !important;
   letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
-  color: rgba(255,255,255,0.82) !important;
+  color: rgba(55,65,81,0.72) !important;
 }
+
+/* Inputs do modal (menores) */
+.apInput{
+  width: 100% !important;
+  height: 52px !important;
+  border-radius: 9999px !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%) !important;
+
+  padding: 0 16px !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+  color: rgba(31,41,55,0.92) !important;
+
+  outline: none !important;
+  box-shadow: 0 10px 22px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.85) !important;
+}
+
+.apInput:focus{
+  border-color: rgba(94,133,66,0.32) !important;
+  box-shadow:
+    0 0 0 4px rgba(94,133,66,0.10),
+    0 14px 28px rgba(15,23,42,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.85) !important;
+}
+
 .apHelp{
-  color: rgba(255,255,255,0.70) !important;
-  font-weight: 760 !important;
-  font-size: 12.5px !important;
-  line-height: 1.35 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  color: rgba(107,114,128,0.86) !important;
 }
+
+/* 2 colunas no modal (compacto) */
 .apTwoCols{
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
 }
+@media (max-width: 720px){
+  .apTwoCols{ grid-template-columns: 1fr !important; }
+}
 
+/* Preview dentro do modal (compacto) */
 .apPreview{
   margin-top: 6px !important;
-  display:grid !important;
-  gap: 8px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(15,23,42,0.10) !important;
 }
+
 .apPreviewTitle{
+  font-size: 11px !important;
   font-weight: 950 !important;
   letter-spacing: .12em !important;
   text-transform: uppercase !important;
-  opacity: .85 !important;
-  font-size: 12px !important;
+  color: rgba(55,65,81,0.70) !important;
+  margin-bottom: 8px !important;
 }
+
 .apPreviewCard{
+  padding: 12px !important;
   border-radius: 18px !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.14) !important;
-  padding: 12px 14px !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(238,242,247,0.92) 100%) !important;
+  box-shadow: 0 10px 22px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.90) !important;
 }
+
 .apPreviewName{
   font-weight: 1000 !important;
-  margin-bottom: 6px !important;
+  font-size: 16px !important;
+  color: rgba(31,41,55,0.92) !important;
 }
+
 .apPreviewMeta{
-  display:flex !important;
+  margin-top: 6px !important;
+  display: flex !important;
   flex-wrap: wrap !important;
-  gap: 10px !important;
-  opacity: .86 !important;
-  font-weight: 800 !important;
-  font-size: 12.5px !important;
+  gap: 8px !important;
+  font-weight: 850 !important;
+  font-size: 13px !important;
+  color: rgba(75,85,99,0.86) !important;
 }
+
 .apPreviewStripe{
   margin-top: 8px !important;
-  opacity: .80 !important;
   font-weight: 850 !important;
-  font-size: 12.5px !important;
+  font-size: 13px !important;
+  color: rgba(107,114,128,0.86) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
-.apDeleteBox{ display:grid !important; gap: 10px !important; }
-.apDeleteText{ margin: 0 !important; font-weight: 850 !important; }
-.apDeleteWarn{ margin: 0 !important; opacity: .78 !important; font-weight: 800 !important; }
-
-/* =========================
-   Responsivo
-========================= */
-@media (max-width: 980px){
-  .apPage{ padding: 18px 14px !important; }
-  .apCard{ min-height: auto !important; }
-}
-
-@media (max-width: 720px){
-  .apHeader{ flex-direction: column !important; align-items: stretch !important; gap: 14px !important; }
-  .apToolbar{ flex-direction: column !important; align-items: stretch !important; }
-  .apSearch{ min-width: 0 !important; }
-  .apTwoCols{ grid-template-columns: 1fr !important; }
+/* Responsivo extra (bem pequeno) */
+@media (max-width: 480px){
+  .cbModalOverlay.apModalOverlay{ padding: 12px !important; }
+  .cbModalPanel.apModalPanel{ border-radius: 22px !important; }
+  .cbModalHeader{ padding: 14px 14px !important; }
+  .cbModalBody{ padding: 14px 14px 10px !important; }
+  .cbModalFooter{ padding: 12px 14px 14px !important; }
+  .cbBtnPrimary, .cbBtnGhost{ width: 100% !important; }
 }

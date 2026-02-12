@@ -75,32 +75,21 @@ function Modal({ open, title, children, footer, onClose, disableClose }) {
     };
     document.addEventListener("keydown", onKey);
 
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
     };
   }, [open, onClose, disableClose]);
 
   if (!open) return null;
+  if (typeof document === "undefined") return null;
 
   const onOverlay = (e) => {
     if (disableClose) return;
     if (panelRef.current && !panelRef.current.contains(e.target)) onClose?.();
   };
 
-  // ✅ GARANTIA: renderiza no body (evita “quadro preto” por containers com transform/overflow)
-  if (typeof document === "undefined") return null;
-
   return createPortal(
-    <div
-      className="cbModalOverlay apModalOverlay"
-      onMouseDown={onOverlay}
-      role="dialog"
-      aria-modal="true"
-    >
+    <div className="cbModalOverlay apModalOverlay" onMouseDown={onOverlay} role="dialog" aria-modal="true">
       <div className="cbModalPanel apModalPanel" ref={panelRef}>
         <div className="cbModalHeader">
           <h3 className="cbModalTitle">{title}</h3>
@@ -125,6 +114,18 @@ function Modal({ open, title, children, footer, onClose, disableClose }) {
 }
 
 export default function AdminPlanosPage() {
+  // ✅ trava scroll do body/html enquanto esta tela estiver montada (mantém layout limpo + sidebar ok)
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, []);
+
   // list
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -201,7 +202,7 @@ export default function AdminPlanosPage() {
   const openEdit = (p) => {
     setFormNome(String(p?.NOME || ""));
     setFormStripeId(String(p?.ID_STRIPE || ""));
-    setFormCreditos(String(p?.QUANT_CREDITO_MENSAL ?? ""));
+    setFormCreditos(String(p?.QUANT_CREDITO_MENSAL ?? "100"));
     setFormPrioridade(String(p?.PRIORIDADE ?? 3));
     setFormMaxUsuarios(String(p?.MAX_USUARIOS_DEPENDENTES ?? 9999));
     setModal({ open: true, mode: "edit", current: p });
@@ -302,6 +303,7 @@ export default function AdminPlanosPage() {
   return (
     <div className="analysisPage apPage">
       <div className="pg-card apCard">
+        {/* ✅ Header fixo */}
         <header className="apHeader">
           <div className="apHeaderLeft">
             <h1 className="apTitle">Planos</h1>
@@ -316,13 +318,14 @@ export default function AdminPlanosPage() {
           </button>
         </header>
 
+        {/* ✅ Toolbar fixa */}
         <section className="apToolbar">
           <div className="apSearch">
             <span className="apSearchIcon" aria-hidden="true">
               <IconSearch />
             </span>
             <input
-              className="apSearchInput apInput"
+              className="apSearchInput"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar por nome ou Stripe ID..."
@@ -333,68 +336,71 @@ export default function AdminPlanosPage() {
           <div className="apStats" aria-label="Resumo">
             <span className="apStat">
               <strong>{loading ? "—" : planos.length}</strong>
-              <span>planos</span>
+              <span>PLANOS</span>
             </span>
           </div>
         </section>
 
-        <section className="apBody">
-          {loading ? (
-            <div className="apState">Carregando...</div>
-          ) : err ? (
-            <div className="apState is-error">{err}</div>
-          ) : planos.length === 0 ? (
-            <div className="apState">Nenhum plano encontrado.</div>
-          ) : (
-            <ul className="apGrid" aria-label="Lista de planos">
-              {planos.map((p) => (
-                <li key={p.ID} className="apItem">
-                  <div className="apItemTop">
-                    <div className="apItemMain">
-                      <div className="apItemName">{p.NOME}</div>
+        {/* ✅ Scroll só no conteúdo */}
+        <div className="apScroll">
+          <section className="apBody">
+            {loading ? (
+              <div className="apState">Carregando...</div>
+            ) : err ? (
+              <div className="apState is-error">{err}</div>
+            ) : planos.length === 0 ? (
+              <div className="apState">Nenhum plano encontrado.</div>
+            ) : (
+              <ul className="apGrid" aria-label="Lista de planos">
+                {planos.map((p) => (
+                  <li key={p.ID ?? p.ID_STRIPE} className="apItem">
+                    <div className="apItemTop">
+                      <div className="apItemMain">
+                        <div className="apItemName">{p.NOME}</div>
 
-                      <div className="apItemMeta">
-                        <span className="apPill">
-                          <span className="apPillK">Créditos/mês</span>
-                          <span className="apPillV">{p.QUANT_CREDITO_MENSAL ?? "—"}</span>
-                        </span>
+                        <div className="apItemMeta">
+                          <span className="apPill">
+                            <span className="apPillK">CRÉDITOS/MÊS</span>
+                            <span className="apPillV">{p.QUANT_CREDITO_MENSAL ?? "—"}</span>
+                          </span>
 
-                        <span className="apPill">
-                          <span className="apPillK">Prioridade</span>
-                          <span className="apPillV">{p.PRIORIDADE ?? 3}</span>
-                        </span>
+                          <span className="apPill">
+                            <span className="apPillK">PRIORIDADE</span>
+                            <span className="apPillV">{p.PRIORIDADE ?? 3}</span>
+                          </span>
 
-                        <span className="apPill">
-                          <span className="apPillK">Máx usuários</span>
-                          <span className="apPillV">{p.MAX_USUARIOS_DEPENDENTES ?? 9999}</span>
-                        </span>
+                          <span className="apPill">
+                            <span className="apPillK">MÁX USUÁRIOS</span>
+                            <span className="apPillV">{p.MAX_USUARIOS_DEPENDENTES ?? 9999}</span>
+                          </span>
 
-                        <span className="apPill">
-                          <span className="apPillK">Stripe</span>
-                          <span className="apPillV">{p.ID_STRIPE || "—"}</span>
-                        </span>
+                          <span className="apPill">
+                            <span className="apPillK">STRIPE</span>
+                            <span className="apPillV">{p.ID_STRIPE || "—"}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="apItemActions">
+                        <button type="button" className="apIconBtn" onClick={() => openEdit(p)} title="Editar">
+                          <IconEdit className="apIcon" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className="apIconBtn is-danger"
+                          onClick={() => openDelete(p)}
+                          title="Remover"
+                        >
+                          <IconTrash className="apIcon" aria-hidden="true" />
+                        </button>
                       </div>
                     </div>
-
-                    <div className="apItemActions">
-                      <button type="button" className="apIconBtn" onClick={() => openEdit(p)} title="Editar">
-                        <IconEdit className="apIcon" aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        className="apIconBtn is-danger"
-                        onClick={() => openDelete(p)}
-                        title="Remover"
-                      >
-                        <IconTrash className="apIcon" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
 
         {/* Modal Criar/Editar */}
         <Modal
@@ -436,9 +442,7 @@ export default function AdminPlanosPage() {
                   disabled={saving}
                   inputMode="numeric"
                 />
-                <div className="apHelp">
-                  Deve ser um inteiro &gt; 0 (campo: <code>QUANT_CREDITO_MENSAL</code>).
-                </div>
+                <div className="apHelp">Inteiro &gt; 0 (campo: QUANT_CREDITO_MENSAL).</div>
               </div>
 
               <div className="apRow">
@@ -451,7 +455,7 @@ export default function AdminPlanosPage() {
                   disabled={saving}
                   inputMode="numeric"
                 />
-                <div className="apHelp">Menor número = maior prioridade (ex.: 1 é o topo).</div>
+                <div className="apHelp">Menor número = maior prioridade (1 é o topo).</div>
               </div>
             </div>
 
@@ -465,9 +469,7 @@ export default function AdminPlanosPage() {
                 disabled={saving}
                 inputMode="numeric"
               />
-              <div className="apHelp">
-                Campo: <code>MAX_USUARIOS_DEPENDENTES</code>. Use <strong>9999</strong> para “ilimitado”.
-              </div>
+              <div className="apHelp">Use 9999 para “ilimitado” (MAX_USUARIOS_DEPENDENTES).</div>
             </div>
 
             <div className="apRow">
@@ -476,12 +478,10 @@ export default function AdminPlanosPage() {
                 className="apInput"
                 value={formStripeId}
                 onChange={(e) => setFormStripeId(e.target.value)}
-                placeholder="Ex.: price_123... ou prod_..."
+                placeholder="Ex.: price_123..."
                 disabled={saving}
               />
-              <div className="apHelp">
-                Campo único no banco (<code>ID_STRIPE</code>).
-              </div>
+              <div className="apHelp">Campo único (ID_STRIPE).</div>
             </div>
 
             <div className="apPreview">

@@ -11,14 +11,14 @@ import {
   Bar,
   Legend,
 } from "recharts";
-import "./AdminDashboardPage.css";
+import "./AdminDashboardPage.compat.css";
 
 const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
   .toString()
   .replace(/\/+$/, "");
 
-// ✅ Azul (mesmo tom “tech” do dashboard)
-const BAR_BLUE = "#1e88ff";
+// Paleta (fica no componente, sem mexer no app todo)
+const CHART_GREEN = "#a0ea52";
 
 function monthLabel(ym) {
   const [y, m] = String(ym).split("-");
@@ -45,56 +45,65 @@ function formatRangeLabel(range) {
 
 function Panel({ title, subtitle, right, children }) {
   return (
-    <section className="adPanel" aria-label={title}>
-      <header className="adPanelHeader">
-        <div className="adPanelHeaderLeft">
-          <div className="adPanelTitle">{title}</div>
-          {subtitle ? <div className="adPanelSub">{subtitle}</div> : null}
+    <section className="cbad-panel" aria-label={title}>
+      <header className="cbad-panelHeader">
+        <div className="cbad-panelHeaderLeft">
+          <div className="cbad-panelTitle">{title}</div>
+          {subtitle ? <div className="cbad-panelSub">{subtitle}</div> : null}
         </div>
-        {right ? <div className="adPanelHeaderRight">{right}</div> : null}
+        {right ? <div className="cbad-panelHeaderRight">{right}</div> : null}
       </header>
-      <div className="adPanelBody">{children}</div>
+      <div className="cbad-panelBody">{children}</div>
     </section>
   );
 }
 
 function Kpi({ label, value, tone = "neutral", icon }) {
   return (
-    <div className={`adKpi adKpi--${tone}`}>
-      <div className="adKpiTop">
-        <div className="adKpiIcon" aria-hidden="true">
+    <div className={`cbad-kpi cbad-kpi--${tone}`}>
+      <div className="cbad-kpiTop">
+        <div className="cbad-kpiIcon" aria-hidden="true">
           {icon}
         </div>
-        <div className="adKpiLabel">{label}</div>
+        <div className="cbad-kpiLabel">{label}</div>
       </div>
-      <div className="adKpiValue">{value}</div>
+      <div className="cbad-kpiValue">{value}</div>
     </div>
   );
 }
 
 function ChartTitle({ title, hint }) {
   return (
-    <div className="adChartHead">
-      <div className="adChartTitle">{title}</div>
-      {hint ? <div className="adChartHint">{hint}</div> : null}
+    <div className="cbad-chartHead">
+      <div className="cbad-chartTitle">{title}</div>
+      {hint ? <div className="cbad-chartHint">{hint}</div> : null}
     </div>
   );
 }
 
 function DarkTooltip({ active, payload, label, formatter }) {
   if (!active || !payload || payload.length === 0) return null;
+
+  const safeLabel = String(label ?? "");
+
   return (
-    <div className="adTooltip">
-      <div className="adTooltipTitle">{label}</div>
-      <div className="adTooltipList">
+    <div className="cbad-tooltip">
+      <div className="cbad-tooltipTitle">{safeLabel}</div>
+
+      <div className="cbad-tooltipList">
         {payload.map((p, idx) => {
           const name = p?.name ?? p?.dataKey ?? "Valor";
+          const dataKey = p?.dataKey ?? "val";
           const raw = p?.value;
           const value = formatter ? formatter(raw, name, p) : raw;
+
+          // ✅ chave mais estável (evita “misturar” com renders de outros lugares)
+          const key = `${safeLabel}::${String(dataKey)}::${String(name)}::${idx}`;
+
           return (
-            <div className="adTooltipRow" key={`${name}-${idx}`}>
-              <span className="adTooltipName">{name}</span>
-              <span className="adTooltipValue">{value}</span>
+            <div className="cbad-tooltipRow" key={key}>
+              <span className="cbad-tooltipName">{name}</span>
+              <span className="cbad-tooltipValue">{value}</span>
             </div>
           );
         })}
@@ -161,7 +170,7 @@ function IconMoney() {
   );
 }
 
-// ✅ pega o mês atual (último item)
+// pega o mês atual (último item)
 function pickCurrentMonthRow(list) {
   if (!Array.isArray(list) || list.length === 0) return null;
   return list[list.length - 1] || null;
@@ -207,7 +216,7 @@ export default function AdminDashboardPage() {
 
   const rangeLabel = data?.range ? formatRangeLabel(data.range) : "";
 
-  // ✅ KPIs do mês atual (última posição)
+  // KPIs do mês atual (última posição)
   const kpiSolicRow = useMemo(() => pickCurrentMonthRow(data?.solicitacoesPorMes), [data]);
   const kpiNovosRow = useMemo(() => pickCurrentMonthRow(data?.novosClientesPorMes), [data]);
   const kpiReceitaRow = useMemo(() => pickCurrentMonthRow(data?.receitaPorMes), [data]);
@@ -219,8 +228,7 @@ export default function AdminDashboardPage() {
   const kpiNovos = Number(kpiNovosRow?.novos ?? 0);
   const kpiReceita = Number(kpiReceitaRow?.receita ?? 0);
 
-  // ✅ séries p/ gráficos
-  // ALTERAÇÃO AQUI: agora a série de análises tem só o TOTAL
+  // séries p/ gráficos
   const solicitacoesSeries = useMemo(() => {
     const list = data?.solicitacoesPorMes || [];
     return list.map((x) => ({
@@ -241,7 +249,7 @@ export default function AdminDashboardPage() {
     const list = data?.novosClientesPorMes || [];
     return list.map((x) => ({
       month: monthLabel(x.month),
-      novos: x.novos,
+      novos: Number(x.novos ?? 0),
     }));
   }, [data]);
 
@@ -249,7 +257,7 @@ export default function AdminDashboardPage() {
     const list = data?.clientesPorEmpresa || [];
     return list.map((x) => ({
       nome: String(x.nome || ""),
-      clientes: x.clientes,
+      clientes: Number(x.clientes ?? 0),
     }));
   }, [data]);
 
@@ -257,34 +265,40 @@ export default function AdminDashboardPage() {
     const list = data?.topCombinacoes || [];
     return list.map((x) => ({
       label: String(x.label || ""),
-      count: x.count,
+      count: Number(x.count ?? 0),
     }));
   }, [data]);
 
+  // tamanhos
   const minChartWidth = 920;
   const lineHeight = 340;
   const rankHeight = 460;
 
   return (
-    <div className="analysisPage">
-      <div className="pg-card adWrap">
-        <div className="adScrollPage">
-          <header className="adHeader">
-            <div className="adHeaderLeft">
-              <div className="adTitleRow">
-                <h1 className="adTitle">Dashboard (Admin)</h1>
-                <span className="adBadge">Últimos 6 meses</span>
+    // ✅ root único: tudo fica isolado aqui dentro
+    <div className="cbad-root">
+      <div className="cbad-card">
+        <div className="cbad-scrollPage">
+          <header className="cbad-header">
+            <div className="cbad-headerLeft">
+              <div className="cbad-titleRow">
+                <h1 className="cbad-title">Dashboard (Admin)</h1>
+                <span className="cbad-badge">Últimos 6 meses</span>
               </div>
 
-              <p className="adSubtitle">
-                {rangeLabel ? <span className="adRange">{rangeLabel}</span> : null}
-                {rangeLabel ? <span className="adDot">•</span> : null}
+              <p className="cbad-subtitle">
+                {rangeLabel ? <span className="cbad-range">{rangeLabel}</span> : null}
+                {rangeLabel ? <span className="cbad-dot">•</span> : null}
                 KPIs exibem o <strong>mês atual</strong> ({kpiMonthText}).
               </p>
             </div>
 
-            <div className="adKpis" aria-label="KPIs do mês atual">
-              <Kpi label={`Solicitações (mês atual • ${kpiMonthText})`} value={kpiSolic} icon={<IconPulse />} />
+            <div className="cbad-kpis" aria-label="KPIs do mês atual">
+              <Kpi
+                label={`Solicitações (mês atual • ${kpiMonthText})`}
+                value={kpiSolic}
+                icon={<IconPulse />}
+              />
               <Kpi
                 label={`Novos clientes (mês atual • ${kpiMonthText})`}
                 value={kpiNovos}
@@ -301,24 +315,23 @@ export default function AdminDashboardPage() {
           </header>
 
           {loading ? (
-            <div className="adState">Carregando...</div>
+            <div className="cbad-state">Carregando...</div>
           ) : err ? (
-            <div className="adState adState--error">{err}</div>
+            <div className="cbad-state cbad-state--error">{err}</div>
           ) : !data ? (
-            <div className="adState">Sem dados.</div>
+            <div className="cbad-state">Sem dados.</div>
           ) : (
             <>
               <Panel
                 title="Tendências"
                 subtitle="As séries abaixo rolam horizontalmente em telas menores para manter a leitura."
-                right={<span className="adTag">Charts</span>}
+                right={<span className="cbad-tag">Charts</span>}
               >
-                <div className="adChartsGrid">
-                  <div className="adChartBox">
-                    {/* ALTERAÇÃO AQUI: título/hint e gráfico com 1 linha */}
+                <div className="cbad-chartsGrid">
+                  <div className="cbad-chartBox">
                     <ChartTitle title="Análises (total)" hint="Total de análises realizadas por mês" />
-                    <div className="adScrollX">
-                      <div className="adChartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
+                    <div className="cbad-scrollX">
+                      <div className="cbad-chartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={solicitacoesSeries}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.22} />
@@ -326,17 +339,24 @@ export default function AdminDashboardPage() {
                             <YAxis allowDecimals={false} width={40} />
                             <Tooltip content={<DarkTooltip />} />
                             <Legend />
-                            <Line type="monotone" dataKey="total" name="Total" strokeWidth={3} dot={false} />
+                            <Line
+                              type="monotone"
+                              dataKey="total"
+                              name="Total"
+                              stroke={CHART_GREEN}
+                              strokeWidth={3}
+                              dot={false}
+                            />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
                   </div>
 
-                  <div className="adChartBox">
+                  <div className="cbad-chartBox">
                     <ChartTitle title="Receita" hint="Estimativa pelo VALOR_MENSAL do plano" />
-                    <div className="adScrollX">
-                      <div className="adChartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
+                    <div className="cbad-scrollX">
+                      <div className="cbad-chartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={receitaSeries}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.22} />
@@ -344,17 +364,24 @@ export default function AdminDashboardPage() {
                             <YAxis width={52} />
                             <Tooltip content={<DarkTooltip formatter={(v) => moneyBR(v)} />} />
                             <Legend />
-                            <Line type="monotone" dataKey="receita" name="Receita" strokeWidth={3} dot={false} />
+                            <Line
+                              type="monotone"
+                              dataKey="receita"
+                              name="Receita"
+                              stroke={CHART_GREEN}
+                              strokeWidth={3}
+                              dot={false}
+                            />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
                   </div>
 
-                  <div className="adChartBox">
+                  <div className="cbad-chartBox">
                     <ChartTitle title="Novos clientes" hint="Cadastros no período" />
-                    <div className="adScrollX">
-                      <div className="adChartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
+                    <div className="cbad-scrollX">
+                      <div className="cbad-chartCanvas" style={{ minWidth: minChartWidth, height: lineHeight }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={novosClientesSeries}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.22} />
@@ -362,7 +389,14 @@ export default function AdminDashboardPage() {
                             <YAxis allowDecimals={false} width={40} />
                             <Tooltip content={<DarkTooltip />} />
                             <Legend />
-                            <Line type="monotone" dataKey="novos" name="Novos" strokeWidth={3} dot={false} />
+                            <Line
+                              type="monotone"
+                              dataKey="novos"
+                              name="Novos"
+                              stroke={CHART_GREEN}
+                              strokeWidth={3}
+                              dot={false}
+                            />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
@@ -374,14 +408,14 @@ export default function AdminDashboardPage() {
               <Panel
                 title="Rankings"
                 subtitle="Use rolagem vertical/horizontal para ver tudo sem esmagar os rótulos."
-                right={<span className="adTag">Top</span>}
+                right={<span className="cbad-tag">Top</span>}
               >
-                <div className="adRankGrid">
-                  <div className="adChartBox">
+                <div className="cbad-rankGrid">
+                  <div className="cbad-chartBox">
                     <ChartTitle title="Clientes por empresa" hint="Lista completa com rolagem" />
-                    <div className="adScrollX">
-                      <div className="adScrollY" style={{ maxHeight: 540 }}>
-                        <div className="adChartCanvas" style={{ minWidth: 980, height: rankHeight }}>
+                    <div className="cbad-scrollX">
+                      <div className="cbad-scrollY" style={{ maxHeight: 540 }}>
+                        <div className="cbad-chartCanvas" style={{ minWidth: 980, height: rankHeight }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={clientesPorEmpresa}
@@ -392,7 +426,12 @@ export default function AdminDashboardPage() {
                               <XAxis type="number" allowDecimals={false} />
                               <YAxis type="category" dataKey="nome" width={240} tick={{ fontSize: 12 }} />
                               <Tooltip content={<DarkTooltip />} />
-                              <Bar dataKey="clientes" name="Clientes" radius={[10, 10, 10, 10]} fill={BAR_BLUE} />
+                              <Bar
+                                dataKey="clientes"
+                                name="Clientes"
+                                radius={[10, 10, 10, 10]}
+                                fill={CHART_GREEN}
+                              />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -400,11 +439,11 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="adChartBox">
+                  <div className="cbad-chartBox">
                     <ChartTitle title="Top 6 combos Bio + Quim" hint="Combinações mais pedidas" />
-                    <div className="adScrollX">
-                      <div className="adScrollY" style={{ maxHeight: 540 }}>
-                        <div className="adChartCanvas" style={{ minWidth: 1100, height: rankHeight }}>
+                    <div className="cbad-scrollX">
+                      <div className="cbad-scrollY" style={{ maxHeight: 540 }}>
+                        <div className="cbad-chartCanvas" style={{ minWidth: 1100, height: rankHeight }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={topCombinacoes}
@@ -415,7 +454,12 @@ export default function AdminDashboardPage() {
                               <XAxis type="number" allowDecimals={false} />
                               <YAxis type="category" dataKey="label" width={380} tick={{ fontSize: 12 }} />
                               <Tooltip content={<DarkTooltip />} />
-                              <Bar dataKey="count" name="Solicitações" radius={[10, 10, 10, 10]} fill={BAR_BLUE} />
+                              <Bar
+                                dataKey="count"
+                                name="Solicitações"
+                                radius={[10, 10, 10, 10]}
+                                fill={CHART_GREEN}
+                              />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>

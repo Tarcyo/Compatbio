@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./AdminReembolso.css";
+import "./AdminReembolsoPage.css";
 
 function upper(v) {
   return String(v ?? "").toUpperCase();
@@ -30,6 +30,22 @@ function shortText(s, max = 220) {
   return t.slice(0, max) + "…";
 }
 
+/** ✅ key robusta (evita colisão) */
+function getUniqueKey(it, index) {
+  const uid = it?.uid || it?.UID || it?.uuid;
+  if (uid) return `uid:${String(uid)}`;
+
+  const id = it?.ID ?? it?.id;
+  const tipo = upper(it?.tipo ?? it?.TIPO);
+  const dt = it?.DATA_CRIACAO ?? it?.dataCriacao ?? it?.createdAt;
+  if (id != null) return `id:${tipo}:${String(id)}:${String(dt ?? "")}`;
+
+  const stripe = it?.STRIPE_INVOICE_ID || it?.stripeInvoiceId || it?.STRIPE_SESSION_ID || it?.stripeSessionId;
+  if (stripe) return `stripe:${tipo}:${String(stripe)}`;
+
+  return `fallback:${tipo}:${index}`;
+}
+
 /* ========= pills ========= */
 function StatusPill({ status }) {
   const s = upper(status);
@@ -41,14 +57,14 @@ function StatusPill({ status }) {
       : s === "NEGADA"
       ? "is-bad"
       : "is-neutral";
-  return <span className={`admPill ${klass}`}>{status || "—"}</span>;
+  return <span className={`cbarf-pill ${klass}`}>{status || "—"}</span>;
 }
 
 function TipoPillStrong({ tipo }) {
   const t = upper(tipo);
   const klass = t === "ASSINATURA" ? "is-subscription" : t === "CREDITO" ? "is-credit" : "is-neutral";
-  const label = t === "ASSINATURA" ? "ASSINATURA" : t === "CREDITO" ? "CRÉDITO" : (tipo || "—");
-  return <span className={`admPill ${klass}`}>{label}</span>;
+  const label = t === "ASSINATURA" ? "ASSINATURA" : t === "CREDITO" ? "CRÉDITO" : tipo || "—";
+  return <span className={`cbarf-pill ${klass}`}>{label}</span>;
 }
 
 /* ========= modal ========= */
@@ -57,32 +73,33 @@ function ConfirmModal({ open, title, desc, onClose, onConfirm, loading, error })
 
   return (
     <div
-      className="admModalOverlay"
+      className="cbarf-modalOverlay"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose?.();
       }}
       role="presentation"
     >
-      <div className="admModalCard" role="dialog" aria-modal="true" aria-labelledby="adm-modal-title">
-        <div className="admModalHeader">
-          <h3 id="adm-modal-title" className="admModalTitle">
+      <div className="cbarf-modalPanel" role="dialog" aria-modal="true" aria-labelledby="cbarf-modal-title">
+        <div className="cbarf-modalHeader">
+          <h3 id="cbarf-modal-title" className="cbarf-modalTitle">
             {title}
           </h3>
-          <button className="admModalClose" onClick={onClose} disabled={loading} aria-label="Fechar">
-            ✕
+
+          <button className="cbarf-modalClose" onClick={onClose} disabled={loading} aria-label="Fechar">
+            ×
           </button>
         </div>
 
-        <div className="admModalBody">
-          <p className="admModalDesc">{desc}</p>
-          {error ? <div className="admModalError">{error}</div> : null}
+        <div className="cbarf-modalBody">
+          <p className="cbarf-modalDesc">{desc}</p>
+          {error ? <div className="cbarf-modalError">{error}</div> : null}
         </div>
 
-        <div className="admModalFooter">
-          <button className="admBtnGhost" onClick={onClose} disabled={loading}>
+        <div className="cbarf-modalFooter">
+          <button className="cbarf-btnGhostM" onClick={onClose} disabled={loading}>
             Cancelar
           </button>
-          <button className="admBtnPrimary" onClick={onConfirm} disabled={loading}>
+          <button className="cbarf-btnPrimaryM" onClick={onConfirm} disabled={loading}>
             {loading ? "Processando..." : "Confirmar"}
           </button>
         </div>
@@ -102,14 +119,22 @@ function resolveEndpoint(API_BASE, pathOrUrl) {
 export default function AdminRefundRequestsPage() {
   const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000").toString().replace(/\/+$/, "");
 
-  const [status, setStatus] = useState("PENDENTE");
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  // ✅ trava scroll do body/html enquanto esta tela estiver montada
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, []);
 
+  const [status, setStatus] = useState("PENDENTE");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [items, setItems] = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
   const [toast, setToast] = useState("");
@@ -121,16 +146,16 @@ export default function AdminRefundRequestsPage() {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalErr, setModalErr] = useState("");
 
-  const canPrev = page > 1 && !loading;
-  const canNext = page < totalPages && !loading;
+  // ✅ sem rodapé: buscamos mais itens e deixamos rolar dentro do card
+  const pageSize = 60;
 
-  async function load(p = page, st = status) {
+  async function load(st = status) {
     setLoading(true);
     setErr("");
     try {
       const url = new URL(`${API_BASE}/admin/api/reembolsos/solicitacoes`);
       if (st) url.searchParams.set("status", st);
-      url.searchParams.set("page", String(p));
+      url.searchParams.set("page", "1");
       url.searchParams.set("pageSize", String(pageSize));
 
       const res = await fetch(url.toString(), { credentials: "include" });
@@ -139,12 +164,9 @@ export default function AdminRefundRequestsPage() {
 
       setItems(Array.isArray(json?.solicitacoes) ? json.solicitacoes : []);
       setTotal(Number(json?.total ?? 0) || 0);
-      setTotalPages(Number(json?.totalPages ?? 1) || 1);
-      setPage(Number(json?.page ?? p) || p);
     } catch (e) {
       setItems([]);
       setTotal(0);
-      setTotalPages(1);
       setErr(e?.message || "Erro ao carregar solicitações.");
     } finally {
       setLoading(false);
@@ -152,14 +174,9 @@ export default function AdminRefundRequestsPage() {
   }
 
   useEffect(() => {
-    load(1, status);
+    load(status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
-
-  useEffect(() => {
-    load(page, status);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
 
   useEffect(() => {
     if (!toast) return;
@@ -193,8 +210,7 @@ export default function AdminRefundRequestsPage() {
 
     const isAssin = upper(modalItem?.tipo) === "ASSINATURA";
 
-    const endpointFromApi =
-      modalMode === "aprovar" ? modalItem?.endpoints?.aprovar : modalItem?.endpoints?.negar;
+    const endpointFromApi = modalMode === "aprovar" ? modalItem?.endpoints?.aprovar : modalItem?.endpoints?.negar;
 
     const fallback =
       modalMode === "aprovar"
@@ -219,7 +235,7 @@ export default function AdminRefundRequestsPage() {
 
       setToast(modalMode === "aprovar" ? "Solicitação aprovada!" : "Solicitação negada.");
       closeModal();
-      await load(page, status);
+      await load(status);
     } catch (e) {
       setModalErr(e?.message || "Erro ao processar.");
     } finally {
@@ -240,261 +256,228 @@ export default function AdminRefundRequestsPage() {
   }, [modalItem, modalMode]);
 
   return (
-    <div className="pg-wrap">
-      <section className="pg-card admCard">
-        <header className="admHeader">
-          <div className="admHeaderLeft">
-            <h1 className="admTitle">Solicitações de Reembolso</h1>
-            <p className="admSubtitle">No card: tipo, valor pago, data e status. O resto fica em “Detalhar”.</p>
-          </div>
+    <div className="cbarf-root">
+      <div className="cbarf-page">
+        <section className="cbarf-card">
+          {/* header fixo */}
+          <header className="cbarf-header">
+            <div className="cbarf-headerLeft">
+              <h1 className="cbarf-title">Solicitações de Reembolso</h1>
+              <p className="cbarf-subtitle">No card: tipo, valor pago, data e status. O resto fica em “Detalhar”.</p>
+            </div>
 
-          <div className="admHeaderRight">
-            <div className="admFilters">
-              <label className="admFilter">
-                <span>Status</span>
-                <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={loading}>
-                  <option value="">Todos</option>
-                  <option value="PENDENTE">PENDENTE</option>
-                  <option value="APROVADA">APROVADA</option>
-                  <option value="NEGADA">NEGADA</option>
-                  <option value="CANCELADA">CANCELADA</option>
-                </select>
-              </label>
+            <div className="cbarf-headerRight">
+              <div className="cbarf-filters">
+                <div className="cbarf-filter">
+                  <span className="cbarf-filterLabel">Status</span>
 
-              <div className="admPillsRow">
-                <span className="admTopPill">
-                  <span className="admTopPillLabel">Total</span>
-                  <span className="admTopPillValue">{total}</span>
-                </span>
+                  <div className="cbarf-selectShell">
+                    <select
+                      className="cbarf-select"
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      disabled={loading}
+                    >
+                      <option value="">Todos</option>
+                      <option value="PENDENTE">PENDENTE</option>
+                      <option value="APROVADA">APROVADA</option>
+                      <option value="NEGADA">NEGADA</option>
+                      <option value="CANCELADA">CANCELADA</option>
+                    </select>
+                    <span className="cbarf-selectCaret" aria-hidden="true" />
+                  </div>
+                </div>
 
-                <span className="admTopPill is-yellow">
-                  <span className="admTopPillLabel">Pendentes (pág.)</span>
-                  <span className="admTopPillValue">{summary.pending}</span>
-                </span>
+                <div className="cbarf-topPills" aria-label="Resumo">
+                  <span className="cbarf-topPill">
+                    <span className="cbarf-topPillLabel">Total</span>
+                    <span className="cbarf-topPillValue">{loading ? "—" : total}</span>
+                  </span>
+
+                  <span className="cbarf-topPill is-yellow">
+                    <span className="cbarf-topPillLabel">Pendentes (lista)</span>
+                    <span className="cbarf-topPillValue">{loading ? "—" : summary.pending}</span>
+                  </span>
+                </div>
               </div>
             </div>
+          </header>
+
+          {/* ✅ scroll interno: a lista rola aqui */}
+          <div className="cbarf-scroll">
+            <div className="cbarf-body">
+              {toast ? <div className="cbarf-toast">{toast}</div> : null}
+
+              {loading ? (
+                <div className="cbarf-state">Carregando...</div>
+              ) : err ? (
+                <div className="cbarf-state is-error">{err}</div>
+              ) : items.length === 0 ? (
+                <div className="cbarf-state">Nenhuma solicitação encontrada.</div>
+              ) : (
+                <ul className="cbarf-list" aria-label="Lista de solicitações">
+                  {items.map((it, idx) => {
+                    const tipo = upper(it?.tipo);
+                    const isAssin = tipo === "ASSINATURA";
+                    const isPending = upper(it?.STATUS) === "PENDENTE";
+
+                    const compra = it?.compra;
+                    const assinatura = it?.assinatura;
+                    const cliente = it?.cliente;
+
+                    const valorPago = formatBRL(it?.VALOR);
+                    const dataCard = formatDateTimeBR(it?.DATA_CRIACAO);
+
+                    const statusCompra = compra?.STATUS || "—";
+                    const statusAssin = assinatura?.STATUS || "—";
+
+                    return (
+                      <li key={getUniqueKey(it, idx)} className="cbarf-item">
+                        <div className="cbarf-itemTop">
+                          <div className="cbarf-itemLeft">
+                            <div className="cbarf-itemTitleRow">
+                              <TipoPillStrong tipo={it?.tipo} />
+                              <StatusPill status={it?.STATUS} />
+                              <span className="cbarf-itemTitle">Solicitação #{it?.ID ?? "—"}</span>
+                            </div>
+
+                            <div className="cbarf-essentials">
+                              <div className="cbarf-essCard">
+                                <span className="cbarf-essK">Valor pago</span>
+                                <span className="cbarf-essV">{valorPago}</span>
+                              </div>
+                              <div className="cbarf-essCard">
+                                <span className="cbarf-essK">Data</span>
+                                <span className="cbarf-essV">{dataCard}</span>
+                              </div>
+                              <div className="cbarf-essCard">
+                                <span className="cbarf-essK">Status</span>
+                                <span className="cbarf-essV">{it?.STATUS || "—"}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="cbarf-itemRight">
+                            <button
+                              className="cbarf-btn cbarf-btnPrimary"
+                              disabled={!isPending}
+                              onClick={() => openModal("aprovar", it)}
+                              title={!isPending ? "Apenas PENDENTE pode ser aprovada" : "Aprovar"}
+                            >
+                              Aprovar
+                            </button>
+
+                            <button
+                              className="cbarf-btn cbarf-btnGhost"
+                              disabled={!isPending}
+                              onClick={() => openModal("negar", it)}
+                              title={!isPending ? "Apenas PENDENTE pode ser negada" : "Negar"}
+                            >
+                              Negar
+                            </button>
+                          </div>
+                        </div>
+
+                        <details className="cbarf-details">
+                          <summary className="cbarf-summary">Detalhar</summary>
+
+                          <div className="cbarf-detailBox">
+                            <div className="cbarf-detailGrid">
+                              <div>
+                                <span className="k">Cliente</span>
+                                <span className="v">{cliente?.NOME || "—"}</span>
+                              </div>
+                              <div>
+                                <span className="k">Email</span>
+                                <span className="v">{cliente?.EMAIL || "—"}</span>
+                              </div>
+
+                              <div>
+                                <span className="k">Saldo atual</span>
+                                <span className="v">{String(cliente?.SALDO ?? "—")}</span>
+                              </div>
+                              <div>
+                                <span className="k">Atualizada em</span>
+                                <span className="v">{formatDateTimeBR(it?.DATA_ATUALIZACAO)}</span>
+                              </div>
+
+                              <div>
+                                <span className="k">Solicitação ID</span>
+                                <span className="v">{String(it?.ID ?? "—")}</span>
+                              </div>
+                              <div>
+                                <span className="k">Tipo</span>
+                                <span className="v">{isAssin ? "ASSINATURA" : "CRÉDITO"}</span>
+                              </div>
+
+                              {isAssin ? (
+                                <>
+                                  <div>
+                                    <span className="k">Assinatura ID (DB)</span>
+                                    <span className="v">{String(assinatura?.ID ?? "—")}</span>
+                                  </div>
+                                  <div>
+                                    <span className="k">Status assinatura (DB)</span>
+                                    <span className="v">{statusAssin}</span>
+                                  </div>
+                                  <div>
+                                    <span className="k">Stripe invoice</span>
+                                    <span className="v">{it?.STRIPE_INVOICE_ID || "—"}</span>
+                                  </div>
+                                  <div>
+                                    <span className="k">Stripe subscription</span>
+                                    <span className="v">{assinatura?.STRIPE_SUBSCRIPTION_ID || "—"}</span>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div>
+                                    <span className="k">Compra ID (DB)</span>
+                                    <span className="v">{String(compra?.ID ?? "—")}</span>
+                                  </div>
+                                  <div>
+                                    <span className="k">Status compra</span>
+                                    <span className="v">{statusCompra}</span>
+                                  </div>
+                                  <div>
+                                    <span className="k">Stripe session</span>
+                                    <span className="v">{compra?.STRIPE_SESSION_ID || "—"}</span>
+                                  </div>
+                                  <div>
+                                    <span className="k">Pago em</span>
+                                    <span className="v">{formatDateTimeBR(compra?.DATA_PAGAMENTO)}</span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+
+                            <div className="cbarf-reason">
+                              <span className="cbarf-reasonLabel">Motivo</span>
+                              <p className="cbarf-reasonText">{shortText(it?.MOTIVO, 220)}</p>
+                            </div>
+                          </div>
+                        </details>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           </div>
-        </header>
 
-        <div className="admBody">
-          {toast ? <div className="admToast">{toast}</div> : null}
+          {/* ✅ sem rodapé */}
+        </section>
 
-          {loading ? (
-            <div className="admState">Carregando...</div>
-          ) : err ? (
-            <div className="admState is-error">{err}</div>
-          ) : items.length === 0 ? (
-            <div className="admState">Nenhuma solicitação encontrada.</div>
-          ) : (
-            <ul className="admList">
-              {items.map((it) => {
-                const tipo = upper(it?.tipo);
-                const isAssin = tipo === "ASSINATURA";
-                const isPending = upper(it?.STATUS) === "PENDENTE";
-
-                const compra = it?.compra;
-                const assinatura = it?.assinatura;
-                const cliente = it?.cliente;
-
-                // ✅ no card: só valor pago, data, status
-                const valorPago = formatBRL(it?.VALOR);
-                const dataCard = formatDateTimeBR(it?.DATA_CRIACAO);
-
-                // ✅ status da compra (se existir) / assinatura (se existir) cai no "Detalhar"
-                const statusCompra = compra?.STATUS || "—";
-                const statusAssin = assinatura?.STATUS || "—";
-
-                // blocos do detalhar: TODO o resto
-                const detailMainGrid = (
-                  <div className="admDetailGrid">
-                    <div>
-                      <span className="k">Cliente</span>
-                      <span className="v">{cliente?.NOME || "—"}</span>
-                    </div>
-                    <div>
-                      <span className="k">Email</span>
-                      <span className="v">{cliente?.EMAIL || "—"}</span>
-                    </div>
-
-                    <div>
-                      <span className="k">Saldo atual</span>
-                      <span className="v">{String(cliente?.SALDO ?? "—")}</span>
-                    </div>
-                    <div>
-                      <span className="k">Atualizada em</span>
-                      <span className="v">{formatDateTimeBR(it?.DATA_ATUALIZACAO)}</span>
-                    </div>
-
-                    <div>
-                      <span className="k">Solicitação ID</span>
-                      <span className="v">{String(it?.ID ?? "—")}</span>
-                    </div>
-                    <div>
-                      <span className="k">Tipo</span>
-                      <span className="v">{isAssin ? "ASSINATURA" : "CRÉDITO"}</span>
-                    </div>
-
-                    {isAssin ? (
-                      <>
-                        <div>
-                          <span className="k">Assinatura ID (DB)</span>
-                          <span className="v">{String(assinatura?.ID ?? "—")}</span>
-                        </div>
-                        <div>
-                          <span className="k">Status assinatura (DB)</span>
-                          <span className="v">{statusAssin}</span>
-                        </div>
-                        <div>
-                          <span className="k">Stripe invoice</span>
-                          <span className="v">{it?.STRIPE_INVOICE_ID || "—"}</span>
-                        </div>
-                        <div>
-                          <span className="k">Stripe subscription</span>
-                          <span className="v">{assinatura?.STRIPE_SUBSCRIPTION_ID || "—"}</span>
-                        </div>
-                        <div>
-                          <span className="k">Créditos (fatura)</span>
-                          <span className="v">{String(it?.CREDITOS ?? "—")}</span>
-                        </div>
-                        <div>
-                          <span className="k">Valor (fatura)</span>
-                          <span className="v">{formatBRL(it?.VALOR)}</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div>
-                          <span className="k">Compra ID (DB)</span>
-                          <span className="v">{String(compra?.ID ?? "—")}</span>
-                        </div>
-                        <div>
-                          <span className="k">Status compra</span>
-                          <span className="v">{statusCompra}</span>
-                        </div>
-                        <div>
-                          <span className="k">Stripe session</span>
-                          <span className="v">{compra?.STRIPE_SESSION_ID || "—"}</span>
-                        </div>
-                        <div>
-                          <span className="k">Pago em</span>
-                          <span className="v">{formatDateTimeBR(compra?.DATA_PAGAMENTO)}</span>
-                        </div>
-                        <div>
-                          <span className="k">Créditos compra</span>
-                          <span className="v">{String(compra?.QUANTIDADE ?? it?.QUANTIDADE ?? "—")}</span>
-                        </div>
-                        <div>
-                          <span className="k">Total compra</span>
-                          <span className="v">{formatBRL(compra?.VALOR_TOTAL)}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-
-                return (
-                  <li key={String(it?.uid || `${it?.tipo || "X"}_${it?.ID}`)} className="admItem">
-                    <div className="admItemTop">
-                      <div className="admItemLeft">
-                        <div className="admItemTitleRow">
-                          {/* ✅ indicativo visual forte do tipo */}
-                          <TipoPillStrong tipo={it?.tipo} />
-                          {/* ✅ status também visível */}
-                          <StatusPill status={it?.STATUS} />
-                          <span className="admItemTitle">Solicitação #{it?.ID ?? "—"}</span>
-                        </div>
-
-                        {/* ✅ SÓ ESSENCIAL NO CARD */}
-                        <div className="admEssentials">
-                          <div className="admEssCard">
-                            <span className="admEssK">Valor pago</span>
-                            <span className="admEssV">{valorPago}</span>
-                          </div>
-                          <div className="admEssCard">
-                            <span className="admEssK">Data</span>
-                            <span className="admEssV">{dataCard}</span>
-                          </div>
-                          <div className="admEssCard">
-                            <span className="admEssK">Status</span>
-                            <span className="admEssV">{it?.STATUS || "—"}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="admItemRight">
-                        <button
-                          className="admBtnPrimary"
-                          disabled={!isPending}
-                          onClick={() => openModal("aprovar", it)}
-                          title={!isPending ? "Apenas PENDENTE pode ser aprovada" : "Aprovar"}
-                        >
-                          Aprovar
-                        </button>
-
-                        <button
-                          className="admBtnGhost"
-                          disabled={!isPending}
-                          onClick={() => openModal("negar", it)}
-                          title={!isPending ? "Apenas PENDENTE pode ser negada" : "Negar"}
-                        >
-                          Negar
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* ✅ TODO O RESTO AQUI */}
-                    <details className="admDetails">
-                      <summary className="admSummary">Detalhar</summary>
-                      <div className="admDetailBox">
-                        <div className="admDetailSection">
-                          {detailMainGrid}
-
-                          <div className="admReason">
-                            <span className="admReasonLabel">Motivo</span>
-                            <p className="admReasonText">{shortText(it?.MOTIVO, 220)}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </details>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          <div className="admPager">
-            <button className="admBtnGhost" onClick={() => setPage(1)} disabled={!canPrev}>
-              « Primeira
-            </button>
-            <button className="admBtnGhost" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={!canPrev}>
-              ‹ Anterior
-            </button>
-            <span className="admPagerCenter">
-              Página <b>{page}</b> de <b>{totalPages}</b>
-            </span>
-            <button
-              className="admBtnGhost"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={!canNext}
-            >
-              Próxima ›
-            </button>
-            <button className="admBtnGhost" onClick={() => setPage(totalPages)} disabled={!canNext}>
-              Última »
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <ConfirmModal
-        open={modalOpen}
-        title={modalTitle}
-        desc={modalDesc}
-        onClose={closeModal}
-        onConfirm={doApproveOrDeny}
-        loading={modalLoading}
-        error={modalErr}
-      />
+        <ConfirmModal
+          open={modalOpen}
+          title={modalTitle}
+          desc={modalDesc}
+          onClose={closeModal}
+          onConfirm={doApproveOrDeny}
+          loading={modalLoading}
+          error={modalErr}
+        />
+      </div>
     </div>
   );
 }

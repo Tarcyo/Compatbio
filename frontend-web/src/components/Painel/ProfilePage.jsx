@@ -1,6 +1,5 @@
 // ProfilePage.jsx
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import "../Pages/Pages.css";
 import "./Profile.css";
 
 function IconEdit(props) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./AdminEmpresasPage.css";
+import "./AdminEmpresasPage.compat.css";
 
 const API_BASE = (import.meta?.env?.VITE_API_URL || "http://localhost:3000")
   .toString()
@@ -20,13 +20,15 @@ function formatCNPJ(v) {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12, 14)}`;
 }
 function isValidCNPJ(v) {
-  // validação simples: 14 dígitos (sem algoritmo de dígito verificador)
   return onlyDigits(v).length === 14;
 }
 function safeText(v) {
   return String(v ?? "").trim();
 }
 
+// --------------------
+// Icons
+// --------------------
 function IconPlus(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -39,7 +41,7 @@ function IconSearch(props) {
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <path
         fill="currentColor"
-        d="M10 3a7 7 0 1 0 4.3 12.5l4.1 4.1 1.4-1.4-4.1-4.1A7 7 0 0 0 10 3Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"
+        d="M10 2a8 8 0 1 1 5.293 14.01l4.348 4.349-1.414 1.414-4.349-4.348A8 8 0 0 1 10 2Zm0 2a6 6 0 1 0 0 12a6 6 0 0 0 0-12Z"
       />
     </svg>
   );
@@ -75,55 +77,63 @@ function IconLink(props) {
   );
 }
 
-function Modal({ open, title, children, footer, onClose, disableClose }) {
+// --------------------
+// Modal (isolado)
+/// --------------------
+function Modal({ open, title, children, footer, onClose, busy }) {
   const panelRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
+
     const onKey = (e) => {
-      if (e.key === "Escape" && !disableClose) onClose?.();
+      if (e.key === "Escape" && !busy) onClose?.();
     };
     document.addEventListener("keydown", onKey);
 
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose, disableClose]);
+  }, [open, onClose, busy]);
 
   if (!open) return null;
 
   const onOverlay = (e) => {
-    if (disableClose) return;
+    if (busy) return;
     if (panelRef.current && !panelRef.current.contains(e.target)) onClose?.();
   };
 
   return (
-    <div className="cbModalOverlay" onMouseDown={onOverlay} role="dialog" aria-modal="true">
-      <div className="cbModalPanel" ref={panelRef}>
-        <div className="cbModalHeader">
-          <h3 className="cbModalTitle">{title}</h3>
+    <div className="cbaemp-modalOverlay" onMouseDown={onOverlay} role="dialog" aria-modal="true">
+      <div className="cbaemp-modalPanel" ref={panelRef}>
+        <div className="cbaemp-modalHeader">
+          <h3 className="cbaemp-modalTitle">{title}</h3>
           <button
-            className="cbModalClose"
+            className="cbaemp-modalClose"
             type="button"
-            onClick={onClose}
+            onClick={busy ? undefined : onClose}
             aria-label="Fechar"
-            disabled={disableClose}
-            title={disableClose ? "Aguarde..." : "Fechar"}
+            disabled={busy}
+            title={busy ? "Aguarde..." : "Fechar"}
           >
             ×
           </button>
         </div>
 
-        <div className="cbModalBody">{children}</div>
-        {footer ? <div className="cbModalFooter">{footer}</div> : null}
+        <div className="cbaemp-modalBody">{children}</div>
+        {footer ? <div className="cbaemp-modalFooter">{footer}</div> : null}
       </div>
     </div>
   );
 }
 
+// --------------------
+// Logo Avatar (isolado)
+// --------------------
 function LogoAvatar({ name, url }) {
   const [broken, setBroken] = useState(false);
 
@@ -136,19 +146,14 @@ function LogoAvatar({ name, url }) {
     return (a + b).toUpperCase();
   }, [name]);
 
-  const showImg = url && !broken;
+  const showImg = !!url && !broken;
 
   return (
-    <div className="aeLogo">
+    <div className="cbaemp-logo">
       {showImg ? (
-        <img
-          src={url}
-          alt={name ? `Logo ${name}` : "Logo"}
-          onError={() => setBroken(true)}
-          loading="lazy"
-        />
+        <img src={url} alt={name ? `Logo ${name}` : "Logo"} onError={() => setBroken(true)} loading="lazy" />
       ) : (
-        <span className="aeLogoFallback" aria-hidden="true">
+        <span className="cbaemp-logoFallback" aria-hidden="true">
           {initials}
         </span>
       )}
@@ -157,6 +162,18 @@ function LogoAvatar({ name, url }) {
 }
 
 export default function AdminEmpresasPage() {
+  // ✅ trava scroll global (scroll só no card)
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, []);
+
   // list
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -164,7 +181,6 @@ export default function AdminEmpresasPage() {
 
   // search
   const [q, setQ] = useState("");
-  const debounceRef = useRef(null);
 
   // modal create/edit
   const [modal, setModal] = useState({ open: false, mode: "create", current: null });
@@ -185,7 +201,6 @@ export default function AdminEmpresasPage() {
     return url.toString();
   }, [q]);
 
-  // load list
   useEffect(() => {
     let alive = true;
     const ctrl = new AbortController();
@@ -221,11 +236,6 @@ export default function AdminEmpresasPage() {
     };
   }, [listUrl]);
 
-  const onSearchInput = (v) => {
-    setQ(v);
-  };
-
-  // abrir modal criar
   const openCreate = () => {
     setFormNome("");
     setFormCnpj("");
@@ -233,7 +243,6 @@ export default function AdminEmpresasPage() {
     setModal({ open: true, mode: "create", current: null });
   };
 
-  // abrir modal editar
   const openEdit = (e) => {
     setFormNome(String(e?.NOME || ""));
     setFormCnpj(formatCNPJ(e?.CNPJ || ""));
@@ -263,19 +272,13 @@ export default function AdminEmpresasPage() {
     setSaving(true);
     try {
       const isEdit = modal.mode === "edit";
-      const url = isEdit
-        ? `${API_BASE}/admin/api/empresas/${modal.current?.ID}`
-        : `${API_BASE}/admin/api/empresas`;
+      const url = isEdit ? `${API_BASE}/admin/api/empresas/${modal.current?.ID}` : `${API_BASE}/admin/api/empresas`;
 
       const res = await fetch(url, {
         method: isEdit ? "PUT" : "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome,
-          cnpj: cnpjFmt,
-          imagemDaLogo: logo,
-        }),
+        body: JSON.stringify({ nome, cnpj: cnpjFmt, imagemDaLogo: logo }),
       });
 
       const data = await res.json().catch(() => null);
@@ -297,7 +300,6 @@ export default function AdminEmpresasPage() {
     }
   };
 
-  // delete
   const openDelete = (e) => setDeleteModal({ open: true, current: e });
   const closeDelete = () => {
     if (deleting) return;
@@ -327,132 +329,149 @@ export default function AdminEmpresasPage() {
     }
   };
 
-  // debounce opcional (se quiser não buscar a cada tecla, descomente)
-  useEffect(() => {
-    // Mantém simples: o useMemo + useEffect já busca.
-    // Se você quiser debounce real, faça aqui:
-    // return () => clearTimeout(debounceRef.current);
-    return undefined;
-  }, [q]);
-
   return (
-    <div className="analysisPage">
-      <div className="pg-card aeCard">
-        <header className="aeHeader">
-          <div className="aeHeaderLeft">
-            <h1 className="aeTitle">Empresas</h1>
-            <p className="aeSubtitle">Cadastre empresas, edite dados e gerencie logos. Remoção segura com validações.</p>
+    <div className="cbaemp-root">
+      <div className="cbaemp-card">
+        {/* Header fixo */}
+        <header className="cbaemp-header">
+          <div className="cbaemp-headerLeft">
+            <h1 className="cbaemp-title">Empresas</h1>
+            <p className="cbaemp-subtitle">
+              Cadastre empresas, edite dados e gerencie logos. Remoção segura com validações.
+            </p>
           </div>
 
-          <button type="button" className="aeAddBtn" onClick={openCreate}>
-            <IconPlus className="aeAddIcon" aria-hidden="true" />
+          <button type="button" className="cbaemp-addBtn" onClick={openCreate}>
+            <IconPlus className="cbaemp-addIcon" aria-hidden="true" />
             Adicionar empresa
           </button>
         </header>
 
-        <section className="aeToolbar">
-          <div className="aeSearch">
-            <span className="aeSearchIcon" aria-hidden="true">
+        {/* Toolbar fixa */}
+        <section className="cbaemp-toolbar">
+          <div className="cbaemp-search">
+            <span className="cbaemp-searchIcon" aria-hidden="true">
               <IconSearch />
             </span>
             <input
-              className="aeSearchInput"
+              className="cbaemp-input"
               value={q}
-              onChange={(e) => onSearchInput(e.target.value)}
+              onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar por nome ou CNPJ..."
               autoComplete="off"
+              aria-label="Buscar por nome ou CNPJ"
             />
           </div>
 
-          <div className="aeStats" aria-label="Resumo">
-            <span className="aeStat">
+          <div className="cbaemp-stats" aria-label="Resumo">
+            <span className="cbaemp-stat">
               <strong>{loading ? "—" : empresas.length}</strong>
-              <span>empresas</span>
+              <span>EMPRESAS</span>
             </span>
           </div>
         </section>
 
-        <section className="aeBody">
-          {loading ? (
-            <div className="aeState">Carregando...</div>
-          ) : err ? (
-            <div className="aeState is-error">{err}</div>
-          ) : empresas.length === 0 ? (
-            <div className="aeState">Nenhuma empresa encontrada.</div>
-          ) : (
-            <ul className="aeGrid" aria-label="Lista de empresas">
-              {empresas.map((e) => {
-                const clientesCount = e?._count?.cliente ?? e?.clientesCount ?? null;
-                return (
-                  <li key={e.ID} className="aeItem">
-                    <div className="aeItemTop">
-                      <LogoAvatar name={e.NOME} url={e.IMAGEM_DA_LOGO} />
+        {/* Scroll só no corpo */}
+        <div className="cbaemp-scroll">
+          <section className="cbaemp-body">
+            {loading ? (
+              <div className="cbaemp-state">Carregando...</div>
+            ) : err ? (
+              <div className="cbaemp-state is-error">{err}</div>
+            ) : empresas.length === 0 ? (
+              <div className="cbaemp-state">Nenhuma empresa encontrada.</div>
+            ) : (
+              <ul className="cbaemp-grid" aria-label="Lista de empresas">
+                {empresas.map((e, idx) => {
+                  const clientesCount = e?._count?.cliente ?? e?.clientesCount ?? null;
+                  const key = e?.ID != null ? `cbaemp-emp-${e.ID}` : `cbaemp-emp-fallback-${idx}-${e?.NOME || "x"}`;
 
-                      <div className="aeItemMain">
-                        <div className="aeItemName">{e.NOME}</div>
-                        <div className="aeItemMeta">
-                          <span className="aePill">
-                            <span className="aePillK">CNPJ</span>
-                            <span className="aePillV">{e.CNPJ || "—"}</span>
-                          </span>
+                  return (
+                    <li key={key} className="cbaemp-item">
+                      <div className="cbaemp-itemTop">
+                        <LogoAvatar name={e.NOME} url={e.IMAGEM_DA_LOGO} />
 
-                          {clientesCount != null ? (
-                            <span className="aePill is-green">
-                              <span className="aePillK">Clientes</span>
-                              <span className="aePillV">{clientesCount}</span>
+                        <div className="cbaemp-itemMain">
+                          <div className="cbaemp-itemName" title={e.NOME}>
+                            {e.NOME}
+                          </div>
+
+                          <div className="cbaemp-itemMeta">
+                            <span className="cbaemp-pill">
+                              <span className="cbaemp-pillK">CNPJ</span>
+                              <span className="cbaemp-pillV">{formatCNPJ(e.CNPJ) || "—"}</span>
                             </span>
-                          ) : null}
+
+                            {clientesCount != null ? (
+                              <span className="cbaemp-pill is-green">
+                                <span className="cbaemp-pillK">CLIENTES</span>
+                                <span className="cbaemp-pillV">{clientesCount}</span>
+                              </span>
+                            ) : null}
+                          </div>
+
+                          {e.IMAGEM_DA_LOGO ? (
+                            <div className="cbaemp-link" title={e.IMAGEM_DA_LOGO}>
+                              <IconLink className="cbaemp-linkIcon" aria-hidden="true" />
+                              <span className="cbaemp-linkText">{e.IMAGEM_DA_LOGO}</span>
+                            </div>
+                          ) : (
+                            <div className="cbaemp-hint">Sem logo cadastrada.</div>
+                          )}
                         </div>
 
-                        {e.IMAGEM_DA_LOGO ? (
-                          <div className="aeItemLink" title={e.IMAGEM_DA_LOGO}>
-                            <IconLink className="aeLinkIcon" aria-hidden="true" />
-                            <span className="aeLinkText">{e.IMAGEM_DA_LOGO}</span>
-                          </div>
-                        ) : (
-                          <div className="aeItemHint">Sem logo cadastrada.</div>
-                        )}
-                      </div>
+                        <div className="cbaemp-actions">
+                          <button
+                            type="button"
+                            className="cbaemp-iconBtn"
+                            onClick={() => openEdit(e)}
+                            title="Editar"
+                            aria-label="Editar empresa"
+                          >
+                            <IconEdit className="cbaemp-icon" aria-hidden="true" />
+                          </button>
 
-                      <div className="aeItemActions">
-                        <button type="button" className="aeIconBtn" onClick={() => openEdit(e)} title="Editar">
-                          <IconEdit className="aeIcon" aria-hidden="true" />
-                        </button>
-
-                        <button type="button" className="aeIconBtn is-danger" onClick={() => openDelete(e)} title="Remover">
-                          <IconTrash className="aeIcon" aria-hidden="true" />
-                        </button>
+                          <button
+                            type="button"
+                            className="cbaemp-iconBtn is-danger"
+                            onClick={() => openDelete(e)}
+                            title="Remover"
+                            aria-label="Remover empresa"
+                          >
+                            <IconTrash className="cbaemp-icon" aria-hidden="true" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        </div>
 
         {/* Modal Criar/Editar */}
         <Modal
           open={modal.open}
           title={modal.mode === "edit" ? "Editar empresa" : "Adicionar empresa"}
           onClose={closeModal}
-          disableClose={saving}
+          busy={saving}
           footer={
             <>
-              <button className="cbBtnGhost" type="button" onClick={closeModal} disabled={saving}>
+              <button className="cbaemp-btnGhost" type="button" onClick={closeModal} disabled={saving}>
                 Cancelar
               </button>
-              <button className="cbBtnPrimary" type="button" onClick={saveEmpresa} disabled={saving || !canSave}>
+              <button className="cbaemp-btnPrimary" type="button" onClick={saveEmpresa} disabled={saving || !canSave}>
                 {saving ? "Salvando..." : "Salvar"}
               </button>
             </>
           }
         >
-          <div className="aeForm">
-            <div className="aeRow">
-              <label className="aeLabel">Nome</label>
+          <div className="cbaemp-form">
+            <div className="cbaemp-row">
+              <label className="cbaemp-label">Nome</label>
               <input
-                className="aeInput"
+                className="cbaemp-field"
                 value={formNome}
                 onChange={(e) => setFormNome(e.target.value)}
                 placeholder="Ex.: CompatBio LTDA"
@@ -460,11 +479,11 @@ export default function AdminEmpresasPage() {
               />
             </div>
 
-            <div className="aeTwoCols">
-              <div className="aeRow">
-                <label className="aeLabel">CNPJ</label>
+            <div className="cbaemp-twoCols">
+              <div className="cbaemp-row">
+                <label className="cbaemp-label">CNPJ</label>
                 <input
-                  className="aeInput"
+                  className="cbaemp-field"
                   value={formCnpj}
                   onChange={(e) => setFormCnpj(formatCNPJ(e.target.value))}
                   placeholder="00.000.000/0000-00"
@@ -472,32 +491,32 @@ export default function AdminEmpresasPage() {
                   inputMode="numeric"
                 />
                 {!formCnpj ? null : isValidCNPJ(formCnpj) ? (
-                  <div className="aeHelp ok">CNPJ OK</div>
+                  <div className="cbaemp-help is-ok">CNPJ OK</div>
                 ) : (
-                  <div className="aeHelp bad">Informe 14 dígitos</div>
+                  <div className="cbaemp-help is-bad">Informe 14 dígitos</div>
                 )}
               </div>
 
-              <div className="aeRow">
-                <label className="aeLabel">Logo (URL opcional)</label>
+              <div className="cbaemp-row">
+                <label className="cbaemp-label">Logo (URL opcional)</label>
                 <input
-                  className="aeInput"
+                  className="cbaemp-field"
                   value={formLogo}
                   onChange={(e) => setFormLogo(e.target.value)}
                   placeholder="https://..."
                   disabled={saving}
                 />
-                <div className="aeHelp">Dica: use um link direto para imagem (png/jpg/webp).</div>
+                <div className="cbaemp-help">Dica: use um link direto para imagem (png/jpg/webp).</div>
               </div>
             </div>
 
-            <div className="aePreview">
-              <div className="aePreviewTitle">Prévia</div>
-              <div className="aePreviewCard">
+            <div className="cbaemp-preview">
+              <div className="cbaemp-previewTitle">Prévia</div>
+              <div className="cbaemp-previewCard">
                 <LogoAvatar name={formNome || "Empresa"} url={safeText(formLogo)} />
-                <div className="aePreviewInfo">
-                  <div className="aePreviewName">{formNome || "Nome da empresa"}</div>
-                  <div className="aePreviewCnpj">{formatCNPJ(formCnpj) || "CNPJ"}</div>
+                <div className="cbaemp-previewInfo">
+                  <div className="cbaemp-previewName">{formNome || "Nome da empresa"}</div>
+                  <div className="cbaemp-previewCnpj">{formatCNPJ(formCnpj) || "CNPJ"}</div>
                 </div>
               </div>
             </div>
@@ -509,24 +528,23 @@ export default function AdminEmpresasPage() {
           open={deleteModal.open}
           title="Remover empresa"
           onClose={closeDelete}
-          disableClose={deleting}
+          busy={deleting}
           footer={
             <>
-              <button className="cbBtnGhost" type="button" onClick={closeDelete} disabled={deleting}>
+              <button className="cbaemp-btnGhost" type="button" onClick={closeDelete} disabled={deleting}>
                 Cancelar
               </button>
-              <button className="cbBtnPrimary aeDangerBtn" type="button" onClick={deleteEmpresa} disabled={deleting}>
+              <button className="cbaemp-btnDanger" type="button" onClick={deleteEmpresa} disabled={deleting}>
                 {deleting ? "Removendo..." : "Remover"}
               </button>
             </>
           }
         >
-          <div className="aeDeleteBox">
-            <p className="aeDeleteText">
-              Você tem certeza que deseja remover a empresa{" "}
-              <strong>{deleteModal.current?.NOME || "—"}</strong>?
+          <div className="cbaemp-deleteBox">
+            <p className="cbaemp-deleteText">
+              Você tem certeza que deseja remover a empresa <strong>{deleteModal.current?.NOME || "—"}</strong>?
             </p>
-            <p className="aeDeleteWarn">
+            <p className="cbaemp-deleteWarn">
               Se houver clientes vinculados, o backend deve bloquear (recomendado) e retornar erro.
             </p>
           </div>
