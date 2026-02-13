@@ -1,881 +1,870 @@
-/* Profile.css — versão CLARA (mantém integrações e funcionalidades)
-   ✅ FIX: escala aplicada NO .profileCard (porque teu JSX usa pg-wrap + profileCard)
-   ✅ +50% em tudo do card
-   ✅ responsivo pra não quebrar em telas menores
+/* Profile.css
+   ✅ Card sempre centralizado
+   ✅ Nunca entra no sidebar (safe-left)
+   ✅ Conteúdo sempre visível
+   ✅ Scrollbar cinza escuro
+   ✅ Responsivo + scroll interno correto + drawer elegante
 */
 
-/* =========================
-   RESET LOCAL
-========================= */
-.profilePage,
-.profilePage * {
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.cbpProf__page,
+.cbpProf__page * {
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: geometricPrecision !important;
 }
 
-/* (Opcional) Se você usar .profilePage em algum wrapper, mantém o fundo do mock */
-.profilePage {
-  min-height: 100dvh;
-  width: 100%;
-  padding: 28px 22px 34px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+/* =========================
+   TOKENS / CONTROLE
+========================= */
+.pg-wrap.cbpProf__wrap.cbpProf__page {
+  --cbp-scale: 1.5;
+  --cbp-card-maxw: 4240px;
+
+  /* ✅ reserva à esquerda para o sidebar (não invade nunca) */
+  --cbp-sidebar-safe: 1px; /* ajuste para a largura do seu sidebar */
+  --cbp-safe-left: var(--cbp-sidebar-safe);
+
+  --cbp-green: #5e8542;
+  --cbp-green-2: rgba(160, 234, 82, 0.98);
+  --cbp-green-3: rgba(76, 148, 18, 0.96);
+
+  --cbp-text-0: rgba(17, 24, 39, 0.96);
+  --cbp-text-1: rgba(31, 41, 55, 0.92);
+  --cbp-muted: rgba(75, 85, 99, 0.92);
+
+  --cbp-border: rgba(15, 23, 42, 0.12);
+  --cbp-border-2: rgba(15, 23, 42, 0.14);
+
+  --cbp-shadow-lg: 0 calc(18px * var(--cbp-scale)) calc(52px * var(--cbp-scale)) rgba(15, 23, 42, 0.12);
+  --cbp-shadow-md: 0 calc(14px * var(--cbp-scale)) calc(34px * var(--cbp-scale)) rgba(15, 23, 42, 0.10);
+
+  --cbp-r-xl: calc(26px * var(--cbp-scale));
+  --cbp-r-lg: calc(18px * var(--cbp-scale));
+  --cbp-pill: 9999px;
+
+  --cbp-pad-x: calc(22px * var(--cbp-scale));
+  --cbp-pad-y: calc(26px * var(--cbp-scale));
+
+  --cbp-gap-10: calc(10px * var(--cbp-scale));
+  --cbp-gap-14: calc(14px * var(--cbp-scale));
+  --cbp-gap-18: calc(18px * var(--cbp-scale));
+
+  --cbp-fs-title: calc(22px * var(--cbp-scale));
+  --cbp-fs-text: calc(14px * var(--cbp-scale));
+  --cbp-fs-small: calc(12px * var(--cbp-scale));
+
+  --cbp-h-btn: calc(46px * var(--cbp-scale));
+  --cbp-h-pill: calc(48px * var(--cbp-scale));
+  --cbp-h-mini: calc(42px * var(--cbp-scale));
+
+  /* ✅ scrollbar cinza escuro */
+  --cbp-scroll-thumb: rgba(31, 41, 55, 0.58);
+  --cbp-scroll-thumb-hover: rgba(31, 41, 55, 0.78);
+
+  --cbp-glow: radial-gradient(900px 320px at 18% 8%, rgba(255,255,255,0.60), rgba(255,255,255,0) 55%),
+              radial-gradient(720px 280px at 78% 0%, rgba(160,234,82,0.16), rgba(255,255,255,0) 58%);
+}
+
+/* =========================
+   WRAP (GRID)
+   ✅ Coluna 1 = safe do sidebar
+   ✅ Coluna 2 = área útil (card fica centralizado aqui)
+========================= */
+.pg-wrap.cbpProf__wrap.cbpProf__page {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+
+  padding: var(--cbp-pad-y) var(--cbp-pad-x) calc(22px * var(--cbp-scale)) !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+
+  display: grid !important;
+  grid-template-columns: var(--cbp-safe-left) minmax(0, 1fr) !important;
+  align-items: start !important;
+
+  overflow-x: clip !important;
+}
+
+/* =========================
+   CARD PRINCIPAL (centralizado)
+========================= */
+.cbpProf__card {
+  grid-column: 2 !important;
+  justify-self: center !important;
+
+  width: min(var(--cbp-card-maxw), 100%) !important;
+  max-width: 100% !important;
+
+  border-radius: var(--cbp-r-xl) !important;
+  padding: calc(18px * var(--cbp-scale)) !important;
+
+  /* ✅ mais legível */
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: var(--cbp-shadow-lg) !important;
+
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+
+  position: relative !important;
+  overflow: hidden !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  /* ✅ scroll interno correto (desktop) */
+  max-height: calc(100vh - (2 * var(--cbp-pad-y))) !important;
+}
+
+@supports (height: 100dvh) {
+  .cbpProf__card {
+    max-height: calc(100dvh - (2 * var(--cbp-pad-y))) !important;
+  }
+}
+
+.cbpProf__card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -2px !important;
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  background: var(--cbp-glow) !important;
+  opacity: 0.45 !important;
+}
+
+.cbpProf__card > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* =========================
+   HEADER
+========================= */
+.cbpProf__cardHeader {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  padding: calc(8px * var(--cbp-scale)) calc(10px * var(--cbp-scale)) calc(14px * var(--cbp-scale)) !important;
+  margin: 0 0 var(--cbp-gap-18) !important;
+
+  border-bottom: 1px solid rgba(15, 23, 42, 0.10) !important;
+  flex: 0 0 auto !important;
+}
+
+.cbpProf__cardTitle {
+  margin: 0 !important;
+  font-size: var(--cbp-fs-title) !important;
+  font-weight: 950 !important;
+  color: var(--cbp-text-0) !important;
+}
+
+/* =========================
+   BODY com scroll (desktop)
+========================= */
+.cbpProf__cardBody {
+  padding: calc(10px * var(--cbp-scale)) calc(10px * var(--cbp-scale)) calc(6px * var(--cbp-scale)) !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable both-edges !important;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--cbp-scroll-thumb) transparent;
+}
+
+.cbpProf__cardBody::-webkit-scrollbar { width: 10px; }
+.cbpProf__cardBody::-webkit-scrollbar-thumb {
+  background: var(--cbp-scroll-thumb);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.cbpProf__cardBody::-webkit-scrollbar-thumb:hover { background: var(--cbp-scroll-thumb-hover); }
+.cbpProf__cardBody::-webkit-scrollbar-track { background: transparent; }
+
+/* =========================
+   TOP AREA
+========================= */
+.cbpProf__top {
+  display: grid !important;
+  grid-template-columns: minmax(calc(140px * var(--cbp-scale)), calc(180px * var(--cbp-scale))) 1fr !important;
+  gap: calc(22px * var(--cbp-scale)) !important;
+  align-items: start !important;
+}
+
+.cbpProf__avatar {
+  width: calc(120px * var(--cbp-scale)) !important;
+  height: calc(120px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
+  object-fit: cover !important;
+
+  border: 2px solid rgba(15, 23, 42, 0.14) !important;
+  box-shadow: 0 calc(14px * var(--cbp-scale)) calc(34px * var(--cbp-scale)) rgba(15, 23, 42, 0.18) !important;
+}
+
+.cbpProf__info { min-width: 0 !important; }
+
+.cbpProf__titleRow {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: var(--cbp-gap-14) !important;
+  flex-wrap: wrap !important;
+}
+
+.cbpProf__name {
+  margin: 0 0 calc(10px * var(--cbp-scale)) !important;
+  font-size: clamp(calc(24px * var(--cbp-scale)), 2.6vw, calc(36px * var(--cbp-scale))) !important;
+  font-weight: 1000 !important;
+  color: var(--cbp-text-0) !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* =========================
+   CRÉDITOS COMPACTO
+========================= */
+.cbpProf__creditsMini {
+  margin-left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: calc(8px * var(--cbp-scale)) !important;
+
+  padding: calc(10px * var(--cbp-scale)) calc(14px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
 
   background:
-    radial-gradient(1100px 520px at 12% 108%, rgba(160, 234, 82, 0.22), rgba(255, 255, 255, 0) 60%),
-    radial-gradient(1000px 520px at 88% 108%, rgba(160, 234, 82, 0.12), rgba(255, 255, 255, 0) 62%),
-    linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+    radial-gradient(360px 180px at 18% 45%, rgba(160, 234, 82, 0.18), rgba(255, 255, 255, 0) 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(245,248,242,0.92) 100%) !important;
+
+  border: 1px solid rgba(94, 133, 66, 0.22) !important;
+  box-shadow: 0 calc(10px * var(--cbp-scale)) calc(22px * var(--cbp-scale)) rgba(15, 23, 42, 0.10) !important;
+
+  white-space: nowrap !important;
+}
+
+.cbpProf__creditsMiniIco {
+  width: calc(18px * var(--cbp-scale)) !important;
+  height: calc(18px * var(--cbp-scale)) !important;
+  color: var(--cbp-green) !important;
+  flex: 0 0 auto !important;
+}
+
+.cbpProf__creditsMiniLabel {
+  font-size: calc(10px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(55, 65, 81, 0.78) !important;
+}
+
+.cbpProf__creditsMiniValue {
+  font-size: calc(14px * var(--cbp-scale)) !important;
+  font-weight: 1000 !important;
+  color: var(--cbp-green) !important;
 }
 
 /* =========================
-   SCALE: APLICAÇÃO CORRETA
-   - Como teu JSX tem: <section className="pg-card profileCard">
-   - A escala precisa ficar AQUI.
+   META (PÍLULAS)
 ========================= */
-.profileCard {
-  --s: 1.5; /* ✅ +50% */
+.cbpProf__meta {
+  display: grid !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
+  margin-top: calc(6px * var(--cbp-scale)) !important;
+}
 
-  width: min(calc(1120px * var(--s)), 100%);
-  border-radius: calc(22px * var(--s));
-  padding: calc(18px * var(--s)) calc(18px * var(--s)) calc(20px * var(--s));
+.cbpProf__pill {
+  display: grid !important;
+  grid-template-columns: calc(22px * var(--cbp-scale)) 1fr !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
+  align-items: center !important;
 
-  background: rgba(255, 255, 255, 0.82); /* era 0.72 */
-  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: calc(12px * var(--cbp-scale)) calc(16px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
 
-  box-shadow: 0 calc(18px * var(--s)) calc(52px * var(--s)) rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 calc(12px * var(--cbp-scale)) calc(28px * var(--cbp-scale)) rgba(15, 23, 42, 0.10) !important;
+}
+
+.cbpProf__pillIco svg {
+  width: calc(20px * var(--cbp-scale)) !important;
+  height: calc(20px * var(--cbp-scale)) !important;
+  color: var(--cbp-muted) !important;
+}
+
+.cbpProf__pillText {
+  min-width: 0 !important;
+  color: var(--cbp-text-1) !important;
+  font-size: calc(15px * var(--cbp-scale)) !important;
+  font-weight: 900 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.cbpProf__pillRow {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: calc(10px * var(--cbp-scale)) !important;
+  min-width: 0 !important;
+}
+
+.cbpProf__pillActionBtn {
+  flex: 0 0 auto !important;
+  height: calc(32px * var(--cbp-scale)) !important;
+  padding: 0 calc(12px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
+
+  border: 1px solid rgba(94, 133, 66, 0.22) !important;
+  background: rgba(94, 133, 66, 0.08) !important;
+  color: rgba(31,41,55,0.92) !important;
+
+  font-size: calc(12px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  transition: transform 160ms ease, filter 160ms ease !important;
+}
+.cbpProf__pillActionBtn:hover { transform: translateY(-1px) !important; filter: brightness(1.02) !important; }
+.cbpProf__pillActionBtn:disabled { opacity: 0.7 !important; cursor: not-allowed !important; transform: none !important; filter: none !important; }
+
+/* =========================
+   DIVIDER / TEXT
+========================= */
+.cbpProf__divider {
+  margin: calc(18px * var(--cbp-scale)) 0 calc(16px * var(--cbp-scale)) !important;
+  height: 1px !important;
+  background: rgba(15, 23, 42, 0.12) !important;
+}
+
+.cbpProf__text {
+  color: var(--cbp-text-1) !important;
+  font-size: var(--cbp-fs-text) !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+  overflow-wrap: anywhere !important;
 }
 
 /* =========================
-   HEADER (Perfil + linha)
+   SECTION + PLAN
 ========================= */
-.profileCardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: calc(6px * var(--s)) calc(8px * var(--s)) calc(14px * var(--s));
-  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+.cbpProf__section { display: grid !important; gap: calc(14px * var(--cbp-scale)) !important; }
+
+.cbpProf__sectionTitle {
+  margin: 0 !important;
+  font-size: calc(12px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(55, 65, 81, 0.78) !important;
 }
 
-.profileCardTitle {
-  margin: 0;
-  font-size: calc(34px * var(--s));
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  color: rgba(31, 41, 55, 0.92);
+.cbpProf__planRow { display: grid !important; grid-template-columns: 1fr !important; gap: calc(14px * var(--cbp-scale)) !important; }
+
+.cbpProf__panel {
+  border-radius: var(--cbp-r-lg) !important;
+  padding: calc(18px * var(--cbp-scale)) !important;
+
+  background: rgba(255, 255, 255, 0.86) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: var(--cbp-shadow-md) !important;
+
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 }
 
-.profileCardBody {
-  padding: calc(18px * var(--s)) calc(8px * var(--s)) calc(6px * var(--s));
+.cbpProf__badgeRow { display: flex !important; margin-bottom: calc(12px * var(--cbp-scale)) !important; }
+
+.cbpProf__badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: calc(8px * var(--cbp-scale)) !important;
+
+  padding: calc(8px * var(--cbp-scale)) calc(12px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
+
+  font-size: calc(12px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+
+  color: rgba(255, 255, 255, 0.98) !important;
+  background: var(--cbp-green) !important;
+  border: 1px solid rgba(94, 133, 66, 0.35) !important;
 }
 
-/* =========================
-   TOP GRID (avatar + info)
-========================= */
-.profileTop {
-  display: grid;
-  grid-template-columns: calc(112px * var(--s)) 1fr;
-  gap: calc(18px * var(--s));
-  align-items: start;
+.cbpProf__badgeIco { width: calc(16px * var(--cbp-scale)) !important; height: calc(16px * var(--cbp-scale)) !important; }
+
+.cbpProf__panelTitle {
+  margin: 0 0 calc(14px * var(--cbp-scale)) !important;
+  font-size: calc(18px * var(--cbp-scale)) !important;
+  font-weight: 1000 !important;
+  color: var(--cbp-text-0) !important;
+  overflow-wrap: anywhere !important;
 }
 
-.profileAvatar {
-  width: calc(104px * var(--s));
-  height: calc(104px * var(--s));
-  border-radius: 999px;
-  object-fit: cover;
-  border: calc(3px * var(--s)) solid rgba(17, 24, 39, 0.10);
-  box-shadow: 0 calc(10px * var(--s)) calc(26px * var(--s)) rgba(15, 23, 42, 0.14);
+.cbpProf__panelList {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: calc(10px * var(--cbp-scale)) !important;
 }
 
-.profileInfo {
-  min-width: 0;
+.cbpProf__panelItem {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: calc(10px * var(--cbp-scale)) !important;
+
+  color: var(--cbp-text-1) !important;
+  font-weight: 850 !important;
+  line-height: 1.35 !important;
+  font-size: calc(14px * var(--cbp-scale)) !important;
+  overflow-wrap: anywhere !important;
 }
 
-.profileTitleRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: calc(14px * var(--s));
-  flex-wrap: wrap;
+.cbpProf__checkIco {
+  width: calc(18px * var(--cbp-scale)) !important;
+  height: calc(18px * var(--cbp-scale)) !important;
+  transform: translateY(2px) !important;
+  color: rgba(94, 133, 66, 0.92) !important;
 }
 
-.profileName {
-  margin: calc(6px * var(--s)) 0 calc(8px * var(--s));
-  font-size: calc(44px * var(--s));
-  line-height: 1.05;
-  font-weight: 950;
-  color: rgba(31, 41, 55, 0.92);
-  overflow-wrap: anywhere;
-}
-
-.profileActions {
-  display: flex;
-  gap: calc(10px * var(--s));
-  align-items: center;
-  justify-content: flex-end;
-  margin-left: auto;
-}
-
-/* =========================
-   BUTTON “Editar perfil”
-========================= */
-.profileActionBtn {
-  height: calc(44px * var(--s));
-  padding: 0 calc(16px * var(--s));
-  border-radius: 999px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(10px * var(--s));
-
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6f9 100%);
-  color: rgba(55, 65, 81, 0.92);
-
-  font-size: calc(14px * var(--s));
-  font-weight: 850;
-
-  box-shadow: 0 calc(10px * var(--s)) calc(26px * var(--s)) rgba(15, 23, 42, 0.08);
-  cursor: pointer;
-  user-select: none;
-
-  transition: transform 160ms ease, filter 160ms ease;
-}
-
-.profileActionBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.02);
-}
-
-.profileActionBtn:active {
-  transform: translateY(0);
-}
-
-.profileActionBtn.is-primary {
-  border-color: rgba(94, 133, 66, 0.35);
-  box-shadow:
-    0 calc(10px * var(--s)) calc(26px * var(--s)) rgba(15, 23, 42, 0.08),
-    0 0 0 calc(4px * var(--s)) rgba(160, 234, 82, 0.16);
-}
-
-.profileActionBtn.is-ghost {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(15, 23, 42, 0.10);
-}
-
-.profileActionIco {
-  width: calc(18px * var(--s));
-  height: calc(18px * var(--s));
-  opacity: 0.9;
-}
-
-/* =========================
-   META ROWS (email + empresa)
-========================= */
-.profileMeta {
-  display: grid;
-  gap: calc(10px * var(--s));
-}
-
-.profileRow {
-  height: calc(40px * var(--s));
-  padding: 0 calc(14px * var(--s));
-  border-radius: 999px;
-
-  display: grid;
-  grid-template-columns: calc(18px * var(--s)) 1fr;
-  gap: calc(12px * var(--s));
-  align-items: center;
-
-  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.06);
-}
-
-.profileIco svg {
-  width: calc(18px * var(--s));
-  height: calc(18px * var(--s));
-  color: rgba(107, 114, 128, 0.95);
-  display: block;
-}
-
-.profileText {
-  min-width: 0;
-  font-size: calc(14px * var(--s));
-  font-weight: 750;
-  color: rgba(55, 65, 81, 0.88);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* =========================
-   DIVIDER
-========================= */
-.profileDivider {
-  margin: calc(16px * var(--s)) 0 calc(14px * var(--s));
-  height: 1px;
-  background: rgba(15, 23, 42, 0.08);
-}
-
-/* =========================
-   SECTION TITLES
-========================= */
-.profileSectionTitle,
-.profileUsersTitle {
-  margin: 0;
-  font-size: calc(12px * var(--s));
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
-}
-
-/* =========================
-   PLAN + CREDITS GRID
-========================= */
-.profileSection {
-  display: grid;
-  gap: calc(12px * var(--s));
-}
-
-.profilePlanRow {
-  display: grid;
-  grid-template-columns: 1fr minmax(0, calc(360px * var(--s)));
-  gap: calc(14px * var(--s));
-  align-items: stretch;
-}
-
-/* =========================
-   CURRENT PLAN CARD
-========================= */
-.profileCurrentPlanCard {
-  border-radius: calc(16px * var(--s));
-  padding: calc(14px * var(--s)) calc(14px * var(--s)) calc(12px * var(--s));
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 calc(14px * var(--s)) calc(34px * var(--s)) rgba(15, 23, 42, 0.08);
-  overflow: hidden;
-}
-
-.profileCurrentPlanTop {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: calc(10px * var(--s));
-}
-
-.profileCurrentPlanBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(8px * var(--s));
-
-  padding: calc(8px * var(--s)) calc(12px * var(--s));
-  border-radius: 999px;
-
-  background: #5e8542;
-  color: rgba(255, 255, 255, 0.98);
-
-  font-size: calc(11px * var(--s));
-  font-weight: 900;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-
-  box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(94, 133, 66, 0.20);
-}
-
-.profileCurrentPlanBadgeIco {
-  width: calc(16px * var(--s));
-  height: calc(16px * var(--s));
-  color: rgba(255, 255, 255, 0.98);
-}
-
-.profileCurrentPlanTitle {
-  margin: calc(2px * var(--s)) 0 calc(10px * var(--s));
-  font-size: calc(16px * var(--s));
-  font-weight: 900;
-  color: rgba(31, 41, 55, 0.92);
-}
-
-.profileCurrentPlanList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: calc(8px * var(--s));
-}
-
-.profileCurrentPlanItem {
-  display: flex;
-  gap: calc(10px * var(--s));
-  align-items: flex-start;
-
-  font-size: calc(13px * var(--s));
-  font-weight: 750;
-  color: rgba(55, 65, 81, 0.88);
-}
-
-.profileCurrentPlanCheck {
-  width: calc(16px * var(--s));
-  height: calc(16px * var(--s));
-  color: #5e8542;
-  transform: translateY(calc(2px * var(--s)));
-  opacity: 0.95;
-}
-
-.profileCurrentPlanItem strong {
-  font-weight: 900;
-  color: rgba(31, 41, 55, 0.92);
-}
-
-.profileCurrentPlanItem strong.is-ok {
-  color: #5e8542;
-}
-
-.profileCurrentPlanItem strong.is-warn {
-  color: rgba(202, 138, 4, 0.95);
-}
-
-/* =========================
-   CREDITS KPI CARD
-========================= */
-.profileCreditsCard {
-  border-radius: calc(16px * var(--s));
-  padding: calc(14px * var(--s)) calc(16px * var(--s));
-  background:
-    radial-gradient(420px 240px at 25% 55%, rgba(160, 234, 82, 0.24), rgba(255, 255, 255, 0) 60%),
-    linear-gradient(180deg, #ffffff 0%, #f5f8f2 100%);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 calc(14px * var(--s)) calc(34px * var(--s)) rgba(15, 23, 42, 0.08);
-
-  display: flex;
-  align-items: center;
-}
-
-.profileCreditsRow {
-  width: 100%;
-  display: grid;
-  gap: calc(8px * var(--s));
-}
-
-.profileCreditsLabelInline {
-  font-size: calc(12px * var(--s));
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
-}
-
-.profileCreditsStat {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(10px * var(--s));
-}
-
-.profileCreditsIcon {
-  width: calc(22px * var(--s));
-  height: calc(22px * var(--s));
-  color: #5e8542;
-}
-
-.profileCreditsNumber {
-  font-size: calc(36px * var(--s));
-  font-weight: 950;
-  letter-spacing: 0.2px;
-  color: #5e8542;
-}
+.cbpProf__ok { color: rgba(76, 148, 18, 0.96) !important; }
+.cbpProf__warn { color: rgba(202, 138, 4, 0.95) !important; }
 
 /* =========================
    USERS
 ========================= */
-.profileUsers {
-  margin-top: calc(14px * var(--s));
+.cbpProf__users { margin-top: calc(18px * var(--cbp-scale)) !important; }
+
+.cbpProf__usersHeader {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
+  margin: 0 0 calc(12px * var(--cbp-scale)) !important;
 }
 
-.profileUsersHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(12px * var(--s));
-  margin: calc(10px * var(--s)) 0 calc(10px * var(--s));
+.cbpProf__usersTitle {
+  margin: 0 !important;
+  font-size: calc(12px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: rgba(55, 65, 81, 0.78) !important;
 }
 
-.profileAddUserBtn {
-  width: calc(40px * var(--s));
-  height: calc(40px * var(--s));
+.cbpProf__usersList {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
+}
+
+.cbpProf__user {
+  display: flex !important;
+  align-items: center !important;
+  gap: calc(14px * var(--cbp-scale)) !important;
+
+  padding: calc(14px * var(--cbp-scale)) calc(16px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-r-lg) !important;
+
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 calc(12px * var(--cbp-scale)) calc(28px * var(--cbp-scale)) rgba(15, 23, 42, 0.10) !important;
+
+  min-width: 0 !important;
+}
+
+.cbpProf__userIco svg {
+  width: calc(22px * var(--cbp-scale)) !important;
+  height: calc(22px * var(--cbp-scale)) !important;
+  color: rgba(107, 114, 128, 0.92) !important;
+}
+
+.cbpProf__userMain { display: grid !important; gap: calc(6px * var(--cbp-scale)) !important; min-width: 0 !important; flex: 1 !important; }
+
+.cbpProf__userName {
+  font-weight: 1000 !important;
+  font-size: calc(15px * var(--cbp-scale)) !important;
+  color: var(--cbp-text-0) !important;
+  overflow-wrap: anywhere !important;
+}
+
+.cbpProf__userSub {
+  font-size: calc(13px * var(--cbp-scale)) !important;
+  font-weight: 850 !important;
+  color: rgba(55, 65, 81, 0.82) !important;
+
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+}
+
+.cbpProf__userRight {
+  margin-left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: calc(10px * var(--cbp-scale)) !important;
+  flex-shrink: 0 !important;
+}
+
+.cbpProf__badges { display: inline-flex !important; gap: calc(8px * var(--cbp-scale)) !important; }
+
+.cbpProf__badgePill {
+  padding: calc(7px * var(--cbp-scale)) calc(12px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
+  font-size: calc(12px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+.cbpProf__badgePill--you { background: rgba(55, 125, 255, 0.80) !important; }
+.cbpProf__badgePill--admin { background: rgba(120, 120, 120, 0.70) !important; }
+
+.cbpProf__userActions { display: inline-flex !important; gap: calc(8px * var(--cbp-scale)) !important; }
+
+.cbpProf__miniBtn {
+  width: var(--cbp-h-mini) !important;
+  height: var(--cbp-h-mini) !important;
+  border-radius: var(--cbp-pill) !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: var(--cbp-text-0) !important;
+
+  box-shadow: 0 calc(10px * var(--cbp-scale)) calc(22px * var(--cbp-scale)) rgba(15, 23, 42, 0.10) !important;
+
+  cursor: pointer !important;
+  transition: transform 160ms ease, filter 160ms ease !important;
+}
+.cbpProf__miniBtn:hover { transform: translateY(-1px) !important; filter: brightness(1.02) !important; }
+.cbpProf__miniBtn:disabled { opacity: 0.65 !important; cursor: not-allowed !important; transform: none !important; filter: none !important; }
+
+.cbpProf__miniBtn--transfer { border-color: rgba(55, 125, 255, 0.22) !important; background: rgba(55, 125, 255, 0.10) !important; }
+.cbpProf__miniBtn--remove { border-color: rgba(239, 68, 68, 0.22) !important; background: rgba(239, 68, 68, 0.10) !important; }
+
+.cbpProf__miniIco { width: calc(18px * var(--cbp-scale)) !important; height: calc(18px * var(--cbp-scale)) !important; opacity: 0.95 !important; }
+
+/* =========================
+   DRAWER
+========================= */
+.cbpProf__drawerOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 70000 !important;
+  background: rgba(15, 23, 42, 0.35) !important;
+
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: stretch !important;
+
+  padding: calc(12px * var(--cbp-scale)) !important;
+}
+
+.cbpProf__drawer {
+  width: min(calc(420px * var(--cbp-scale)), 92vw) !important;
+  height: 100% !important;
+
+  border-radius: var(--cbp-r-xl) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: var(--cbp-shadow-lg) !important;
+
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.cbpProf__drawerHeader {
+  padding: calc(14px * var(--cbp-scale)) calc(16px * var(--cbp-scale)) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12) !important;
+
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
+}
+
+.cbpProf__drawerTitleWrap { min-width: 0 !important; }
+.cbpProf__drawerTitle { margin: 0 !important; font-size: calc(16px * var(--cbp-scale)) !important; font-weight: 1000 !important; color: var(--cbp-text-0) !important; }
+.cbpProf__drawerSubtitle { margin: calc(6px * var(--cbp-scale)) 0 0 !important; font-size: calc(13px * var(--cbp-scale)) !important; font-weight: 850 !important; color: rgba(55, 65, 81, 0.82) !important; }
+
+.cbpProf__drawerClose {
+  width: var(--cbp-h-mini) !important;
+  height: var(--cbp-h-mini) !important;
+  border-radius: var(--cbp-pill) !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  cursor: pointer !important;
+}
+
+.cbpProf__drawerBody {
+  padding: calc(14px * var(--cbp-scale)) calc(16px * var(--cbp-scale)) !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--cbp-scroll-thumb) transparent;
+}
+
+.cbpProf__drawerBody::-webkit-scrollbar { width: 10px; }
+.cbpProf__drawerBody::-webkit-scrollbar-thumb {
+  background: var(--cbp-scroll-thumb);
   border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.cbpProf__drawerBody::-webkit-scrollbar-thumb:hover { background: var(--cbp-scroll-thumb-hover); }
+.cbpProf__drawerBody::-webkit-scrollbar-track { background: transparent; }
 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.cbpProf__drawerSearch {
+  width: 100% !important;
+  height: var(--cbp-h-pill) !important;
+  padding: 0 calc(16px * var(--cbp-scale)) !important;
 
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  box-shadow: 0 calc(10px * var(--s)) calc(26px * var(--s)) rgba(15, 23, 42, 0.08);
+  border-radius: var(--cbp-pill) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
 
-  cursor: pointer;
-  transition: transform 160ms ease, filter 160ms ease;
+  color: var(--cbp-text-0) !important;
+  font-size: calc(15px * var(--cbp-scale)) !important;
+  font-weight: 900 !important;
+
+  outline: none !important;
+  margin-bottom: calc(12px * var(--cbp-scale)) !important;
 }
 
-.profileAddUserBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.02);
+.cbpProf__drawerList { list-style: none !important; padding: 0 !important; margin: 0 !important; display: grid !important; gap: calc(10px * var(--cbp-scale)) !important; }
+
+.cbpProf__drawerItem {
+  border-radius: var(--cbp-r-lg) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  box-shadow: 0 calc(10px * var(--cbp-scale)) calc(22px * var(--cbp-scale)) rgba(15, 23, 42, 0.08) !important;
+  padding: calc(10px * var(--cbp-scale)) calc(12px * var(--cbp-scale)) !important;
 }
 
-.profileAddUserBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
-}
+.cbpProf__drawerItemLabel { display: flex !important; align-items: center !important; gap: calc(10px * var(--cbp-scale)) !important; cursor: pointer !important; }
+.cbpProf__drawerItemLabel input { transform: scale(1.05) !important; }
+.cbpProf__drawerItemText { font-size: calc(14px * var(--cbp-scale)) !important; font-weight: 900 !important; color: rgba(31,41,55,0.92) !important; overflow-wrap: anywhere !important; }
 
-.profileAddUserIco {
-  width: calc(18px * var(--s));
-  height: calc(18px * var(--s));
-  color: rgba(75, 85, 99, 0.92);
-}
+.cbpProf__drawerError { margin: 0 !important; color: rgba(239, 68, 68, 0.95) !important; font-weight: 900 !important; font-size: calc(13px * var(--cbp-scale)) !important; }
 
-.profileUsersList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.cbpProf__drawerFooter {
+  padding: calc(12px * var(--cbp-scale)) calc(16px * var(--cbp-scale)) !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.12) !important;
 
-  display: grid;
-  gap: calc(10px * var(--s));
-}
-
-.profileUser {
-  border-radius: calc(16px * var(--s));
-  padding: calc(10px * var(--s)) calc(12px * var(--s));
-
-  display: flex;
-  align-items: center;
-  gap: calc(12px * var(--s));
-
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 calc(10px * var(--s)) calc(24px * var(--s)) rgba(15, 23, 42, 0.08);
-}
-
-.profileUserIco svg {
-  width: calc(20px * var(--s));
-  height: calc(20px * var(--s));
-  color: rgba(107, 114, 128, 0.9);
-}
-
-.profileUserMain {
-  min-width: 0;
-  flex: 1;
-  display: grid;
-  gap: calc(4px * var(--s));
-}
-
-.profileUserName {
-  font-size: calc(13px * var(--s));
-  font-weight: 900;
-  color: rgba(31, 41, 55, 0.92);
-  overflow-wrap: anywhere;
-}
-
-.profileUserSub {
-  font-size: calc(12px * var(--s));
-  font-weight: 750;
-  color: rgba(107, 114, 128, 0.95);
-  min-width: 0;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.profileUserRight {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(10px * var(--s));
-}
-
-.profileBadges {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(8px * var(--s));
-}
-
-.profileBadge {
-  padding: calc(6px * var(--s)) calc(12px * var(--s));
-  border-radius: 999px;
-  font-size: calc(12px * var(--s));
-  font-weight: 900;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.profileBadge.is-you {
-  background: #5e8542;
-}
-
-.profileBadge.is-admin {
-  background: rgba(107, 114, 128, 0.95);
-}
-
-.profileUserActions {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(8px * var(--s));
-}
-
-.profileMiniBtn {
-  width: calc(40px * var(--s));
-  height: calc(40px * var(--s));
-  border-radius: 999px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: #ffffff;
-  box-shadow: 0 calc(10px * var(--s)) calc(24px * var(--s)) rgba(15, 23, 42, 0.08);
-
-  cursor: pointer;
-  transition: transform 160ms ease, filter 160ms ease;
-}
-
-.profileMiniBtn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.02);
-}
-
-.profileMiniBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  filter: none;
-}
-
-.profileMiniBtn.is-transfer {
-  border-color: rgba(59, 130, 246, 0.22);
-  background: rgba(59, 130, 246, 0.06);
-}
-
-.profileMiniBtn.is-remove {
-  border-color: rgba(239, 68, 68, 0.22);
-  background: rgba(239, 68, 68, 0.06);
-}
-
-.profileMiniIco {
-  width: calc(18px * var(--s));
-  height: calc(18px * var(--s));
-  color: rgba(55, 65, 81, 0.9);
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
+  flex-wrap: wrap !important;
 }
 
 /* =========================
-   EDIT COMPANY (dropdown)
+   BOTÕES (reuso)
 ========================= */
-.profileCompanyEdit {
-  width: 100%;
-  display: grid;
-  gap: calc(8px * var(--s));
+.cbpProf__btn {
+  height: var(--cbp-h-btn) !important;
+  padding: 0 calc(16px * var(--cbp-scale)) !important;
+  border-radius: var(--cbp-pill) !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  cursor: pointer !important;
+  user-select: none !important;
+
+  font-size: calc(14px * var(--cbp-scale)) !important;
+  font-weight: 950 !important;
+
+  transition: transform 160ms ease, filter 160ms ease !important;
 }
 
-.profileCompanyLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(10px * var(--s));
+.cbpProf__btn--ghost {
+  border: 1px solid var(--cbp-border-2) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  color: var(--cbp-text-0) !important;
+  box-shadow: 0 calc(10px * var(--cbp-scale)) calc(22px * var(--cbp-scale)) rgba(15, 23, 42, 0.10) !important;
 }
 
-.profileCompanyLabel {
-  font-size: calc(12px * var(--s));
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(107, 114, 128, 0.95);
+.cbpProf__btn--primary {
+  border: 1px solid rgba(94, 133, 66, 0.35) !important;
+  background: linear-gradient(180deg, var(--cbp-green-2) 0%, var(--cbp-green-3) 100%) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+
+  box-shadow:
+    0 calc(18px * var(--cbp-scale)) calc(44px * var(--cbp-scale)) rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
 
-.profileCompanyChip {
-  font-size: calc(12px * var(--s));
-  font-weight: 900;
-  color: rgba(107, 114, 128, 0.95);
-  padding: calc(6px * var(--s)) calc(10px * var(--s));
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+.cbpProf__btn:hover { transform: translateY(-1px) !important; filter: brightness(1.02) !important; }
+.cbpProf__btn:disabled { opacity: 0.7 !important; cursor: not-allowed !important; transform: none !important; filter: none !important; }
+
+/* =========================
+   MODAIS (mantidos)
+========================= */
+.cbpProf__modalOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 70000 !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  background: rgba(15, 23, 42, 0.40) !important;
+  padding: calc(18px * var(--cbp-scale)) !important;
 }
 
-.profileSelectWrap {
-  position: relative;
-  width: 100%;
-  border-radius: 999px;
-  overflow: hidden;
+.cbpProf__modal {
+  width: min(calc(540px * var(--cbp-scale)), 100%) !important;
+  border-radius: var(--cbp-r-xl) !important;
 
-  background: linear-gradient(180deg, #ffffff 15%, #f2f4f7 100%);
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  box-shadow: 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.90) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: var(--cbp-shadow-lg) !important;
 
-  cursor: pointer;
-  transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+
+  overflow: hidden !important;
 }
 
-.profileSelectWrap::after {
-  content: "";
-  position: absolute;
-  right: calc(14px * var(--s));
-  top: 50%;
-  width: calc(10px * var(--s));
-  height: calc(10px * var(--s));
+.cbpProf__modalHeader {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: calc(12px * var(--cbp-scale)) !important;
 
-  border-right: calc(3px * var(--s)) solid rgba(75, 85, 99, 0.95);
-  border-bottom: calc(3px * var(--s)) solid rgba(75, 85, 99, 0.95);
-
-  transform: translateY(-58%) rotate(45deg);
-  pointer-events: none;
-  opacity: 0.9;
+  padding: calc(14px * var(--cbp-scale)) calc(16px * var(--cbp-scale)) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12) !important;
 }
 
-.profileSelectWrap:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.01);
+.cbpProf__modalTitle { margin: 0 !important; font-size: calc(16px * var(--cbp-scale)) !important; font-weight: 1000 !important; color: var(--cbp-text-0) !important; }
+
+.cbpProf__modalClose {
+  width: var(--cbp-h-mini) !important;
+  height: var(--cbp-h-mini) !important;
+  border-radius: var(--cbp-pill) !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+  cursor: pointer !important;
 }
 
-.profileSelectWrap:focus-within {
-  box-shadow: 0 0 0 calc(4px * var(--s)) rgba(160, 234, 82, 0.20), 0 calc(10px * var(--s)) calc(22px * var(--s)) rgba(15, 23, 42, 0.06);
+.cbpProf__modalBody { padding: calc(16px * var(--cbp-scale)) !important; display: grid !important; gap: calc(12px * var(--cbp-scale)) !important; }
+
+.cbpProf__modalHint { margin: 0 !important; color: var(--cbp-text-1) !important; font-weight: 850 !important; line-height: 1.45 !important; font-size: calc(14px * var(--cbp-scale)) !important; }
+
+.cbpProf__modalLabel { display: grid !important; gap: calc(8px * var(--cbp-scale)) !important; color: var(--cbp-text-0) !important; font-weight: 900 !important; font-size: calc(14px * var(--cbp-scale)) !important; }
+
+.cbpProf__modalInput {
+  width: 100% !important;
+  height: var(--cbp-h-pill) !important;
+  padding: 0 calc(16px * var(--cbp-scale)) !important;
+
+  border-radius: var(--cbp-pill) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 100%) !important;
+
+  color: var(--cbp-text-0) !important;
+  font-size: calc(15px * var(--cbp-scale)) !important;
+  font-weight: 900 !important;
+
+  outline: none !important;
 }
 
-.profileSelect {
-  width: 100%;
-  height: calc(40px * var(--s));
-  padding: 0 calc(44px * var(--s)) 0 calc(14px * var(--s));
+.cbpProf__modalError { margin: 0 !important; color: rgba(239, 68, 68, 0.95) !important; font-weight: 900 !important; font-size: calc(13px * var(--cbp-scale)) !important; }
+.cbpProf__modalActions { display: flex !important; gap: calc(12px * var(--cbp-scale)) !important; justify-content: flex-end !important; flex-wrap: wrap !important; }
 
-  border: 0;
-  outline: none;
-  background: transparent;
-
-  color: rgba(55, 65, 81, 0.92);
-  font-size: calc(14px * var(--s));
-  font-weight: 850;
-
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  cursor: pointer;
-}
-
-.profileSelect option {
-  background: #ffffff;
-  color: rgba(31, 41, 55, 0.92);
-}
-
-.profileSelectWrap.is-loading {
-  opacity: 0.78;
-  cursor: not-allowed;
-}
-
-.profileCompanyHint {
-  color: rgba(107, 114, 128, 0.95);
-  font-weight: 750;
-  font-size: calc(12px * var(--s));
-}
-
-.profileCompanyHint.is-error {
-  color: rgba(239, 68, 68, 0.95);
+/* =========================
+   FOCO (A11Y)
+========================= */
+.cbpProf__btn:focus-visible,
+.cbpProf__miniBtn:focus-visible,
+.cbpProf__modalClose:focus-visible,
+.cbpProf__modalInput:focus-visible,
+.cbpProf__drawerClose:focus-visible,
+.cbpProf__drawerSearch:focus-visible,
+.cbpProf__pillActionBtn:focus-visible {
+  outline: 2px solid rgba(31, 41, 55, 0.55) !important;
+  outline-offset: 2px !important;
 }
 
 /* =========================
-   MODAL (NÃO ESCALADO — pra evitar quebrar overlay)
+   RESPONSIVO
 ========================= */
-.profileModalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  background: rgba(15, 23, 42, 0.55);
-  padding: 18px;
+@media (max-width: 1200px) {
+  .pg-wrap.cbpProf__wrap.cbpProf__page {
+    --cbp-scale: 1.2;
+    --cbp-card-maxw: 1120px;
+    --cbp-safe-left: 220px;
+  }
 }
 
-.profileModal {
-  width: min(540px, 100%);
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  box-shadow: 0 34px 90px rgba(15, 23, 42, 0.25);
-  overflow: hidden;
-}
-
-.profileModalHeader {
-  padding: 14px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-}
-
-.profileModalTitle {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 950;
-  color: rgba(31, 41, 55, 0.92);
-}
-
-.profileModalClose {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(15, 23, 42, 0.04);
-  cursor: pointer;
-}
-
-.profileModalClose:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.profileModalBody {
-  padding: 14px;
-  display: grid;
-  gap: 12px;
-}
-
-.profileModalHint {
-  margin: 0;
-  color: rgba(55, 65, 81, 0.88);
-  font-weight: 750;
-  line-height: 1.45;
-  font-size: 14px;
-}
-
-.profileModalLabel {
-  display: grid;
-  gap: 8px;
-  color: rgba(55, 65, 81, 0.90);
-  font-weight: 850;
-  font-size: 14px;
-}
-
-.profileModalInput {
-  width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  background: #ffffff;
-  color: rgba(31, 41, 55, 0.92);
-  font-size: 14px;
-  font-weight: 850;
-  outline: none;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
-}
-
-.profileModalInput:focus {
-  border-color: rgba(94, 133, 66, 0.45);
-  box-shadow: 0 0 0 4px rgba(160, 234, 82, 0.22), 0 10px 22px rgba(15, 23, 42, 0.06);
-}
-
-.profileModalError {
-  margin: 0;
-  color: rgba(239, 68, 68, 0.95);
-  font-weight: 900;
-  font-size: 13px;
-}
-
-.profileModalActions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-/* =========================
-   RESPONSIVO (escala desce pra não quebrar)
-========================= */
+/* ✅ Abaixo disso normalmente o sidebar colapsa: safe-left vira 0 */
 @media (max-width: 980px) {
-  .profileCard {
-    --s: 1.2;
+  .pg-wrap.cbpProf__wrap.cbpProf__page {
+    --cbp-safe-left: 0px;
+    grid-template-columns: 1fr !important;
   }
-  .profilePlanRow {
-    grid-template-columns: 1fr;
-  }
-  .profileCreditsCard {
-    min-height: 110px;
+  .cbpProf__card {
+    grid-column: 1 !important;
   }
 }
 
-@media (max-width: 720px) {
-  .profileCard {
-    --s: 1;
-    width: 100%;
+@media (max-width: 780px) {
+  .pg-wrap.cbpProf__wrap.cbpProf__page {
+    --cbp-scale: 1;
+    --cbp-card-maxw: 100%;
+    padding: 18px 14px 22px !important;
   }
 
-  .profileTop {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
+  .cbpProf__card { max-height: none !important; }
+  .cbpProf__cardBody { overflow: visible !important; }
+
+  .cbpProf__top {
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    text-align: center !important;
   }
-  .profileActions {
-    justify-content: center;
-    width: 100%;
+
+  .cbpProf__creditsMini {
+    width: 100% !important;
+    justify-content: center !important;
   }
-  .profileActionBtn {
-    width: 100%;
-  }
+
+  .cbpProf__drawerOverlay { padding: 10px !important; }
+  .cbpProf__drawer { width: 100% !important; border-radius: calc(18px * var(--cbp-scale)) !important; }
 }
 
 /* =========================
-   ACESSIBILIDADE / FOCUS
+   REDUZIR MOVIMENTO
 ========================= */
-.profileActionBtn:focus-visible,
-.profileModalClose:focus-visible,
-.profileAddUserBtn:focus-visible,
-.profileMiniBtn:focus-visible,
-.profileModalInput:focus-visible,
-.profileSelect:focus-visible {
-  outline: 2px solid rgba(94, 133, 66, 0.45);
-  outline-offset: 2px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .profileActionBtn,
-  .profileAddUserBtn,
-  .profileMiniBtn,
-  .profileSelectWrap {
-    transition: none;
+  .cbpProf__btn,
+  .cbpProf__miniBtn,
+  .cbpProf__pillActionBtn {
+    transition: none !important;
   }
-}
-/* Cinza escuro padrão da tela */
-:root {
-  --profile-gray-dark: rgba(55, 65, 81, 0.92);
-  --profile-gray-darker: rgba(31, 41, 55, 0.92);
-}
-
-/* "Usuários na Assinatura:" (estava mais claro) */
-.profileUsersTitle {
-  color: var(--profile-gray-dark) !important;
-}
-
-/* "Sua Assinatura Atual:" (estava mais claro) */
-.profileSectionTitle {
-  color: var(--profile-gray-dark) !important;
-}
-
-/* "Nenhuma assinatura vinculada." (usa .profileText) */
-.profileText {
-  color: var(--profile-gray-dark) !important;
-}
-
-/* "Créditos disponíveis" (label do KPI) */
-.profileCreditsLabelInline {
-  color: var(--profile-gray-dark) !important;
 }

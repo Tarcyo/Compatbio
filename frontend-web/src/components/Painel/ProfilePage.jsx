@@ -2,26 +2,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import "./Profile.css";
 
-function IconEdit(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M3 17.25V21h3.75L17.8 9.95l-3.75-3.75L3 17.25Zm2.92 2.83H5v-.92l8.77-8.77.92.92-8.77 8.77ZM20.71 7.04a1 1 0 0 0 0-1.41L18.37 3.29a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"
-      />
-    </svg>
-  );
-}
-function IconSave(props) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      <path
-        fill="currentColor"
-        d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6ZM6 8V5h9v3H6Z"
-      />
-    </svg>
-  );
-}
+/* ======= ÍCONES ======= */
 function IconClose(props) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
@@ -90,6 +71,7 @@ function IconPlus(props) {
   );
 }
 
+/* ======= HELPERS ======= */
 function toPositiveMoney(v) {
   const raw = String(v ?? "").trim().replace(",", ".");
   const n = Number(raw);
@@ -109,16 +91,16 @@ export default function ProfilePage() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingAssinatura, setLoadingAssinatura] = useState(true);
 
-  // empresas (dropdown)
+  // empresas (drawer)
   const [empresas, setEmpresas] = useState([]);
   const [loadingEmpresas, setLoadingEmpresas] = useState(true);
   const [errEmpresas, setErrEmpresas] = useState("");
 
-  // edição
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftEmpresaId, setDraftEmpresaId] = useState(null); // number|null
+  const [showEmpresaDrawer, setShowEmpresaDrawer] = useState(false);
+  const [empresaQuery, setEmpresaQuery] = useState("");
+  const [empresaSelecionadaId, setEmpresaSelecionadaId] = useState(null);
 
-  // UI: modais / ações
+  // UI
   const [actionBusy, setActionBusy] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -177,7 +159,6 @@ export default function ProfilePage() {
     }
   }, [API_BASE]);
 
-  // carrega /me + assinatura + empresas
   useEffect(() => {
     let alive = true;
 
@@ -204,7 +185,6 @@ export default function ProfilePage() {
 
       try {
         await Promise.all([loadAssinaturaAtual(), loadEmpresas()]);
-      } catch {
       } finally {
         if (!alive) return;
         setLoadingAssinatura(false);
@@ -217,7 +197,6 @@ export default function ProfilePage() {
     };
   }, [loadMe, loadAssinaturaAtual, loadEmpresas]);
 
-  // info do perfil
   const currentEmpresaId = useMemo(() => {
     const raw = cliente?.ID_EMPRESA;
     if (raw == null) return null;
@@ -247,7 +226,6 @@ export default function ProfilePage() {
     };
   }, [googleUser, linkedCompanyName, quantCreditos]);
 
-  // assinatura/plano
   const planoAtual = useMemo(() => {
     const plano = assinaturaData?.plano || null;
     const assinatura = assinaturaData?.assinatura || null;
@@ -314,7 +292,6 @@ export default function ProfilePage() {
     return (planoAtual.usuarios || 0) >= max;
   }, [planoAtual.has, planoAtual.maxUsuarios, planoAtual.usuarios]);
 
-  // ✅ usuários vinculados (você sempre primeiro)
   const usuariosAssinatura = useMemo(() => {
     const list = Array.isArray(assinaturaData?.clientesVinculados)
       ? assinaturaData.clientesVinculados
@@ -360,7 +337,12 @@ export default function ProfilePage() {
     return mapped;
   }, [assinaturaData, googleUser, cliente]);
 
-  // helper POST JSON
+  const empresasFiltradas = useMemo(() => {
+    const q = String(empresaQuery || "").trim().toLowerCase();
+    if (!q) return empresas;
+    return empresas.filter((e) => String(e?.NOME || "").toLowerCase().includes(q));
+  }, [empresas, empresaQuery]);
+
   async function postJson(path, body) {
     const res = await fetch(`${API_BASE}${path}`, {
       method: "POST",
@@ -377,42 +359,38 @@ export default function ProfilePage() {
     return data;
   }
 
-  // ======= editar empresa (dropdown) =======
-
-  const startEdit = () => {
-    setDraftEmpresaId(currentEmpresaId ?? null);
-    setIsEditing(true);
+  const openEmpresaDrawer = () => {
+    setEmpresaQuery("");
+    setEmpresaSelecionadaId(currentEmpresaId ?? null);
+    setShowEmpresaDrawer(true);
   };
 
-  const cancelEdit = () => {
-    setDraftEmpresaId(currentEmpresaId ?? null);
-    setIsEditing(false);
+  const closeEmpresaDrawer = () => {
+    if (actionBusy) return;
+    setShowEmpresaDrawer(false);
   };
 
-  // ✅ ALTERADO: ao salvar, recarrega a página
-  const saveEdit = async () => {
+  // ✅ ALTERAÇÃO AQUI: ao salvar, recarrega a página (reload)
+  const saveEmpresa = async () => {
     const before = currentEmpresaId ?? null;
-    const after = draftEmpresaId ?? null;
+    const after = empresaSelecionadaId ?? null;
 
     setActionBusy(true);
     try {
       if (String(before ?? "") !== String(after ?? "")) {
         await postJson("/api/cliente/empresa", { idEmpresa: after });
-        await loadMe();
       }
 
-      // Recarrega a página ao clicar em "Salvar" (mesmo se não houve mudança)
+      setShowEmpresaDrawer(false);
+
+      // Recarrega a página após salvar
       window.location.reload();
     } catch (e) {
       alert(e?.message || "Erro ao atualizar empresa.");
     } finally {
-      // caso o reload seja bloqueado por algum motivo, garantimos estado consistente
-      setIsEditing(false);
       setActionBusy(false);
     }
   };
-
-  // ======= ações admin assinatura =======
 
   const openAdd = () => {
     setAddEmail("");
@@ -493,17 +471,15 @@ export default function ProfilePage() {
     }
   };
 
-  // ======= render =======
-
   if (loadingUser) {
     return (
-      <div className="pg-wrap">
-        <section className="pg-card profileCard">
-          <header className="profileCardHeader">
-            <h1 className="profileCardTitle">Perfil</h1>
+      <div className="pg-wrap cbpProf__wrap cbpProf__page">
+        <section className="pg-card cbpProf__card">
+          <header className="cbpProf__cardHeader">
+            <h1 className="cbpProf__cardTitle">Perfil</h1>
           </header>
-          <div className="profileCardBody">
-            <p className="profileText">Carregando dados...</p>
+          <div className="cbpProf__cardBody">
+            <p className="cbpProf__text">Carregando dados...</p>
           </div>
         </section>
       </div>
@@ -512,16 +488,14 @@ export default function ProfilePage() {
 
   if (!googleUser) {
     return (
-      <div className="pg-wrap">
-        <section className="pg-card profileCard">
-          <header className="profileCardHeader">
-            <h1 className="profileCardTitle">Perfil</h1>
+      <div className="pg-wrap cbpProf__wrap cbpProf__page">
+        <section className="pg-card cbpProf__card">
+          <header className="cbpProf__cardHeader">
+            <h1 className="cbpProf__cardTitle">Perfil</h1>
           </header>
-          <div className="profileCardBody">
-            <p className="profileText">
-              Não autenticado. Faça login com Google novamente.
-            </p>
-            <pre className="profileText" style={{ opacity: 0.8 }}>
+          <div className="cbpProf__cardBody">
+            <p className="cbpProf__text">Não autenticado. Faça login com Google novamente.</p>
+            <pre className="cbpProf__text" style={{ opacity: 0.8 }}>
               GET {API_BASE}/me retornou 401/erro
             </pre>
           </div>
@@ -531,191 +505,127 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="pg-wrap">
-      <section className="pg-card profileCard">
-        <header className="profileCardHeader">
-          <h1 className="profileCardTitle">Perfil</h1>
+    <div className="pg-wrap cbpProf__wrap cbpProf__page">
+      <section className="pg-card cbpProf__card">
+        <header className="cbpProf__cardHeader">
+          <h1 className="cbpProf__cardTitle">Perfil</h1>
         </header>
 
-        <div className="profileCardBody">
-          <div className="profileTop">
+        <div className="cbpProf__cardBody">
+          <div className="cbpProf__top">
             <img
-              className="profileAvatar"
+              className="cbpProf__avatar"
               src={profile.avatarUrl || "https://via.placeholder.com/132"}
               alt="Foto do perfil"
               referrerPolicy="no-referrer"
             />
 
-            <div className="profileInfo">
-              <div className="profileTitleRow">
-                <h2 className="profileName">{profile.name}</h2>
+            <div className="cbpProf__info">
+              <div className="cbpProf__titleRow">
+                <h2 className="cbpProf__name">{profile.name}</h2>
 
-                <div className="profileActions">
-                  {!isEditing ? (
-                    <button
-                      type="button"
-                      className="profileActionBtn"
-                      onClick={startEdit}
-                      disabled={actionBusy}
-                    >
-                      <IconEdit className="profileActionIco" />
-                      Editar perfil
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        className="profileActionBtn is-primary"
-                        onClick={saveEdit}
-                        disabled={actionBusy}
-                      >
-                        <IconSave className="profileActionIco" />
-                        {actionBusy ? "Salvando..." : "Salvar"}
-                      </button>
-                      <button
-                        type="button"
-                        className="profileActionBtn is-ghost"
-                        onClick={cancelEdit}
-                        disabled={actionBusy}
-                      >
-                        <IconClose className="profileActionIco" />
-                        Cancelar
-                      </button>
-                    </>
-                  )}
+                <div
+                  className="cbpProf__creditsMini"
+                  role="status"
+                  aria-label="Créditos disponíveis"
+                  title="Créditos disponíveis"
+                >
+                  <IconCoins className="cbpProf__creditsMiniIco" />
+                  <span className="cbpProf__creditsMiniLabel">Créditos</span>
+                  <span className="cbpProf__creditsMiniValue">
+                    {profile.credits == null ? "—" : formatCredits.format(profile.credits)}
+                  </span>
                 </div>
               </div>
 
-              <div className="profileMeta">
-                <div className="profileRow">
-                  <span className="profileIco" aria-hidden="true">
+              <div className="cbpProf__meta">
+                <div className="cbpProf__pill">
+                  <span className="cbpProf__pillIco" aria-hidden="true">
                     <IconMail />
                   </span>
-                  <span className="profileText">{profile.email || "—"}</span>
+                  <span className="cbpProf__pillText">{profile.email || "—"}</span>
                 </div>
 
-                <div className="profileRow">
-                  <span className="profileIco" aria-hidden="true">
+                <div className="cbpProf__pill cbpProf__pill--company">
+                  <span className="cbpProf__pillIco" aria-hidden="true">
                     <IconHome />
                   </span>
 
-                  {!isEditing ? (
-                    <span className="profileText">{profile.company}</span>
-                  ) : (
-                    <div className="profileCompanyEdit">
-                      <div className="profileCompanyLabelRow">
-                        <span className="profileCompanyLabel">Empresa vinculada</span>
-                        <span className="profileCompanyChip" aria-hidden="true">
-                          selecionar ▼
-                        </span>
-                      </div>
+                  <div className="cbpProf__pillRow">
+                    <span className="cbpProf__pillText">{profile.company}</span>
 
-                      <div
-                        className={`profileSelectWrap ${
-                          loadingEmpresas ? "is-loading" : ""
-                        }`}
-                      >
-                        <select
-                          className="profileSelect"
-                          value={draftEmpresaId == null ? "" : String(draftEmpresaId)}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            setDraftEmpresaId(v ? Number(v) : null);
-                          }}
-                          disabled={actionBusy || loadingEmpresas}
-                          title="Clique para selecionar uma empresa"
-                        >
-                          <option value="">
-                            {loadingEmpresas
-                              ? "Carregando empresas..."
-                              : "— Sem empresa —"}
-                          </option>
-
-                          {empresas.map((emp) => (
-                            <option key={emp.ID} value={String(emp.ID)}>
-                              {emp.NOME}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {errEmpresas ? (
-                        <small className="profileCompanyHint is-error">
-                          {errEmpresas}
-                        </small>
-                      ) : (
-                        <small className="profileCompanyHint">
-                          Clique no campo acima para abrir a lista.
-                        </small>
-                      )}
-                    </div>
-                  )}
+                    <button
+                      type="button"
+                      className="cbpProf__pillActionBtn"
+                      onClick={openEmpresaDrawer}
+                      disabled={actionBusy}
+                      title="Alterar empresa"
+                      aria-label="Alterar empresa"
+                    >
+                      Alterar
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="profileDivider" />
+          <div className="cbpProf__divider" />
 
-          <div className="profileSection">
-            <h3 className="profileSectionTitle">Sua Assinatura Atual:</h3>
+          <div className="cbpProf__section">
+            <h3 className="cbpProf__sectionTitle">Sua Assinatura Atual:</h3>
 
             {loadingAssinatura ? (
-              <p className="profileText" style={{ opacity: 0.85 }}>
+              <p className="cbpProf__text" style={{ opacity: 0.9 }}>
                 Carregando assinatura...
               </p>
             ) : (
-              <div className="profilePlanRow">
-                <div className="profileCurrentPlanCard" role="status">
-                  <div className="profileCurrentPlanTop">
-                    <span className="profileCurrentPlanBadge">
-                      <IconCheckCircle className="profileCurrentPlanBadgeIco" />
+              <div className="cbpProf__planRow">
+                <div className="cbpProf__panel" role="status">
+                  <div className="cbpProf__badgeRow">
+                    <span className="cbpProf__badge">
+                      <IconCheckCircle className="cbpProf__badgeIco" />
                       {planoAtual.badge}
                     </span>
                   </div>
 
-                  <h4 className="profileCurrentPlanTitle">{planoAtual.nome}</h4>
+                  <h4 className="cbpProf__panelTitle">{planoAtual.nome}</h4>
 
-                  <ul className="profileCurrentPlanList">
-                    <li className="profileCurrentPlanItem">
-                      <IconCheckCircle className="profileCurrentPlanCheck" />
+                  <ul className="cbpProf__panelList">
+                    <li className="cbpProf__panelItem">
+                      <IconCheckCircle className="cbpProf__checkIco" />
                       <span>
                         Status:{" "}
-                        <strong className={planoAtual.isAtiva ? "is-ok" : "is-warn"}>
+                        <strong className={planoAtual.isAtiva ? "cbpProf__ok" : "cbpProf__warn"}>
                           {planoAtual.status}
                         </strong>
                       </span>
                     </li>
 
-                    <li className="profileCurrentPlanItem">
-                      <IconCheckCircle className="profileCurrentPlanCheck" />
+                    <li className="cbpProf__panelItem">
+                      <IconCheckCircle className="cbpProf__checkIco" />
                       <span>
                         Créditos/mês:{" "}
                         <strong>
-                          {planoAtual.creditosMes == null
-                            ? "—"
-                            : formatCredits.format(planoAtual.creditosMes)}
+                          {planoAtual.creditosMes == null ? "—" : formatCredits.format(planoAtual.creditosMes)}
                         </strong>
                       </span>
                     </li>
 
-                    <li className="profileCurrentPlanItem">
-                      <IconCheckCircle className="profileCurrentPlanCheck" />
+                    <li className="cbpProf__panelItem">
+                      <IconCheckCircle className="cbpProf__checkIco" />
                       <span>
                         Usuários na assinatura:{" "}
                         <strong>
                           ({formatCredits.format(planoAtual.usuarios || 0)} de{" "}
-                          {planoAtual.maxUsuarios == null
-                            ? "—"
-                            : formatCredits.format(planoAtual.maxUsuarios)}
-                          )
+                          {planoAtual.maxUsuarios == null ? "—" : formatCredits.format(planoAtual.maxUsuarios)})
                         </strong>
                       </span>
                     </li>
 
                     {planoAtual.dono ? (
-                      <li className="profileCurrentPlanItem">
-                        <IconCheckCircle className="profileCurrentPlanCheck" />
+                      <li className="cbpProf__panelItem">
+                        <IconCheckCircle className="cbpProf__checkIco" />
                         <span>
                           Dono: <strong>{planoAtual.dono}</strong>
                         </span>
@@ -723,111 +633,97 @@ export default function ProfilePage() {
                     ) : null}
                   </ul>
                 </div>
-
-                <div
-                  className="profileCreditsCard"
-                  role="status"
-                  aria-label="Créditos disponíveis"
-                  title="Créditos disponíveis na sua conta"
-                >
-                  <div className="profileCreditsRow">
-                    <span className="profileCreditsLabelInline">Créditos disponíveis</span>
-
-                    <span className="profileCreditsStat">
-                      <IconCoins className="profileCreditsIcon" />
-                      <span className="profileCreditsNumber">
-                        {profile.credits == null ? "—" : formatCredits.format(profile.credits)}
-                      </span>
-                    </span>
-                  </div>
-                </div>
               </div>
             )}
           </div>
 
-          <div className="profileUsers">
-            <div className="profileUsersHeader">
-              <p className="profileUsersTitle">Usuários na Assinatura:</p>
+          <div className="cbpProf__users">
+            <div className="cbpProf__usersHeader">
+              <p className="cbpProf__usersTitle">Usuários na Assinatura:</p>
 
               {planoAtual.has && isAssinaturaAdmin ? (
                 <button
                   type="button"
-                  className="profileAddUserBtn"
-                  onClick={openAdd}
+                  className="cbpProf__miniBtn"
+                  onClick={() => {
+                    setAddEmail("");
+                    setAddErr("");
+                    setShowAddModal(true);
+                  }}
                   disabled={actionBusy || assinaturaCheia}
-                  title={
-                    assinaturaCheia
-                      ? "Limite de usuários do plano atingido"
-                      : "Adicionar cliente à assinatura"
-                  }
+                  title={assinaturaCheia ? "Limite de usuários do plano atingido" : "Adicionar cliente à assinatura"}
                   aria-label="Adicionar cliente à assinatura"
                 >
-                  <IconPlus className="profileAddUserIco" />
+                  <IconPlus className="cbpProf__miniIco" />
                 </button>
               ) : null}
             </div>
 
             {!planoAtual.has ? (
-              <p className="profileText" style={{ opacity: 0.8 }}>
+              <p className="cbpProf__text" style={{ opacity: 0.92 }}>
                 Nenhuma assinatura vinculada.
               </p>
             ) : usuariosAssinatura.length === 0 ? (
-              <p className="profileText" style={{ opacity: 0.8 }}>
+              <p className="cbpProf__text" style={{ opacity: 0.92 }}>
                 Nenhum usuário vinculado.
               </p>
             ) : (
-              <ul className="profileUsersList">
+              <ul className="cbpProf__usersList">
                 {usuariosAssinatura.map((u) => (
-                  <li key={u.id} className="profileUser">
-                    <span className="profileUserIco" aria-hidden="true">
+                  <li key={u.id} className="cbpProf__user">
+                    <span className="cbpProf__userIco" aria-hidden="true">
                       <IconUser />
                     </span>
 
-                    <div className="profileUserMain">
-                      <span className="profileUserName" title={u.email || u.name}>
+                    <div className="cbpProf__userMain">
+                      <span className="cbpProf__userName" title={u.email || u.name}>
                         {u.name}
                       </span>
 
-                      <span className="profileUserSub" title={u.email}>
-                        {u.email || "—"}
-                        {" • "}
-                        <strong>
-                          {u.credits == null ? "—" : formatCredits.format(u.credits)} créditos
-                        </strong>
+                      <span className="cbpProf__userSub" title={u.email}>
+                        {u.email || "—"} {" • "}
+                        <strong>{u.credits == null ? "—" : formatCredits.format(u.credits)} créditos</strong>
                       </span>
                     </div>
 
-                    <div className="profileUserRight">
+                    <div className="cbpProf__userRight">
                       {u.isYou || u.isAdmin ? (
-                        <span className="profileBadges">
-                          {u.isYou ? <span className="profileBadge is-you">você</span> : null}
-                          {u.isAdmin ? <span className="profileBadge is-admin">admin</span> : null}
+                        <span className="cbpProf__badges">
+                          {u.isYou ? <span className="cbpProf__badgePill cbpProf__badgePill--you">você</span> : null}
+                          {u.isAdmin ? (
+                            <span className="cbpProf__badgePill cbpProf__badgePill--admin">admin</span>
+                          ) : null}
                         </span>
                       ) : null}
 
                       {isAssinaturaAdmin && !u.isYou ? (
-                        <div className="profileUserActions">
+                        <div className="cbpProf__userActions">
                           <button
                             type="button"
-                            className="profileMiniBtn is-transfer"
-                            onClick={() => openTransfer(u)}
+                            className="cbpProf__miniBtn cbpProf__miniBtn--transfer"
+                            onClick={() => {
+                              setTransferTarget(u);
+                              setTransferValue("1");
+                              setTransferErr("");
+                              setShowTransferModal(true);
+                            }}
                             disabled={actionBusy}
                             title="Transferir créditos"
                             aria-label={`Transferir créditos para ${u.name}`}
                           >
-                            <IconCoins className="profileMiniIco" />
+                            <IconCoins className="cbpProf__miniIco" />
                           </button>
 
                           {!u.isAdmin ? (
                             <button
                               type="button"
-                              className="profileMiniBtn is-remove"
+                              className="cbpProf__miniBtn cbpProf__miniBtn--remove"
                               onClick={() => askRemove(u)}
                               disabled={actionBusy}
                               title="Remover da assinatura"
                               aria-label={`Remover ${u.name} da assinatura`}
                             >
-                              <IconClose className="profileMiniIco" />
+                              <IconClose className="cbpProf__miniIco" />
                             </button>
                           ) : null}
                         </div>
@@ -841,10 +737,117 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* ===== MODAL: Adicionar cliente ===== */}
+      {/* DRAWER */}
+      {showEmpresaDrawer ? (
+        <div
+          className="cbpProf__drawerOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Selecionar empresa"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) closeEmpresaDrawer();
+          }}
+        >
+          <aside className="cbpProf__drawer" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="cbpProf__drawerHeader">
+              <div className="cbpProf__drawerTitleWrap">
+                <h3 className="cbpProf__drawerTitle">Empresa</h3>
+                <p className="cbpProf__drawerSubtitle">Selecione a empresa vinculada ao seu perfil.</p>
+              </div>
+
+              <button
+                type="button"
+                className="cbpProf__drawerClose"
+                onClick={closeEmpresaDrawer}
+                disabled={actionBusy}
+                aria-label="Fechar"
+                title="Fechar"
+              >
+                <IconClose className="cbpProf__miniIco" />
+              </button>
+            </div>
+
+            <div className="cbpProf__drawerBody">
+              <input
+                className="cbpProf__drawerSearch"
+                placeholder="Buscar empresa..."
+                value={empresaQuery}
+                onChange={(e) => setEmpresaQuery(e.target.value)}
+                disabled={actionBusy || loadingEmpresas}
+              />
+
+              {loadingEmpresas ? (
+                <p className="cbpProf__text" style={{ opacity: 0.9 }}>
+                  Carregando empresas...
+                </p>
+              ) : errEmpresas ? (
+                <p className="cbpProf__drawerError">{errEmpresas}</p>
+              ) : (empresasFiltradas?.length || 0) === 0 ? (
+                <p className="cbpProf__text" style={{ opacity: 0.9 }}>
+                  Nenhuma empresa encontrada.
+                </p>
+              ) : (
+                <ul className="cbpProf__drawerList">
+                  <li className="cbpProf__drawerItem">
+                    <label className="cbpProf__drawerItemLabel">
+                      <input
+                        type="radio"
+                        name="empresa"
+                        checked={empresaSelecionadaId == null}
+                        onChange={() => setEmpresaSelecionadaId(null)}
+                        disabled={actionBusy}
+                      />
+                      <span className="cbpProf__drawerItemText">
+                        <strong>— Sem empresa —</strong>
+                      </span>
+                    </label>
+                  </li>
+
+                  {empresasFiltradas.map((emp) => (
+                    <li key={emp.ID} className="cbpProf__drawerItem">
+                      <label className="cbpProf__drawerItemLabel">
+                        <input
+                          type="radio"
+                          name="empresa"
+                          checked={String(empresaSelecionadaId ?? "") === String(emp.ID)}
+                          onChange={() => setEmpresaSelecionadaId(Number(emp.ID))}
+                          disabled={actionBusy}
+                        />
+                        <span className="cbpProf__drawerItemText">{emp.NOME}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="cbpProf__drawerFooter">
+              <button
+                type="button"
+                className="cbpProf__btn cbpProf__btn--ghost"
+                onClick={closeEmpresaDrawer}
+                disabled={actionBusy}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="cbpProf__btn cbpProf__btn--primary"
+                onClick={saveEmpresa}
+                disabled={actionBusy}
+              >
+                {actionBusy ? "Salvando..." : "Salvar"}
+              </button>
+            </div>
+          </aside>
+        </div>
+      ) : null}
+
+      {/* MODAL ADD */}
       {showAddModal ? (
         <div
-          className="profileModalOverlay"
+          className="cbpProf__modalOverlay"
           role="dialog"
           aria-modal="true"
           aria-label="Adicionar cliente à assinatura"
@@ -852,28 +855,27 @@ export default function ProfilePage() {
             if (e.target === e.currentTarget && !actionBusy) setShowAddModal(false);
           }}
         >
-          <div className="profileModal">
-            <div className="profileModalHeader">
-              <h3 className="profileModalTitle">Adicionar cliente</h3>
+          <div className="cbpProf__modal">
+            <div className="cbpProf__modalHeader">
+              <h3 className="cbpProf__modalTitle">Adicionar cliente</h3>
               <button
                 type="button"
-                className="profileModalClose"
+                className="cbpProf__modalClose"
                 onClick={() => setShowAddModal(false)}
                 disabled={actionBusy}
                 aria-label="Fechar"
               >
-                <IconClose className="profileMiniIco" />
+                <IconClose className="cbpProf__miniIco" />
               </button>
             </div>
 
-            <div className="profileModalBody">
-              <p className="profileModalHint">
-                Informe o e-mail do cliente que ainda <strong>não</strong> esteja vinculado a
-                nenhuma assinatura.
+            <div className="cbpProf__modalBody">
+              <p className="cbpProf__modalHint">
+                Informe o e-mail do cliente que ainda <strong>não</strong> esteja vinculado a nenhuma assinatura.
               </p>
 
               <input
-                className="profileModalInput"
+                className="cbpProf__modalInput"
                 type="email"
                 placeholder="email@exemplo.com"
                 value={addEmail}
@@ -881,12 +883,12 @@ export default function ProfilePage() {
                 disabled={actionBusy}
               />
 
-              {addErr ? <p className="profileModalError">{addErr}</p> : null}
+              {addErr ? <p className="cbpProf__modalError">{addErr}</p> : null}
 
-              <div className="profileModalActions">
+              <div className="cbpProf__modalActions">
                 <button
                   type="button"
-                  className="profileActionBtn is-ghost"
+                  className="cbpProf__btn cbpProf__btn--ghost"
                   onClick={() => setShowAddModal(false)}
                   disabled={actionBusy}
                 >
@@ -895,7 +897,7 @@ export default function ProfilePage() {
 
                 <button
                   type="button"
-                  className="profileActionBtn is-primary"
+                  className="cbpProf__btn cbpProf__btn--primary"
                   onClick={submitAdd}
                   disabled={actionBusy}
                 >
@@ -907,10 +909,10 @@ export default function ProfilePage() {
         </div>
       ) : null}
 
-      {/* ===== MODAL: Transferir créditos ===== */}
+      {/* MODAL TRANSFER */}
       {showTransferModal ? (
         <div
-          className="profileModalOverlay"
+          className="cbpProf__modalOverlay"
           role="dialog"
           aria-modal="true"
           aria-label="Transferir créditos"
@@ -918,29 +920,29 @@ export default function ProfilePage() {
             if (e.target === e.currentTarget && !actionBusy) setShowTransferModal(false);
           }}
         >
-          <div className="profileModal">
-            <div className="profileModalHeader">
-              <h3 className="profileModalTitle">Transferir créditos</h3>
+          <div className="cbpProf__modal">
+            <div className="cbpProf__modalHeader">
+              <h3 className="cbpProf__modalTitle">Transferir créditos</h3>
               <button
                 type="button"
-                className="profileModalClose"
+                className="cbpProf__modalClose"
                 onClick={() => setShowTransferModal(false)}
                 disabled={actionBusy}
                 aria-label="Fechar"
               >
-                <IconClose className="profileMiniIco" />
+                <IconClose className="cbpProf__miniIco" />
               </button>
             </div>
 
-            <div className="profileModalBody">
-              <p className="profileModalHint">
+            <div className="cbpProf__modalBody">
+              <p className="cbpProf__modalHint">
                 Destino: <strong>{transferTarget?.name || "—"}</strong>
               </p>
 
-              <label className="profileModalLabel">
+              <label className="cbpProf__modalLabel">
                 Valor
                 <input
-                  className="profileModalInput"
+                  className="cbpProf__modalInput"
                   inputMode="decimal"
                   placeholder="Ex: 5"
                   value={transferValue}
@@ -949,12 +951,12 @@ export default function ProfilePage() {
                 />
               </label>
 
-              {transferErr ? <p className="profileModalError">{transferErr}</p> : null}
+              {transferErr ? <p className="cbpProf__modalError">{transferErr}</p> : null}
 
-              <div className="profileModalActions">
+              <div className="cbpProf__modalActions">
                 <button
                   type="button"
-                  className="profileActionBtn is-ghost"
+                  className="cbpProf__btn cbpProf__btn--ghost"
                   onClick={() => setShowTransferModal(false)}
                   disabled={actionBusy}
                 >
@@ -963,7 +965,7 @@ export default function ProfilePage() {
 
                 <button
                   type="button"
-                  className="profileActionBtn is-primary"
+                  className="cbpProf__btn cbpProf__btn--primary"
                   onClick={submitTransfer}
                   disabled={actionBusy}
                 >
